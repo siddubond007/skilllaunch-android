@@ -330,6 +330,12 @@ private fun OutlinedProfileField(
                 focused = it.isFocused
             },
         label = { Text(label) },
+        contentPadding = androidx.compose.foundation.layout.PaddingValues(
+            start = 18.dp,
+            top = 12.dp,
+            end = 18.dp,
+            bottom = 12.dp
+        ),
         singleLine = singleLine,
         minLines = minLines,
         supportingText = supportingText?.let { text ->
