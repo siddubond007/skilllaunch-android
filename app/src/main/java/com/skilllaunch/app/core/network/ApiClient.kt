@@ -3,6 +3,7 @@
 import com.skilllaunch.app.BuildConfig
 import com.skilllaunch.app.core.session.SessionStore
 import com.skilllaunch.app.data.api.AuthApi
+import com.skilllaunch.app.data.api.UserApi
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
@@ -13,6 +14,16 @@ object ApiClient {
     private const val DEVELOPMENT_BASE_URL = "http://127.0.0.1:5000/api/"
 
     fun authApi(sessionStore: SessionStore): AuthApi {
+        return createRetrofit(sessionStore)
+            .create(AuthApi::class.java)
+    }
+
+    fun userApi(sessionStore: SessionStore): UserApi {
+        return createRetrofit(sessionStore)
+            .create(UserApi::class.java)
+    }
+
+    private fun createRetrofit(sessionStore: SessionStore): Retrofit {
         val loggingInterceptor = HttpLoggingInterceptor().apply {
             level = if (BuildConfig.DEBUG) {
                 HttpLoggingInterceptor.Level.BASIC
@@ -31,6 +42,5 @@ object ApiClient {
             .client(okHttpClient)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
-            .create(AuthApi::class.java)
     }
 }

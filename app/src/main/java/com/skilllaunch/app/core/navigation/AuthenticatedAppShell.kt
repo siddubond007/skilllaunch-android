@@ -11,7 +11,6 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
@@ -25,7 +24,9 @@ import androidx.navigation3.runtime.NavEntry
 import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.ui.NavDisplay
 import com.skilllaunch.app.data.model.auth.AuthUser
+import com.skilllaunch.app.data.repository.profile.ProfileRepository
 import com.skilllaunch.app.feature.home.HomeScreen
+import com.skilllaunch.app.feature.profile.ProfileScreen
 import java.util.Locale
 
 sealed interface AppDestination : NavKey {
@@ -48,6 +49,7 @@ private val shellDestinations = listOf(
 @Composable
 fun AuthenticatedAppShell(
     user: AuthUser,
+    profileRepository: ProfileRepository,
     onLogout: () -> Unit
 ) {
     val backStack = remember {
@@ -68,17 +70,19 @@ fun AuthenticatedAppShell(
 
     Scaffold(
         topBar = {
-            CenterAlignedTopAppBar(
-                title = {
-                    Text(
-                        text = "SkillLaunch",
-                        style = MaterialTheme.typography.titleLarge
+            if (current != AppDestination.Profile) {
+                CenterAlignedTopAppBar(
+                    title = {
+                        Text(
+                            text = "SkillLaunch",
+                            style = MaterialTheme.typography.titleLarge
+                        )
+                    },
+                    colors = TopAppBarDefaults.topAppBarColors(
+                        containerColor = MaterialTheme.colorScheme.background
                     )
-                },
-                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.background
                 )
-            )
+            }
         },
         bottomBar = {
             NavigationBar {
@@ -134,8 +138,9 @@ fun AuthenticatedAppShell(
                     }
 
                     AppDestination.Profile -> NavEntry(key) {
-                        ProfileShell(
+                        ProfileScreen(
                             user = user,
+                            repository = profileRepository,
                             onLogout = onLogout
                         )
                     }
@@ -158,7 +163,8 @@ private fun ShellEmptyState(
         contentAlignment = Alignment.Center
     ) {
         Column(
-            horizontalAlignment = Alignment.CenterHorizontally
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
         ) {
             Text(
                 text = title,
@@ -238,3 +244,4 @@ private fun destinationGlyph(destination: AppDestination): String = when (destin
     AppDestination.Chat -> "◌"
     AppDestination.Profile -> "○"
 }
+

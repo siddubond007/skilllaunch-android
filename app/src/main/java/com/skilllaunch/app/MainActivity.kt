@@ -26,6 +26,7 @@ import com.skilllaunch.app.core.navigation.AuthenticatedAppShell
 import com.skilllaunch.app.core.network.ApiClient
 import com.skilllaunch.app.core.session.SessionStore
 import com.skilllaunch.app.data.repository.auth.AuthRepository
+import com.skilllaunch.app.data.repository.profile.ProfileRepository
 import com.skilllaunch.app.feature.auth.AuthViewModel
 import com.skilllaunch.app.feature.auth.LoginScreen
 import com.skilllaunch.app.feature.auth.SignupScreen
@@ -57,10 +58,20 @@ private fun SkillLaunchRoot() {
         ApiClient.authApi(sessionStore)
     }
 
+    val userApi = remember(sessionStore) {
+        ApiClient.userApi(sessionStore)
+    }
+
     val authRepository = remember(authApi, sessionStore) {
         AuthRepository(
             authApi = authApi,
             sessionStore = sessionStore
+        )
+    }
+
+    val profileRepository = remember(userApi) {
+        ProfileRepository(
+            userApi = userApi
         )
     }
 
@@ -83,6 +94,7 @@ private fun SkillLaunchRoot() {
             state.isAuthenticated && state.user != null -> {
                 AuthenticatedAppShell(
                     user = state.user!!,
+                    profileRepository = profileRepository,
                     onLogout = authViewModel::logout
                 )
             }
