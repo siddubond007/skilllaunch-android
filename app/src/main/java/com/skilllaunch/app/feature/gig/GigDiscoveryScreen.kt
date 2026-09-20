@@ -198,7 +198,7 @@ private fun GigCard(
                 Text(
                     text = description
                         .replace(Regex("<[^>]*>"), " ")
-                        .replace(Regex("\s+"), " ")
+                        .replace(Regex("[[:space:]]+"), " ")
                         .trim()
                         .take(180)
                         .let { text -> if (text.length == 180) text + "…" else text },
