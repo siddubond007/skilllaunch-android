@@ -22,6 +22,9 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -63,10 +66,24 @@ fun ProfileScreen(
 
     val profileViewModel: ProfileViewModel = viewModel(factory = factory)
     val uiState by profileViewModel.uiState.collectAsState()
+    val snackbarHostState = remember { SnackbarHostState() }
     var moreMenuExpanded by remember { mutableStateOf(false) }
 
     LaunchedEffect(user.id) {
+
         user.id?.let(profileViewModel::loadProfile)
+    }
+
+    LaunchedEffect(uiState.successMessage) {
+        val message = uiState.successMessage
+        if (!message.isNullOrBlank()) {
+            snackbarHostState.showSnackbar(
+                message = message,
+                actionLabel = "Dismiss",
+                duration = SnackbarDuration.Short
+            )
+            profileViewModel.clearMessages()
+        }
     }
 
     Surface(
@@ -75,6 +92,9 @@ fun ProfileScreen(
     ) {
         Scaffold(
             containerColor = MaterialTheme.colorScheme.background,
+            snackbarHost = {
+                SnackbarHost(hostState = snackbarHostState)
+            },
             topBar = {
                 TopAppBar(
                     title = { Text("Profile") },
@@ -276,15 +296,6 @@ private fun ProfileContent(
             TextButton(onClick = onClearMessages) { Text("Dismiss") }
         }
 
-        uiState.successMessage?.let { message ->
-            Text(
-                text = message,
-                color = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.padding(horizontal = 2.dp)
-            )
-            TextButton(onClick = onClearMessages) { Text("Dismiss") }
-        }
-
         Spacer(modifier = Modifier.height(12.dp))
     }
 }
@@ -326,7 +337,10 @@ private fun OutlinedProfileField(
                 Text(
                     text = text,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.padding(bottom = 4.dp)
+                    modifier = Modifier.padding(
+                        top = 2.dp,
+                        bottom = 12.dp
+                    )
                 )
             }
         }
