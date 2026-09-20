@@ -3,7 +3,6 @@
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
@@ -20,7 +19,6 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import androidx.navigation3.runtime.NavEntry
 import androidx.navigation3.runtime.NavKey
@@ -58,7 +56,6 @@ fun AuthenticatedAppShell(
         mutableStateListOf<AppDestination>(AppDestination.Home)
     }
     val current = backStack.lastOrNull() ?: AppDestination.Home
-    val imeVisible = WindowInsets.ime.getBottom(LocalDensity.current) > 0
 
     fun openDestination(destination: AppDestination) {
         if (destination == AppDestination.Home) {
@@ -88,7 +85,7 @@ fun AuthenticatedAppShell(
             }
         },
         bottomBar = {
-            if (!imeVisible) {
+            if (current != AppDestination.Profile) {
                 NavigationBar {
                     shellDestinations.forEach { destination ->
                         NavigationBarItem(
