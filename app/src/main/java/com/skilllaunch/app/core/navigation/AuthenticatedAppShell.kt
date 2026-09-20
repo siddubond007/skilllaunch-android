@@ -16,6 +16,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -56,8 +57,11 @@ fun AuthenticatedAppShell(
         mutableStateListOf<AppDestination>(AppDestination.Home)
     }
     val current = backStack.lastOrNull() ?: AppDestination.Home
+    val profileEditing = remember { mutableStateOf(false) }
 
     fun openDestination(destination: AppDestination) {
+        profileEditing.value = false
+
         if (destination == AppDestination.Home) {
             backStack.clear()
             backStack.add(AppDestination.Home)
@@ -85,28 +89,33 @@ fun AuthenticatedAppShell(
             }
         },
         bottomBar = {
-            NavigationBar {
-                shellDestinations.forEach { destination ->
-                    NavigationBarItem(
-                        selected = current == destination,
-                        onClick = { openDestination(destination) },
-                        icon = {
-                            Text(
-                                text = destinationGlyph(destination),
-                                style = MaterialTheme.typography.titleMedium
-                            )
-                        },
-                        label = {
-                            Text(destinationTitle(destination))
-                        }
-                    )
+            if (!profileEditing.value) {
+                NavigationBar {
+                    shellDestinations.forEach { destination ->
+                        NavigationBarItem(
+                            selected = current == destination,
+                            onClick = { openDestination(destination) },
+                            icon = {
+                                Text(
+                                    text = destinationGlyph(destination),
+                                    style = MaterialTheme.typography.titleMedium
+                                )
+                            },
+                            label = {
+                                Text(destinationTitle(destination))
+                            }
+                        )
+                    }
                 }
             }
         }
     ) { innerPadding ->
         NavDisplay(
             backStack = backStack,
-            onBack = { backStack.removeLastOrNull() },
+            onBack = {
+                profileEditing.value = false
+                backStack.removeLastOrNull()
+            },
             entryProvider = { key ->
                 when (key) {
                     AppDestination.Home -> NavEntry(key) {
@@ -141,7 +150,8 @@ fun AuthenticatedAppShell(
                         ProfileScreen(
                             user = user,
                             repository = profileRepository,
-                            onLogout = onLogout
+                            onLogout = onLogout,
+                            onEditingStateChange = { profileEditing.value = it }
                         )
                     }
                 }
@@ -244,4 +254,3 @@ private fun destinationGlyph(destination: AppDestination): String = when (destin
     AppDestination.Chat -> "◌"
     AppDestination.Profile -> "○"
 }
-
