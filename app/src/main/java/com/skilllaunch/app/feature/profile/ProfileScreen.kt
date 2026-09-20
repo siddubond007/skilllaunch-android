@@ -1,4 +1,4 @@
-﻿package com.skilllaunch.app.feature.profile
+package com.skilllaunch.app.feature.profile
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -15,18 +15,21 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.relocation.BringIntoViewRequester
 import androidx.compose.foundation.relocation.bringIntoViewRequester
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -48,8 +51,7 @@ import com.skilllaunch.app.data.repository.profile.ProfileRepository
 fun ProfileScreen(
     user: AuthUser,
     repository: ProfileRepository,
-    onLogout: () -> Unit,
-    onEditingStateChange: (Boolean) -> Unit = {}
+    onLogout: () -> Unit
 ) {
     val factory = remember(repository) {
         object : ViewModelProvider.Factory {
@@ -64,57 +66,95 @@ fun ProfileScreen(
 
     val profileViewModel: ProfileViewModel = viewModel(factory = factory)
     val uiState by profileViewModel.uiState.collectAsState()
+    val snackbarHostState = remember { SnackbarHostState() }
+    var moreMenuExpanded by remember { mutableStateOf(false) }
 
     LaunchedEffect(user.id) {
+
         user.id?.let(profileViewModel::loadProfile)
     }
 
-    DisposableEffect(Unit) {
-        onDispose {
-            onEditingStateChange(false)
+    LaunchedEffect(uiState.successMessage) {
+        val message = uiState.successMessage
+        if (!message.isNullOrBlank()) {
+            snackbarHostState.showSnackbar(
+                message = message,
+                actionLabel = "Dismiss",
+                duration = SnackbarDuration.Short
+            )
+            profileViewModel.clearMessages()
         }
     }
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text("Profile") },
-                actions = {
-                    TextButton(onClick = onLogout) {
-                        Text("Logout")
+    Surface(
+        modifier = Modifier.fillMaxSize(),
+        color = MaterialTheme.colorScheme.background
+    ) {
+        Scaffold(
+            containerColor = MaterialTheme.colorScheme.background,
+            snackbarHost = {
+                SnackbarHost(hostState = snackbarHostState)
+            },
+            topBar = {
+                TopAppBar(
+                    title = { Text("Profile") },
+                    actions = {
+                        TextButton(
+                            onClick = profileViewModel::saveProfile,
+                            enabled = !uiState.isLoading && !uiState.isSaving
+                        ) {
+                            Text("Save")
+                        }
+
+                        androidx.compose.foundation.layout.Box {
+                            TextButton(onClick = { moreMenuExpanded = true }) {
+                                Text("More")
+                            }
+
+                            DropdownMenu(
+                                expanded = moreMenuExpanded,
+                                onDismissRequest = { moreMenuExpanded = false }
+                            ) {
+                                DropdownMenuItem(
+                                    text = { Text("Logout") },
+                                    onClick = {
+                                        moreMenuExpanded = false
+                                        onLogout()
+                                    }
+                                )
+                            }
+                        }
                     }
-                }
-            )
-        }
-    ) { innerPadding ->
-        if (uiState.isLoading) {
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(innerPadding),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center
-            ) {
-                CircularProgressIndicator()
-                Spacer(modifier = Modifier.height(12.dp))
-                Text("Loading profile…")
+                )
             }
-        } else {
-            ProfileContent(
-                user = user,
-                uiState = uiState,
-                onTaglineChange = profileViewModel::updateTagline,
-                onBioChange = profileViewModel::updateBio,
-                onCollegeChange = profileViewModel::updateCollege,
-                onCategoryChange = profileViewModel::updateCategory,
-                onHourlyRateChange = profileViewModel::updateHourlyRate,
-                onSkillsChange = profileViewModel::updateSkills,
-                onResponseTimeChange = profileViewModel::updateResponseTimeExpectation,
-                onSave = profileViewModel::saveProfile,
-                onClearMessages = profileViewModel::clearMessages,
-                onEditingStateChange = onEditingStateChange,
-                modifier = Modifier.padding(innerPadding)
-            )
+        ) { innerPadding ->
+            if (uiState.isLoading) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(innerPadding),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    CircularProgressIndicator()
+                    Spacer(modifier = Modifier.height(12.dp))
+                    Text("Loading profile…")
+                }
+            } else {
+                ProfileContent(
+                    user = user,
+                    uiState = uiState,
+                    onTaglineChange = profileViewModel::updateTagline,
+                    onBioChange = profileViewModel::updateBio,
+                    onCollegeChange = profileViewModel::updateCollege,
+                    onCategoryChange = profileViewModel::updateCategory,
+                    onHourlyRateChange = profileViewModel::updateHourlyRate,
+                    onSkillsChange = profileViewModel::updateSkills,
+                    onResponseTimeChange = profileViewModel::updateResponseTimeExpectation,
+                        onClearMessages = profileViewModel::clearMessages,
+                    modifier = Modifier.padding(innerPadding)
+                )
+            }
         }
     }
 }
@@ -130,20 +170,21 @@ private fun ProfileContent(
     onHourlyRateChange: (String) -> Unit,
     onSkillsChange: (String) -> Unit,
     onResponseTimeChange: (String) -> Unit,
-    onSave: () -> Unit,
     onClearMessages: () -> Unit,
-    onEditingStateChange: (Boolean) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(
         modifier = modifier
             .fillMaxSize()
+            .imePadding()
             .verticalScroll(rememberScrollState())
-            .padding(16.dp),
+            .padding(horizontal = 16.dp, vertical = 14.dp),
         verticalArrangement = Arrangement.spacedBy(14.dp)
     ) {
         Card(
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 2.dp)
         ) {
             Row(
                 modifier = Modifier
@@ -176,24 +217,15 @@ private fun ProfileContent(
                     )
 
                     user.username?.takeIf { it.isNotBlank() }?.let {
-                        Text(
-                            text = "@$it",
-                            style = MaterialTheme.typography.bodyMedium
-                        )
+                        Text("@$it", style = MaterialTheme.typography.bodyMedium)
                     }
 
                     user.email?.takeIf { it.isNotBlank() }?.let {
-                        Text(
-                            text = it,
-                            style = MaterialTheme.typography.bodyMedium
-                        )
+                        Text(it, style = MaterialTheme.typography.bodyMedium)
                     }
 
                     user.role?.takeIf { it.isNotBlank() }?.let {
-                        Text(
-                            text = it.replace("_", " "),
-                            style = MaterialTheme.typography.labelMedium
-                        )
+                        Text(it.replace("_", " "), style = MaterialTheme.typography.labelMedium)
                     }
                 }
             }
@@ -202,115 +234,69 @@ private fun ProfileContent(
         Text(
             text = "Profile information",
             style = MaterialTheme.typography.titleMedium,
-            fontWeight = FontWeight.SemiBold
+            fontWeight = FontWeight.SemiBold,
+            modifier = Modifier.padding(horizontal = 2.dp)
         )
 
         OutlinedProfileField(
             value = uiState.form.tagline,
             onValueChange = onTaglineChange,
-            label = "Tagline",
-            singleLine = true,
-            onEditingStateChange = onEditingStateChange
+            label = "⭐ Tagline",
+            singleLine = true
         )
 
         OutlinedProfileField(
             value = uiState.form.bio,
             onValueChange = onBioChange,
-            label = "Bio",
-            minLines = 4,
-            onEditingStateChange = onEditingStateChange
+            label = "📝 Bio",
+            minLines = 4
         )
 
         OutlinedProfileField(
             value = uiState.form.college,
             onValueChange = onCollegeChange,
-            label = "College",
-            singleLine = true,
-            onEditingStateChange = onEditingStateChange
+            label = "🎓 College",
+            singleLine = true
         )
 
         OutlinedProfileField(
             value = uiState.form.category,
             onValueChange = onCategoryChange,
-            label = "Category",
-            singleLine = true,
-            onEditingStateChange = onEditingStateChange
+            label = "📂 Category",
+            singleLine = true
         )
 
         OutlinedProfileField(
             value = uiState.form.hourlyRate,
             onValueChange = onHourlyRateChange,
-            label = "Hourly rate",
-            singleLine = true,
-            onEditingStateChange = onEditingStateChange
+            label = "💰 Hourly rate",
+            singleLine = true
         )
 
         OutlinedProfileField(
             value = uiState.form.skills,
             onValueChange = onSkillsChange,
-            label = "Skills",
-            supportingText = "Example: Kotlin, React, UI Design",
-            onEditingStateChange = onEditingStateChange
+            label = "🛠 Skills",
+            supportingText = "Example: Kotlin, React, UI Design"
         )
 
         OutlinedProfileField(
             value = uiState.form.responseTimeExpectation,
             onValueChange = onResponseTimeChange,
-            label = "Response time expectation",
-            singleLine = true,
-            onEditingStateChange = onEditingStateChange
+            label = "⏱ Response time expectation",
+            singleLine = true
         )
 
         uiState.errorMessage?.let { message ->
             Text(
                 text = message,
                 color = MaterialTheme.colorScheme.error,
-                style = MaterialTheme.typography.bodyMedium
+                modifier = Modifier.padding(horizontal = 2.dp)
             )
-
-            TextButton(onClick = onClearMessages) {
-                Text("Dismiss")
-            }
+            TextButton(onClick = onClearMessages) { Text("Dismiss") }
         }
 
-        uiState.successMessage?.let { message ->
-            Text(
-                text = message,
-                color = MaterialTheme.colorScheme.primary,
-                style = MaterialTheme.typography.bodyMedium
-            )
-
-            TextButton(onClick = onClearMessages) {
-                Text("Dismiss")
-            }
-        }
-
-        Button(
-            onClick = onSave,
-            modifier = Modifier.fillMaxWidth(),
-            enabled = !uiState.isSaving
-        ) {
-            if (uiState.isSaving) {
-                CircularProgressIndicator(
-                    modifier = Modifier.size(20.dp),
-                    strokeWidth = 2.dp
-                )
-                Spacer(modifier = Modifier.width(8.dp))
-                Text("Saving…")
-            } else {
-                Text("Save profile")
-            }
-        }
-
-        if (uiState.isSaving) {
-            LinearProgressIndicator(
-                modifier = Modifier.fillMaxWidth()
-            )
-        }
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        Spacer(modifier = Modifier.imePadding())
+        Spacer(modifier = Modifier.height(12.dp))
     }
 }
 
@@ -321,21 +307,15 @@ private fun OutlinedProfileField(
     label: String,
     singleLine: Boolean = false,
     minLines: Int = 1,
-    supportingText: String? = null,
-    onEditingStateChange: (Boolean) -> Unit = {}
+    supportingText: String? = null
 ) {
-    val bringIntoViewRequester = remember {
-        BringIntoViewRequester()
-    }
+    val requester = remember { BringIntoViewRequester() }
+    var focused by remember { mutableStateOf(false) }
 
-    var isFocused by remember {
-        mutableStateOf(false)
-    }
-
-    LaunchedEffect(isFocused) {
-        if (isFocused) {
-            kotlinx.coroutines.delay(100)
-            bringIntoViewRequester.bringIntoView()
+    LaunchedEffect(focused) {
+        if (focused) {
+            kotlinx.coroutines.delay(300)
+            requester.bringIntoView()
         }
     }
 
@@ -344,20 +324,26 @@ private fun OutlinedProfileField(
         onValueChange = onValueChange,
         modifier = Modifier
             .fillMaxWidth()
-            .bringIntoViewRequester(bringIntoViewRequester)
-            .onFocusChanged { focusState ->
-                isFocused = focusState.isFocused
-                onEditingStateChange(focusState.isFocused)
+            .padding(horizontal = 2.dp)
+            .bringIntoViewRequester(requester)
+            .onFocusChanged {
+                focused = it.isFocused
             },
         label = { Text(label) },
+
         singleLine = singleLine,
         minLines = minLines,
         supportingText = supportingText?.let { text ->
-            { Text(text) }
+            {
+                Text(
+                    text = text,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(
+                        top = 2.dp,
+                        bottom = 12.dp
+                    )
+                )
+            }
         }
     )
 }
-
-
-
-
