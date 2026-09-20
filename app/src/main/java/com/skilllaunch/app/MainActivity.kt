@@ -32,6 +32,7 @@ import com.skilllaunch.app.core.session.SessionStore
 import com.skilllaunch.app.data.repository.auth.AuthRepository
 import com.skilllaunch.app.feature.auth.AuthViewModel
 import com.skilllaunch.app.feature.auth.LoginScreen
+import com.skilllaunch.app.feature.auth.SignupScreen
 import com.skilllaunch.app.ui.theme.SkillLaunchTheme
 
 class MainActivity : ComponentActivity() {
@@ -51,6 +52,7 @@ class MainActivity : ComponentActivity() {
 @Composable
 private fun SkillLaunchRoot() {
     val context = androidx.compose.ui.platform.LocalContext.current
+    val showSignup = remember { androidx.compose.runtime.mutableStateOf(false) }
 
     val sessionStore = remember {
         SessionStore(context.applicationContext)
@@ -85,10 +87,19 @@ private fun SkillLaunchRoot() {
             state.isAuthenticated -> SkillLaunchHome(
                 username = state.user?.firstName ?: state.user?.username ?: "there"
             )
-            else -> LoginScreen(
-                state = state,
-                onLogin = authViewModel::login
-            )
+            else -> if (showSignup.value) {
+                SignupScreen(
+                    state = state,
+                    onSignup = authViewModel::signup,
+                    onBackToLogin = { showSignup.value = false }
+                )
+            } else {
+                LoginScreen(
+                    state = state,
+                    onLogin = authViewModel::login,
+                    onCreateAccount = { showSignup.value = true }
+                )
+            }
         }
     }
 }

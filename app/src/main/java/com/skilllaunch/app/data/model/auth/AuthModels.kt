@@ -5,6 +5,18 @@ data class LoginRequest(
     val password: String
 )
 
+data class RegisterRequest(
+    val email: String,
+    val password: String,
+    val firstName: String,
+    val middleName: String? = null,
+    val lastName: String,
+    val username: String? = null,
+    val role: String = "STUDENT_FREELANCER",
+    val age: Int = 18,
+    val dob: String? = null
+)
+
 data class LoginResponse(
     val message: String? = null,
     val token: String? = null,

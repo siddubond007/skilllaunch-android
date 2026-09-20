@@ -4,6 +4,7 @@ import com.skilllaunch.app.core.session.SessionStore
 import com.skilllaunch.app.data.api.AuthApi
 import com.skilllaunch.app.data.model.auth.AuthUser
 import com.skilllaunch.app.data.model.auth.LoginRequest
+import com.skilllaunch.app.data.model.auth.RegisterRequest
 import retrofit2.HttpException
 import java.io.IOException
 
@@ -16,13 +17,47 @@ class AuthRepository(
         email: String,
         password: String
     ): Result<AuthUser> {
-        return try {
-            val response = authApi.login(
+        return authenticate {
+            authApi.login(
                 LoginRequest(
                     email = email.trim(),
                     password = password
                 )
             )
+        }
+    }
+
+    suspend fun register(
+        firstName: String,
+        middleName: String?,
+        lastName: String,
+        username: String?,
+        email: String,
+        password: String,
+        role: String,
+        age: Int
+    ): Result<AuthUser> {
+        return authenticate {
+            authApi.register(
+                RegisterRequest(
+                    email = email.trim(),
+                    password = password,
+                    firstName = firstName.trim(),
+                    middleName = middleName?.trim()?.ifBlank { null },
+                    lastName = lastName.trim(),
+                    username = username?.trim()?.ifBlank { null },
+                    role = role,
+                    age = age
+                )
+            )
+        }
+    }
+
+    private suspend fun authenticate(
+        request: suspend () -> com.skilllaunch.app.data.model.auth.LoginResponse
+    ): Result<AuthUser> {
+        return try {
+            val response = request()
 
             val token = response.token
                 ?: return Result.failure(
@@ -38,15 +73,24 @@ class AuthRepository(
             Result.success(user)
         } catch (exception: HttpException) {
             val message = when (exception.code()) {
-                400, 401, 403 -> "Invalid email/username or password. Please try again."
-                429 -> "Too many sign-in attempts. Please wait and try again."
-                else -> "Unable to sign in right now. Please try again."
+                400 -> "Some details are invalid or the account may already exist. Please check and try again."
+                401 -> "Invalid email/username or password. Please try again."
+                403 -> "This account type cannot be registered with the selected details."
+                409 -> "This account already exists. Please sign in instead."
+                429 -> "Too many requests. Please wait and try again."
+                else -> "Unable to complete the request right now. Please try again."
             }
             Result.failure(IllegalStateException(message))
         } catch (exception: IOException) {
-            Result.failure(IllegalStateException("Network connection failed. Please check your connection and try again."))
+            Result.failure(
+                IllegalStateException(
+                    "Network connection failed. Please check your connection and try again."
+                )
+            )
         } catch (exception: Exception) {
-            Result.failure(IllegalStateException("Unable to sign in right now. Please try again."))
+            Result.failure(
+                IllegalStateException("Unable to complete the request right now. Please try again.")
+            )
         }
     }
 
@@ -58,17 +102,8 @@ class AuthRepository(
                 )
 
             Result.success(user)
-        } catch (exception: HttpException) {
-            val message = when (exception.code()) {
-                400, 401, 403 -> "Invalid email/username or password. Please try again."
-                429 -> "Too many sign-in attempts. Please wait and try again."
-                else -> "Unable to sign in right now. Please try again."
-            }
-            Result.failure(IllegalStateException(message))
-        } catch (exception: IOException) {
-            Result.failure(IllegalStateException("Network connection failed. Please check your connection and try again."))
         } catch (exception: Exception) {
-            Result.failure(IllegalStateException("Unable to sign in right now. Please try again."))
+            Result.failure(exception)
         }
     }
 

@@ -34,10 +34,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 @Composable
-fun LoginScreen(
-    state: AuthUiState,
-    onLogin: (String, String) -> Unit
-) {
+fun LoginScreen(state: AuthUiState, onLogin: (String, String) -> Unit, onCreateAccount: () -> Unit) {
     var email by rememberSaveable { mutableStateOf("") }
     var password by rememberSaveable { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(false) }
@@ -163,11 +160,7 @@ fun LoginScreen(
 
             Spacer(modifier = Modifier.height(20.dp))
 
-            Text(
-                text = "Account creation will be added next.",
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                style = MaterialTheme.typography.bodySmall
-            )
+            TextButton(onClick = onCreateAccount, modifier = Modifier.fillMaxWidth()) { Text("Create a new account") }
         }
     }
 }

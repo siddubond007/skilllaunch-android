@@ -1,4 +1,4 @@
-package com.skilllaunch.app.core.network
+﻿package com.skilllaunch.app.core.network
 
 import com.skilllaunch.app.BuildConfig
 import com.skilllaunch.app.core.session.SessionStore
@@ -10,7 +10,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 
 object ApiClient {
 
-    private const val DEVELOPMENT_BASE_URL = "http://10.0.2.2:5000/api/"
+    private const val DEVELOPMENT_BASE_URL = "http://127.0.0.1:5000/api/"
 
     fun authApi(sessionStore: SessionStore): AuthApi {
         val loggingInterceptor = HttpLoggingInterceptor().apply {
