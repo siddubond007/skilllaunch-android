@@ -1,6 +1,5 @@
-﻿package com.skilllaunch.app.core.navigation
+package com.skilllaunch.app.core.navigation
 
-import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
@@ -30,10 +29,10 @@ import androidx.navigation3.runtime.NavEntry
 import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.ui.NavDisplay
 import com.skilllaunch.app.data.model.auth.AuthUser
+import com.skilllaunch.app.data.repository.gig.GigRepository
 import com.skilllaunch.app.data.repository.profile.ProfileRepository
+import com.skilllaunch.app.feature.gig.GigDiscoveryScreen
 import com.skilllaunch.app.feature.home.HomeScreen
-import com.skilllaunch.app.feature.profile.ProfileScreen
-import java.util.Locale
 
 sealed interface AppDestination : NavKey {
     data object Home : AppDestination
@@ -56,6 +55,7 @@ private val shellDestinations = listOf(
 fun AuthenticatedAppShell(
     user: AuthUser,
     profileRepository: ProfileRepository,
+    gigRepository: GigRepository,
     onLogout: () -> Unit
 ) {
     val backStack = remember {
@@ -138,9 +138,8 @@ fun AuthenticatedAppShell(
                     }
 
                     AppDestination.Explore -> NavEntry(key) {
-                        ShellEmptyState(
-                            title = "Explore",
-                            message = "Marketplace discovery will appear here as the native Explore feature is connected."
+                        GigDiscoveryScreen(
+                            repository = gigRepository
                         )
                     }
 
@@ -159,7 +158,7 @@ fun AuthenticatedAppShell(
                     }
 
                     AppDestination.Profile -> NavEntry(key) {
-                        ProfileScreen(
+                        com.skilllaunch.app.feature.profile.ProfileScreen(
                             user = user,
                             repository = profileRepository,
                             onLogout = onLogout
@@ -200,55 +199,6 @@ private fun ShellEmptyState(
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 style = MaterialTheme.typography.bodyLarge
             )
-        }
-    }
-}
-
-@Composable
-private fun ProfileShell(
-    user: AuthUser,
-    onLogout: () -> Unit
-) {
-    val displayName = user.fullName
-        ?: listOfNotNull(user.firstName, user.lastName)
-            .joinToString(" ")
-            .ifBlank { "SkillLaunch User" }
-
-    val role = user.role
-        ?.replace('_', ' ')
-        ?.lowercase(Locale.getDefault())
-        ?.replaceFirstChar { it.titlecase(Locale.getDefault()) }
-        ?: "Unknown"
-
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(24.dp),
-        verticalArrangement = Arrangement.Top
-    ) {
-        Text(
-            text = displayName,
-            style = MaterialTheme.typography.headlineSmall
-        )
-
-        Text(
-            text = user.email ?: "",
-            modifier = Modifier.padding(top = 6.dp),
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
-
-        Text(
-            text = "Role: $role",
-            modifier = Modifier.padding(top = 16.dp),
-            color = MaterialTheme.colorScheme.primary,
-            style = MaterialTheme.typography.labelLarge
-        )
-
-        Button(
-            onClick = onLogout,
-            modifier = Modifier.padding(top = 28.dp)
-        ) {
-            Text("Log out")
         }
     }
 }
