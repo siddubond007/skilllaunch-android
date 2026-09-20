@@ -1,5 +1,11 @@
 ﻿package com.skilllaunch.app.core.navigation
 
+import androidx.compose.animation.ExitTransition
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.togetherWith
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -69,6 +75,7 @@ fun AuthenticatedAppShell(
     }
 
     Scaffold(
+        containerColor = MaterialTheme.colorScheme.background,
         topBar = {
             if (current != AppDestination.Profile) {
                 CenterAlignedTopAppBar(
@@ -109,6 +116,18 @@ fun AuthenticatedAppShell(
         NavDisplay(
             backStack = backStack,
             onBack = { backStack.removeLastOrNull() },
+            transitionSpec = {
+                fadeIn(animationSpec = tween(220)) togetherWith
+                    fadeOut(animationSpec = tween(180))
+            },
+            popTransitionSpec = {
+                fadeIn(animationSpec = tween(220)) togetherWith
+                    fadeOut(animationSpec = tween(180))
+            },
+            predictivePopTransitionSpec = {
+                fadeIn(animationSpec = tween(220)) togetherWith
+                    fadeOut(animationSpec = tween(180))
+            },
             entryProvider = { key ->
                 when (key) {
                     AppDestination.Home -> NavEntry(key) {
@@ -148,7 +167,10 @@ fun AuthenticatedAppShell(
                     }
                 }
             },
-            modifier = Modifier.padding(innerPadding)
+            modifier = Modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.background)
+                .padding(innerPadding)
         )
     }
 }
