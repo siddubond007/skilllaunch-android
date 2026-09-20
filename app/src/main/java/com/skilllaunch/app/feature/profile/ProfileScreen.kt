@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -26,7 +27,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -48,8 +48,7 @@ import com.skilllaunch.app.data.repository.profile.ProfileRepository
 fun ProfileScreen(
     user: AuthUser,
     repository: ProfileRepository,
-    onLogout: () -> Unit,
-    onEditingStateChange: (Boolean) -> Unit = {}
+    onLogout: () -> Unit
 ) {
     val factory = remember(repository) {
         object : ViewModelProvider.Factory {
@@ -67,12 +66,6 @@ fun ProfileScreen(
 
     LaunchedEffect(user.id) {
         user.id?.let(profileViewModel::loadProfile)
-    }
-
-    DisposableEffect(Unit) {
-        onDispose {
-            onEditingStateChange(false)
-        }
     }
 
     Scaffold(
@@ -112,7 +105,6 @@ fun ProfileScreen(
                 onResponseTimeChange = profileViewModel::updateResponseTimeExpectation,
                 onSave = profileViewModel::saveProfile,
                 onClearMessages = profileViewModel::clearMessages,
-                onEditingStateChange = onEditingStateChange,
                 modifier = Modifier.padding(innerPadding)
             )
         }
@@ -132,12 +124,12 @@ private fun ProfileContent(
     onResponseTimeChange: (String) -> Unit,
     onSave: () -> Unit,
     onClearMessages: () -> Unit,
-    onEditingStateChange: (Boolean) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(
         modifier = modifier
             .fillMaxSize()
+            .imePadding()
             .verticalScroll(rememberScrollState())
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(14.dp)
@@ -196,13 +188,23 @@ private fun ProfileContent(
             fontWeight = FontWeight.SemiBold
         )
 
-        OutlinedProfileField(uiState.form.tagline, onTaglineChange, "Tagline", singleLine = true, onEditingStateChange = onEditingStateChange)
-        OutlinedProfileField(uiState.form.bio, onBioChange, "Bio", minLines = 4, onEditingStateChange = onEditingStateChange)
-        OutlinedProfileField(uiState.form.college, onCollegeChange, "College", singleLine = true, onEditingStateChange = onEditingStateChange)
-        OutlinedProfileField(uiState.form.category, onCategoryChange, "Category", singleLine = true, onEditingStateChange = onEditingStateChange)
-        OutlinedProfileField(uiState.form.hourlyRate, onHourlyRateChange, "Hourly rate", singleLine = true, onEditingStateChange = onEditingStateChange)
-        OutlinedProfileField(uiState.form.skills, onSkillsChange, "Skills", supportingText = "Example: Kotlin, React, UI Design", onEditingStateChange = onEditingStateChange)
-        OutlinedProfileField(uiState.form.responseTimeExpectation, onResponseTimeChange, "Response time expectation", singleLine = true, onEditingStateChange = onEditingStateChange)
+        OutlinedProfileField(uiState.form.tagline, onTaglineChange, "Tagline", singleLine = true)
+        OutlinedProfileField(uiState.form.bio, onBioChange, "Bio", minLines = 4)
+        OutlinedProfileField(uiState.form.college, onCollegeChange, "College", singleLine = true)
+        OutlinedProfileField(uiState.form.category, onCategoryChange, "Category", singleLine = true)
+        OutlinedProfileField(uiState.form.hourlyRate, onHourlyRateChange, "Hourly rate", singleLine = true)
+        OutlinedProfileField(
+            uiState.form.skills,
+            onSkillsChange,
+            "Skills",
+            supportingText = "Example: Kotlin, React, UI Design"
+        )
+        OutlinedProfileField(
+            uiState.form.responseTimeExpectation,
+            onResponseTimeChange,
+            "Response time expectation",
+            singleLine = true
+        )
 
         uiState.errorMessage?.let { message ->
             Text(message, color = MaterialTheme.colorScheme.error)
@@ -233,7 +235,6 @@ private fun ProfileContent(
         }
 
         Spacer(modifier = Modifier.height(16.dp))
-        Spacer(modifier = Modifier.imePadding())
     }
 }
 
@@ -244,15 +245,15 @@ private fun OutlinedProfileField(
     label: String,
     singleLine: Boolean = false,
     minLines: Int = 1,
-    supportingText: String? = null,
-    onEditingStateChange: (Boolean) -> Unit = {}
+    supportingText: String? = null
 ) {
     val requester = remember { BringIntoViewRequester() }
     var focused by remember { mutableStateOf(false) }
+    val imeVisible = WindowInsets.isImeVisible
 
-    LaunchedEffect(focused) {
-        if (focused) {
-            kotlinx.coroutines.delay(120)
+    LaunchedEffect(focused, imeVisible) {
+        if (focused && imeVisible) {
+            kotlinx.coroutines.delay(250)
             requester.bringIntoView()
         }
     }
@@ -265,7 +266,6 @@ private fun OutlinedProfileField(
             .bringIntoViewRequester(requester)
             .onFocusChanged {
                 focused = it.isFocused
-                onEditingStateChange(it.isFocused)
             },
         label = { Text(label) },
         singleLine = singleLine,
