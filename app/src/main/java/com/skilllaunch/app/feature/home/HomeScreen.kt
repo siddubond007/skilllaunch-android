@@ -25,12 +25,16 @@ fun HomeScreen(
 ) {
     val role = user.role?.uppercase(Locale.US)
 
-    LazyColumn(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(horizontal = 20.dp, vertical = 16.dp),
-        verticalArrangement = Arrangement.spacedBy(14.dp)
+    Surface(
+        modifier = Modifier.fillMaxSize(),
+        color = MaterialTheme.colorScheme.background
     ) {
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(horizontal = 20.dp, vertical = 16.dp),
+            verticalArrangement = Arrangement.spacedBy(14.dp)
+        ) {
         item {
             Text(
                 text = "Welcome back, ${user.firstName ?: user.username ?: "there"}",
@@ -163,8 +167,8 @@ fun HomeScreen(
                 }
             }
         }
-    }
-}
+        }
+    }}
 
 private fun roleLabel(role: String?): String = when (role) {
     "CLIENT" -> "Client account"
