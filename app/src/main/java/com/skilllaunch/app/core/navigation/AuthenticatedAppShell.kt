@@ -20,6 +20,7 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import androidx.navigation3.runtime.NavEntry
 import androidx.navigation3.runtime.NavKey
@@ -57,7 +58,7 @@ fun AuthenticatedAppShell(
         mutableStateListOf<AppDestination>(AppDestination.Home)
     }
     val current = backStack.lastOrNull() ?: AppDestination.Home
-    val imeVisible = WindowInsets.isImeVisible
+    val imeVisible = WindowInsets.ime.getBottom(LocalDensity.current) > 0
 
     fun openDestination(destination: AppDestination) {
         if (destination == AppDestination.Home) {
