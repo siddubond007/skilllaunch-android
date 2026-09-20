@@ -47,6 +47,7 @@ dependencies {
     implementation(libs.okhttp)
     implementation(libs.okhttpLogging)
     implementation(libs.datastorePreferences)
+    implementation(libs.androidx.lifecycle.viewmodel.compose)
     implementation(libs.androidx.compose.ui)
     implementation(libs.androidx.compose.ui.graphics)
     implementation(libs.androidx.compose.ui.tooling.preview)

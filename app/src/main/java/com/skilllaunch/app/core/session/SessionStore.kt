@@ -8,6 +8,7 @@ import androidx.datastore.preferences.preferencesDataStore
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.first
 import java.io.IOException
 
 private val Context.skillLaunchDataStore by preferencesDataStore(
@@ -34,6 +35,8 @@ class SessionStore(
             .map { preferences ->
                 preferences[ACCESS_TOKEN]
             }
+
+    suspend fun getAccessToken(): String? = accessToken.first()
 
     suspend fun saveAccessToken(token: String) {
         context.skillLaunchDataStore.edit { preferences ->
