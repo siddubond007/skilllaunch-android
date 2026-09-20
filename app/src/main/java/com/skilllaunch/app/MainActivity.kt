@@ -1,4 +1,4 @@
-﻿package com.skilllaunch.app
+package com.skilllaunch.app
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -26,6 +26,7 @@ import com.skilllaunch.app.core.navigation.AuthenticatedAppShell
 import com.skilllaunch.app.core.network.ApiClient
 import com.skilllaunch.app.core.session.SessionStore
 import com.skilllaunch.app.data.repository.auth.AuthRepository
+import com.skilllaunch.app.data.repository.gig.GigRepository
 import com.skilllaunch.app.data.repository.profile.ProfileRepository
 import com.skilllaunch.app.feature.auth.AuthViewModel
 import com.skilllaunch.app.feature.auth.LoginScreen
@@ -62,6 +63,10 @@ private fun SkillLaunchRoot() {
         ApiClient.userApi(sessionStore)
     }
 
+    val gigApi = remember(sessionStore) {
+        ApiClient.gigApi(sessionStore)
+    }
+
     val authRepository = remember(authApi, sessionStore) {
         AuthRepository(
             authApi = authApi,
@@ -72,6 +77,12 @@ private fun SkillLaunchRoot() {
     val profileRepository = remember(userApi) {
         ProfileRepository(
             userApi = userApi
+        )
+    }
+
+    val gigRepository = remember(gigApi) {
+        GigRepository(
+            gigApi = gigApi
         )
     }
 
@@ -95,6 +106,7 @@ private fun SkillLaunchRoot() {
                 AuthenticatedAppShell(
                     user = state.user!!,
                     profileRepository = profileRepository,
+                    gigRepository = gigRepository,
                     onLogout = authViewModel::logout
                 )
             }
