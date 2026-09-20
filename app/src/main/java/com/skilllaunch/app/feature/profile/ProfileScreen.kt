@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -38,7 +37,6 @@ import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModelProvider
@@ -302,7 +300,7 @@ private fun ProfileContent(
         }
 
         item {
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(24.dp))
         }
     }
 }
@@ -318,10 +316,10 @@ private fun OutlinedProfileField(
 ) {
     val requester = remember { BringIntoViewRequester() }
     var focused by remember { mutableStateOf(false) }
-    val imeVisible = WindowInsets.ime.getBottom(LocalDensity.current) > 0
 
-    LaunchedEffect(focused, imeVisible) {
-        if (focused && imeVisible) {
+    LaunchedEffect(focused) {
+        if (focused) {
+            kotlinx.coroutines.delay(300)
             withFrameNanos { }
             withFrameNanos { }
             requester.bringIntoView()
