@@ -2,6 +2,7 @@
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
@@ -12,10 +13,10 @@ import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.relocation.BringIntoViewRequester
 import androidx.compose.foundation.relocation.bringIntoViewRequester
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
@@ -33,6 +34,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
@@ -126,115 +128,181 @@ private fun ProfileContent(
     onClearMessages: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Column(
+    LazyColumn(
+        state = rememberLazyListState(),
         modifier = modifier
             .fillMaxSize()
-            .imePadding()
-            .verticalScroll(rememberScrollState())
-            .padding(16.dp),
+            .imePadding(),
+        contentPadding = PaddingValues(16.dp),
         verticalArrangement = Arrangement.spacedBy(14.dp)
     ) {
-        Card(
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(18.dp),
-                verticalAlignment = Alignment.CenterVertically
+        item {
+            Card(
+                modifier = Modifier.fillMaxWidth()
             ) {
-                Text(
-                    text = "○",
-                    style = MaterialTheme.typography.displaySmall,
-                    modifier = Modifier.size(64.dp)
-                )
-
-                Spacer(modifier = Modifier.width(14.dp))
-
-                Column(
-                    modifier = Modifier.weight(1f)
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(18.dp),
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    val displayName = user.fullName
-                        ?: listOfNotNull(
-                            user.firstName,
-                            user.middleName,
-                            user.lastName
-                        ).joinToString(" ").ifBlank { "SkillLaunch User" }
-
                     Text(
-                        text = displayName,
-                        style = MaterialTheme.typography.titleLarge,
-                        fontWeight = FontWeight.Bold
+                        text = "○",
+                        style = MaterialTheme.typography.displaySmall,
+                        modifier = Modifier.size(64.dp)
                     )
 
-                    user.username?.takeIf { it.isNotBlank() }?.let {
-                        Text("@$it", style = MaterialTheme.typography.bodyMedium)
-                    }
+                    Spacer(modifier = Modifier.width(14.dp))
 
-                    user.email?.takeIf { it.isNotBlank() }?.let {
-                        Text(it, style = MaterialTheme.typography.bodyMedium)
-                    }
+                    Column(
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        val displayName = user.fullName
+                            ?: listOfNotNull(
+                                user.firstName,
+                                user.middleName,
+                                user.lastName
+                            ).joinToString(" ").ifBlank { "SkillLaunch User" }
 
-                    user.role?.takeIf { it.isNotBlank() }?.let {
-                        Text(it.replace("_", " "), style = MaterialTheme.typography.labelMedium)
+                        Text(
+                            text = displayName,
+                            style = MaterialTheme.typography.titleLarge,
+                            fontWeight = FontWeight.Bold
+                        )
+
+                        user.username?.takeIf { it.isNotBlank() }?.let {
+                            Text("@$it", style = MaterialTheme.typography.bodyMedium)
+                        }
+
+                        user.email?.takeIf { it.isNotBlank() }?.let {
+                            Text(it, style = MaterialTheme.typography.bodyMedium)
+                        }
+
+                        user.role?.takeIf { it.isNotBlank() }?.let {
+                            Text(it.replace("_", " "), style = MaterialTheme.typography.labelMedium)
+                        }
                     }
                 }
             }
         }
 
-        Text(
-            text = "Profile information",
-            style = MaterialTheme.typography.titleMedium,
-            fontWeight = FontWeight.SemiBold
-        )
+        item {
+            Text(
+                text = "Profile information",
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.SemiBold
+            )
+        }
 
-        OutlinedProfileField(uiState.form.tagline, onTaglineChange, "Tagline", singleLine = true)
-        OutlinedProfileField(uiState.form.bio, onBioChange, "Bio", minLines = 4)
-        OutlinedProfileField(uiState.form.college, onCollegeChange, "College", singleLine = true)
-        OutlinedProfileField(uiState.form.category, onCategoryChange, "Category", singleLine = true)
-        OutlinedProfileField(uiState.form.hourlyRate, onHourlyRateChange, "Hourly rate", singleLine = true)
-        OutlinedProfileField(
-            uiState.form.skills,
-            onSkillsChange,
-            "Skills",
-            supportingText = "Example: Kotlin, React, UI Design"
-        )
-        OutlinedProfileField(
-            uiState.form.responseTimeExpectation,
-            onResponseTimeChange,
-            "Response time expectation",
-            singleLine = true
-        )
+        item {
+            OutlinedProfileField(
+                value = uiState.form.tagline,
+                onValueChange = onTaglineChange,
+                label = "Tagline",
+                singleLine = true
+            )
+        }
+
+        item {
+            OutlinedProfileField(
+                value = uiState.form.bio,
+                onValueChange = onBioChange,
+                label = "Bio",
+                minLines = 4
+            )
+        }
+
+        item {
+            OutlinedProfileField(
+                value = uiState.form.college,
+                onValueChange = onCollegeChange,
+                label = "College",
+                singleLine = true
+            )
+        }
+
+        item {
+            OutlinedProfileField(
+                value = uiState.form.category,
+                onValueChange = onCategoryChange,
+                label = "Category",
+                singleLine = true
+            )
+        }
+
+        item {
+            OutlinedProfileField(
+                value = uiState.form.hourlyRate,
+                onValueChange = onHourlyRateChange,
+                label = "Hourly rate",
+                singleLine = true
+            )
+        }
+
+        item {
+            OutlinedProfileField(
+                value = uiState.form.skills,
+                onValueChange = onSkillsChange,
+                label = "Skills",
+                supportingText = "Example: Kotlin, React, UI Design"
+            )
+        }
+
+        item {
+            OutlinedProfileField(
+                value = uiState.form.responseTimeExpectation,
+                onValueChange = onResponseTimeChange,
+                label = "Response time expectation",
+                singleLine = true
+            )
+        }
 
         uiState.errorMessage?.let { message ->
-            Text(message, color = MaterialTheme.colorScheme.error)
-            TextButton(onClick = onClearMessages) { Text("Dismiss") }
+            item {
+                Text(message, color = MaterialTheme.colorScheme.error)
+                TextButton(onClick = onClearMessages) {
+                    Text("Dismiss")
+                }
+            }
         }
 
         uiState.successMessage?.let { message ->
-            Text(message, color = MaterialTheme.colorScheme.primary)
-            TextButton(onClick = onClearMessages) { Text("Dismiss") }
+            item {
+                Text(message, color = MaterialTheme.colorScheme.primary)
+                TextButton(onClick = onClearMessages) {
+                    Text("Dismiss")
+                }
+            }
         }
 
-        Button(
-            onClick = onSave,
-            modifier = Modifier.fillMaxWidth(),
-            enabled = !uiState.isSaving
-        ) {
-            if (uiState.isSaving) {
-                CircularProgressIndicator(modifier = Modifier.size(20.dp), strokeWidth = 2.dp)
-                Spacer(modifier = Modifier.width(8.dp))
-                Text("Saving…")
-            } else {
-                Text("Save profile")
+        item {
+            Button(
+                onClick = onSave,
+                modifier = Modifier.fillMaxWidth(),
+                enabled = !uiState.isSaving
+            ) {
+                if (uiState.isSaving) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(20.dp),
+                        strokeWidth = 2.dp
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text("Saving…")
+                } else {
+                    Text("Save profile")
+                }
             }
         }
 
         if (uiState.isSaving) {
-            LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
+            item {
+                LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
+            }
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
+        item {
+            Spacer(modifier = Modifier.height(16.dp))
+        }
     }
 }
 
@@ -253,7 +321,8 @@ private fun OutlinedProfileField(
 
     LaunchedEffect(focused, imeVisible) {
         if (focused && imeVisible) {
-            kotlinx.coroutines.delay(250)
+            withFrameNanos { }
+            withFrameNanos { }
             requester.bringIntoView()
         }
     }
