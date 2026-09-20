@@ -15,7 +15,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.relocation.BringIntoViewRequester
 import androidx.compose.foundation.relocation.bringIntoViewRequester
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
@@ -132,8 +131,7 @@ fun ProfileScreen(
                     onHourlyRateChange = profileViewModel::updateHourlyRate,
                     onSkillsChange = profileViewModel::updateSkills,
                     onResponseTimeChange = profileViewModel::updateResponseTimeExpectation,
-                    onSave = profileViewModel::saveProfile,
-                    onClearMessages = profileViewModel::clearMessages,
+                        onClearMessages = profileViewModel::clearMessages,
                     modifier = Modifier.padding(innerPadding)
                 )
             }
@@ -152,7 +150,6 @@ private fun ProfileContent(
     onHourlyRateChange: (String) -> Unit,
     onSkillsChange: (String) -> Unit,
     onResponseTimeChange: (String) -> Unit,
-    onSave: () -> Unit,
     onClearMessages: () -> Unit,
     modifier: Modifier = Modifier
 ) {
