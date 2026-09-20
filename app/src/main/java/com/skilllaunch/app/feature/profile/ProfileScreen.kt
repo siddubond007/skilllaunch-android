@@ -1,4 +1,4 @@
-﻿package com.skilllaunch.app.feature.profile
+package com.skilllaunch.app.feature.profile
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -241,49 +241,49 @@ private fun ProfileContent(
         OutlinedProfileField(
             value = uiState.form.tagline,
             onValueChange = onTaglineChange,
-            label = "Tagline",
+            label = "⭐ Tagline",
             singleLine = true
         )
 
         OutlinedProfileField(
             value = uiState.form.bio,
             onValueChange = onBioChange,
-            label = "Bio",
+            label = "📝 Bio",
             minLines = 4
         )
 
         OutlinedProfileField(
             value = uiState.form.college,
             onValueChange = onCollegeChange,
-            label = "College",
+            label = "🎓 College",
             singleLine = true
         )
 
         OutlinedProfileField(
             value = uiState.form.category,
             onValueChange = onCategoryChange,
-            label = "Category",
+            label = "📂 Category",
             singleLine = true
         )
 
         OutlinedProfileField(
             value = uiState.form.hourlyRate,
             onValueChange = onHourlyRateChange,
-            label = "Hourly rate",
+            label = "💰 Hourly rate",
             singleLine = true
         )
 
         OutlinedProfileField(
             value = uiState.form.skills,
             onValueChange = onSkillsChange,
-            label = "Skills",
+            label = "🛠 Skills",
             supportingText = "Example: Kotlin, React, UI Design"
         )
 
         OutlinedProfileField(
             value = uiState.form.responseTimeExpectation,
             onValueChange = onResponseTimeChange,
-            label = "Response time expectation",
+            label = "⏱ Response time expectation",
             singleLine = true
         )
 
@@ -330,12 +330,7 @@ private fun OutlinedProfileField(
                 focused = it.isFocused
             },
         label = { Text(label) },
-        contentPadding = androidx.compose.foundation.layout.PaddingValues(
-            start = 18.dp,
-            top = 12.dp,
-            end = 18.dp,
-            bottom = 12.dp
-        ),
+
         singleLine = singleLine,
         minLines = minLines,
         supportingText = supportingText?.let { text ->
