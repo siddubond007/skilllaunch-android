@@ -198,7 +198,7 @@ private fun GigCard(
                 Text(
                     text = description
                         .replace(Regex("<[^>]*>"), " ")
-                        .replace(Regex("\\s+"), " ")
+                        .replace(Regex("\s+"), " ")
                         .trim()
                         .take(180)
                         .let { text -> if (text.length == 180) text + "…" else text },
@@ -216,7 +216,9 @@ private fun GigCard(
                 style = MaterialTheme.typography.bodyMedium
             )
 
-            val package = gig.packages.minByOrNull { it.price ?: Double.MAX_VALUE }
+            val selectedPackage = gig.packages.minByOrNull {
+                it.price ?: Double.MAX_VALUE
+            }
 
             Card(
                 modifier = Modifier
@@ -227,19 +229,20 @@ private fun GigCard(
                     modifier = Modifier.padding(12.dp)
                 ) {
                     Text(
-                        text = package?.tierName ?: "Service",
+                        text = selectedPackage?.tierName ?: "Service",
                         style = MaterialTheme.typography.labelLarge
                     )
 
                     Text(
-                        text = package?.price?.let { "From ₹" + formatPrice(it) }
-                            ?: "Pricing available in gig details",
+                        text = selectedPackage?.price?.let {
+                            "From ₹" + formatPrice(it)
+                        } ?: "Pricing available in gig details",
                         modifier = Modifier.padding(top = 4.dp),
                         style = MaterialTheme.typography.titleSmall,
                         fontWeight = FontWeight.SemiBold
                     )
 
-                    package?.deliveryDays?.let { days ->
+                    selectedPackage?.deliveryDays?.let { days ->
                         Text(
                             text = days.toString() + " day delivery",
                             modifier = Modifier.padding(top = 4.dp),
