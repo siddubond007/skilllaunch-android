@@ -3,6 +3,7 @@
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
@@ -16,7 +17,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -57,11 +57,9 @@ fun AuthenticatedAppShell(
         mutableStateListOf<AppDestination>(AppDestination.Home)
     }
     val current = backStack.lastOrNull() ?: AppDestination.Home
-    val profileEditing = remember { mutableStateOf(false) }
+    val imeVisible = WindowInsets.isImeVisible
 
     fun openDestination(destination: AppDestination) {
-        profileEditing.value = false
-
         if (destination == AppDestination.Home) {
             backStack.clear()
             backStack.add(AppDestination.Home)
@@ -89,7 +87,7 @@ fun AuthenticatedAppShell(
             }
         },
         bottomBar = {
-            if (!profileEditing.value) {
+            if (!imeVisible) {
                 NavigationBar {
                     shellDestinations.forEach { destination ->
                         NavigationBarItem(
@@ -112,10 +110,7 @@ fun AuthenticatedAppShell(
     ) { innerPadding ->
         NavDisplay(
             backStack = backStack,
-            onBack = {
-                profileEditing.value = false
-                backStack.removeLastOrNull()
-            },
+            onBack = { backStack.removeLastOrNull() },
             entryProvider = { key ->
                 when (key) {
                     AppDestination.Home -> NavEntry(key) {
@@ -150,8 +145,7 @@ fun AuthenticatedAppShell(
                         ProfileScreen(
                             user = user,
                             repository = profileRepository,
-                            onLogout = onLogout,
-                            onEditingStateChange = { profileEditing.value = it }
+                            onLogout = onLogout
                         )
                     }
                 }
