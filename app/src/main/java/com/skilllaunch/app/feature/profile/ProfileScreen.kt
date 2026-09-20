@@ -11,9 +11,9 @@ import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.relocation.BringIntoViewRequester
 import androidx.compose.foundation.relocation.bringIntoViewRequester
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -176,24 +176,15 @@ private fun ProfileContent(
                     )
 
                     user.username?.takeIf { it.isNotBlank() }?.let {
-                        Text(
-                            text = "@$it",
-                            style = MaterialTheme.typography.bodyMedium
-                        )
+                        Text("@$it", style = MaterialTheme.typography.bodyMedium)
                     }
 
                     user.email?.takeIf { it.isNotBlank() }?.let {
-                        Text(
-                            text = it,
-                            style = MaterialTheme.typography.bodyMedium
-                        )
+                        Text(it, style = MaterialTheme.typography.bodyMedium)
                     }
 
                     user.role?.takeIf { it.isNotBlank() }?.let {
-                        Text(
-                            text = it.replace("_", " "),
-                            style = MaterialTheme.typography.labelMedium
-                        )
+                        Text(it.replace("_", " "), style = MaterialTheme.typography.labelMedium)
                     }
                 }
             }
@@ -205,84 +196,22 @@ private fun ProfileContent(
             fontWeight = FontWeight.SemiBold
         )
 
-        OutlinedProfileField(
-            value = uiState.form.tagline,
-            onValueChange = onTaglineChange,
-            label = "Tagline",
-            singleLine = true,
-            onEditingStateChange = onEditingStateChange
-        )
-
-        OutlinedProfileField(
-            value = uiState.form.bio,
-            onValueChange = onBioChange,
-            label = "Bio",
-            minLines = 4,
-            onEditingStateChange = onEditingStateChange
-        )
-
-        OutlinedProfileField(
-            value = uiState.form.college,
-            onValueChange = onCollegeChange,
-            label = "College",
-            singleLine = true,
-            onEditingStateChange = onEditingStateChange
-        )
-
-        OutlinedProfileField(
-            value = uiState.form.category,
-            onValueChange = onCategoryChange,
-            label = "Category",
-            singleLine = true,
-            onEditingStateChange = onEditingStateChange
-        )
-
-        OutlinedProfileField(
-            value = uiState.form.hourlyRate,
-            onValueChange = onHourlyRateChange,
-            label = "Hourly rate",
-            singleLine = true,
-            onEditingStateChange = onEditingStateChange
-        )
-
-        OutlinedProfileField(
-            value = uiState.form.skills,
-            onValueChange = onSkillsChange,
-            label = "Skills",
-            supportingText = "Example: Kotlin, React, UI Design",
-            onEditingStateChange = onEditingStateChange
-        )
-
-        OutlinedProfileField(
-            value = uiState.form.responseTimeExpectation,
-            onValueChange = onResponseTimeChange,
-            label = "Response time expectation",
-            singleLine = true,
-            onEditingStateChange = onEditingStateChange
-        )
+        OutlinedProfileField(uiState.form.tagline, onTaglineChange, "Tagline", singleLine = true, onEditingStateChange = onEditingStateChange)
+        OutlinedProfileField(uiState.form.bio, onBioChange, "Bio", minLines = 4, onEditingStateChange = onEditingStateChange)
+        OutlinedProfileField(uiState.form.college, onCollegeChange, "College", singleLine = true, onEditingStateChange = onEditingStateChange)
+        OutlinedProfileField(uiState.form.category, onCategoryChange, "Category", singleLine = true, onEditingStateChange = onEditingStateChange)
+        OutlinedProfileField(uiState.form.hourlyRate, onHourlyRateChange, "Hourly rate", singleLine = true, onEditingStateChange = onEditingStateChange)
+        OutlinedProfileField(uiState.form.skills, onSkillsChange, "Skills", supportingText = "Example: Kotlin, React, UI Design", onEditingStateChange = onEditingStateChange)
+        OutlinedProfileField(uiState.form.responseTimeExpectation, onResponseTimeChange, "Response time expectation", singleLine = true, onEditingStateChange = onEditingStateChange)
 
         uiState.errorMessage?.let { message ->
-            Text(
-                text = message,
-                color = MaterialTheme.colorScheme.error,
-                style = MaterialTheme.typography.bodyMedium
-            )
-
-            TextButton(onClick = onClearMessages) {
-                Text("Dismiss")
-            }
+            Text(message, color = MaterialTheme.colorScheme.error)
+            TextButton(onClick = onClearMessages) { Text("Dismiss") }
         }
 
         uiState.successMessage?.let { message ->
-            Text(
-                text = message,
-                color = MaterialTheme.colorScheme.primary,
-                style = MaterialTheme.typography.bodyMedium
-            )
-
-            TextButton(onClick = onClearMessages) {
-                Text("Dismiss")
-            }
+            Text(message, color = MaterialTheme.colorScheme.primary)
+            TextButton(onClick = onClearMessages) { Text("Dismiss") }
         }
 
         Button(
@@ -291,10 +220,7 @@ private fun ProfileContent(
             enabled = !uiState.isSaving
         ) {
             if (uiState.isSaving) {
-                CircularProgressIndicator(
-                    modifier = Modifier.size(20.dp),
-                    strokeWidth = 2.dp
-                )
+                CircularProgressIndicator(modifier = Modifier.size(20.dp), strokeWidth = 2.dp)
                 Spacer(modifier = Modifier.width(8.dp))
                 Text("Saving…")
             } else {
@@ -303,13 +229,10 @@ private fun ProfileContent(
         }
 
         if (uiState.isSaving) {
-            LinearProgressIndicator(
-                modifier = Modifier.fillMaxWidth()
-            )
+            LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
         }
 
         Spacer(modifier = Modifier.height(16.dp))
-
         Spacer(modifier = Modifier.imePadding())
     }
 }
@@ -324,18 +247,13 @@ private fun OutlinedProfileField(
     supportingText: String? = null,
     onEditingStateChange: (Boolean) -> Unit = {}
 ) {
-    val bringIntoViewRequester = remember {
-        BringIntoViewRequester()
-    }
+    val requester = remember { BringIntoViewRequester() }
+    var focused by remember { mutableStateOf(false) }
 
-    var isFocused by remember {
-        mutableStateOf(false)
-    }
-
-    LaunchedEffect(isFocused) {
-        if (isFocused) {
-            kotlinx.coroutines.delay(100)
-            bringIntoViewRequester.bringIntoView()
+    LaunchedEffect(focused) {
+        if (focused) {
+            kotlinx.coroutines.delay(120)
+            requester.bringIntoView()
         }
     }
 
@@ -344,20 +262,14 @@ private fun OutlinedProfileField(
         onValueChange = onValueChange,
         modifier = Modifier
             .fillMaxWidth()
-            .bringIntoViewRequester(bringIntoViewRequester)
-            .onFocusChanged { focusState ->
-                isFocused = focusState.isFocused
-                onEditingStateChange(focusState.isFocused)
+            .bringIntoViewRequester(requester)
+            .onFocusChanged {
+                focused = it.isFocused
+                onEditingStateChange(it.isFocused)
             },
         label = { Text(label) },
         singleLine = singleLine,
         minLines = minLines,
-        supportingText = supportingText?.let { text ->
-            { Text(text) }
-        }
+        supportingText = supportingText?.let { text -> { Text(text) } }
     )
 }
-
-
-
-
