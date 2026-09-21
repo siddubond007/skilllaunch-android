@@ -368,6 +368,63 @@ fun HomeScreen(
                 }
 
                 item {
+                    Text(
+                        text = "UI test content",
+                        modifier = Modifier.padding(top = 4.dp),
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+
+                item {
+                    TestContentCard(
+                        title = "Recent activity",
+                        description = "Review the latest marketplace actions, order updates, and profile events.",
+                        tag = "PREVIEW"
+                    )
+                }
+
+                item {
+                    TestContentCard(
+                        title = "Recommended opportunities",
+                        description = "Personalized job and gig recommendations will appear here as the native feed grows.",
+                        tag = "COMING SOON"
+                    )
+                }
+
+                item {
+                    TestContentCard(
+                        title = "Marketplace pulse",
+                        description = "A future dashboard module can surface trending skills, popular services, and demand signals.",
+                        tag = "PREVIEW"
+                    )
+                }
+
+                item {
+                    TestContentCard(
+                        title = "Profile checklist",
+                        description = "Keep your profile, skills, portfolio, and availability complete to improve marketplace readiness.",
+                        tag = "TIP"
+                    )
+                }
+
+                item {
+                    TestContentCard(
+                        title = "Student spotlight",
+                        description = "A future social-proof section can highlight student creators and their latest work.",
+                        tag = "PREVIEW"
+                    )
+                }
+
+                item {
+                    TestContentCard(
+                        title = "SkillLaunch updates",
+                        description = "New native marketplace capabilities will be introduced here as Android development continues.",
+                        tag = "ANDROID-003"
+                    )
+                }
+
+                item {
                     Surface(
                         onClick = { onOpenDestination(AppDestination.Explore) },
                         modifier = Modifier.fillMaxWidth(),
@@ -408,6 +465,54 @@ fun HomeScreen(
     }
 }
 
+
+@Composable
+private fun TestContentCard(
+    title: String,
+    description: String,
+    tag: String
+) {
+    OutlinedCard(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(20.dp),
+        colors = CardDefaults.outlinedCardColors(
+            containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.68f)
+        ),
+        border = BorderStroke(
+            1.dp,
+            MaterialTheme.colorScheme.primary.copy(alpha = 0.12f)
+        )
+    ) {
+        Column(modifier = Modifier.padding(18.dp)) {
+            Surface(
+                shape = RoundedCornerShape(50.dp),
+                color = MaterialTheme.colorScheme.primary.copy(alpha = 0.10f)
+            ) {
+                Text(
+                    text = tag,
+                    modifier = Modifier.padding(horizontal = 9.dp, vertical = 5.dp),
+                    color = MaterialTheme.colorScheme.primary,
+                    style = MaterialTheme.typography.labelSmall,
+                    fontWeight = FontWeight.SemiBold
+                )
+            }
+
+            Text(
+                text = title,
+                modifier = Modifier.padding(top = 10.dp),
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.SemiBold
+            )
+
+            Text(
+                text = description,
+                modifier = Modifier.padding(top = 6.dp),
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                style = MaterialTheme.typography.bodySmall
+            )
+        }
+    }
+}
 
 @Composable
 private fun ThemeToggle(
