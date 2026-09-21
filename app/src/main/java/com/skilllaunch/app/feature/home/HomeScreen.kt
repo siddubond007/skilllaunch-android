@@ -18,6 +18,8 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.LinearProgressIndicator
@@ -25,11 +27,14 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.skilllaunch.app.core.navigation.AppDestination
@@ -39,7 +44,9 @@ import java.util.Locale
 @Composable
 fun HomeScreen(
     user: AuthUser,
-    onOpenDestination: (AppDestination) -> Unit
+    onOpenDestination: (AppDestination) -> Unit,
+    darkTheme: Boolean,
+    onToggleTheme: () -> Unit
 ) {
     val role = user.role?.uppercase(Locale.US)
     val firstName = user.firstName ?: user.username ?: "there"
@@ -106,6 +113,13 @@ fun HomeScreen(
                                 style = MaterialTheme.typography.bodySmall
                             )
                         }
+
+                        ThemeToggle(
+                            darkTheme = darkTheme,
+                            onToggleTheme = onToggleTheme
+                        )
+
+                        Spacer(modifier = Modifier.size(8.dp))
 
                         Surface(
                             modifier = Modifier.size(44.dp),
@@ -390,6 +404,43 @@ fun HomeScreen(
                     }
                 }
             }
+        }
+    }
+}
+
+
+@Composable
+private fun ThemeToggle(
+    darkTheme: Boolean,
+    onToggleTheme: () -> Unit
+) {
+    val rotation by animateFloatAsState(
+        targetValue = if (darkTheme) 180f else 0f,
+        animationSpec = tween(350),
+        label = "theme_rotation"
+    )
+
+    Surface(
+        onClick = onToggleTheme,
+        modifier = Modifier.size(44.dp),
+        shape = CircleShape,
+        color = MaterialTheme.colorScheme.surface.copy(alpha = 0.82f),
+        border = BorderStroke(
+            1.dp,
+            MaterialTheme.colorScheme.primary.copy(alpha = 0.28f)
+        )
+    ) {
+        Box(
+            contentAlignment = Alignment.Center,
+            modifier = Modifier.graphicsLayer {
+                rotationZ = rotation
+            }
+        ) {
+            Text(
+                text = if (darkTheme) "☾" else "☀",
+                color = MaterialTheme.colorScheme.primary,
+                style = MaterialTheme.typography.titleMedium
+            )
         }
     }
 }
