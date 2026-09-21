@@ -103,7 +103,6 @@ fun ProfileScreen(
                         containerColor = MaterialTheme.colorScheme.background,
                         scrolledContainerColor = MaterialTheme.colorScheme.background
                     ),
-                    tonalElevation = 0.dp,
                     actions = {
                         TextButton(
                             onClick = profileViewModel::saveProfile,
