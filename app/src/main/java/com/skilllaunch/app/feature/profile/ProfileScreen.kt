@@ -176,8 +176,8 @@ private fun ProfileContent(
     Column(
         modifier = modifier
             .fillMaxSize()
-            .imePadding()
             .verticalScroll(rememberScrollState())
+            .imePadding()
             .padding(horizontal = 16.dp, vertical = 14.dp),
         verticalArrangement = Arrangement.spacedBy(14.dp)
     ) {
