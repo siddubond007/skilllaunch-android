@@ -1,15 +1,14 @@
 package com.skilllaunch.app.feature.profile
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.consumeWindowInsets
+import androidx.compose.foundation.layout.fitInside
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -30,6 +29,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -39,6 +39,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.WindowInsetsRulers.Companion.Ime
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModelProvider
@@ -109,7 +110,7 @@ fun ProfileScreen(
                             Text("Save")
                         }
 
-                        androidx.compose.foundation.layout.Box {
+                        Box {
                             TextButton(onClick = { moreMenuExpanded = true }) {
                                 Text("More")
                             }
@@ -136,7 +137,6 @@ fun ProfileScreen(
                     .fillMaxSize()
                     .padding(innerPadding)
                     .consumeWindowInsets(innerPadding)
-                    .imePadding()
             ) {
                 if (uiState.isLoading) {
                     Column(
@@ -182,132 +182,138 @@ private fun ProfileContent(
     onClearMessages: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Column(
+    Box(
         modifier = modifier
             .fillMaxSize()
-            .verticalScroll(rememberScrollState())
-            .padding(horizontal = 16.dp, vertical = 14.dp),
-        verticalArrangement = Arrangement.spacedBy(14.dp)
+            .fitInside(Ime.current)
     ) {
-        Card(
+        Column(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 2.dp)
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState())
+                .padding(horizontal = 16.dp, vertical = 14.dp),
+            verticalArrangement = Arrangement.spacedBy(14.dp)
         ) {
-            Row(
+            Card(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(18.dp),
-                verticalAlignment = Alignment.CenterVertically
+                    .padding(horizontal = 2.dp)
             ) {
-                Text(
-                    text = "○",
-                    style = MaterialTheme.typography.displaySmall,
-                    modifier = Modifier.size(64.dp)
-                )
-
-                Spacer(modifier = Modifier.width(14.dp))
-
-                Column(
-                    modifier = Modifier.weight(1f)
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(18.dp),
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    val displayName = user.fullName
-                        ?: listOfNotNull(
-                            user.firstName,
-                            user.middleName,
-                            user.lastName
-                        ).joinToString(" ").ifBlank { "SkillLaunch User" }
-
                     Text(
-                        text = displayName,
-                        style = MaterialTheme.typography.titleLarge,
-                        fontWeight = FontWeight.Bold
+                        text = "○",
+                        style = MaterialTheme.typography.displaySmall,
+                        modifier = Modifier.size(64.dp)
                     )
 
-                    user.username?.takeIf { it.isNotBlank() }?.let {
-                        Text("@$it", style = MaterialTheme.typography.bodyMedium)
-                    }
+                    Spacer(modifier = Modifier.width(14.dp))
 
-                    user.email?.takeIf { it.isNotBlank() }?.let {
-                        Text(it, style = MaterialTheme.typography.bodyMedium)
-                    }
+                    Column(
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        val displayName = user.fullName
+                            ?: listOfNotNull(
+                                user.firstName,
+                                user.middleName,
+                                user.lastName
+                            ).joinToString(" ").ifBlank { "SkillLaunch User" }
 
-                    user.role?.takeIf { it.isNotBlank() }?.let {
-                        Text(it.replace("_", " "), style = MaterialTheme.typography.labelMedium)
+                        Text(
+                            text = displayName,
+                            style = MaterialTheme.typography.titleLarge,
+                            fontWeight = FontWeight.Bold
+                        )
+
+                        user.username?.takeIf { it.isNotBlank() }?.let {
+                            Text("@$it", style = MaterialTheme.typography.bodyMedium)
+                        }
+
+                        user.email?.takeIf { it.isNotBlank() }?.let {
+                            Text(it, style = MaterialTheme.typography.bodyMedium)
+                        }
+
+                        user.role?.takeIf { it.isNotBlank() }?.let {
+                            Text(it.replace("_", " "), style = MaterialTheme.typography.labelMedium)
+                        }
                     }
                 }
             }
-        }
 
-        Text(
-            text = "Profile information",
-            style = MaterialTheme.typography.titleMedium,
-            fontWeight = FontWeight.SemiBold,
-            modifier = Modifier.padding(horizontal = 2.dp)
-        )
-
-        OutlinedProfileField(
-            value = uiState.form.tagline,
-            onValueChange = onTaglineChange,
-            label = "⭐ Tagline",
-            singleLine = true
-        )
-
-        OutlinedProfileField(
-            value = uiState.form.bio,
-            onValueChange = onBioChange,
-            label = "📝 Bio",
-            minLines = 4
-        )
-
-        OutlinedProfileField(
-            value = uiState.form.college,
-            onValueChange = onCollegeChange,
-            label = "🎓 College",
-            singleLine = true
-        )
-
-        OutlinedProfileField(
-            value = uiState.form.category,
-            onValueChange = onCategoryChange,
-            label = "📂 Category",
-            singleLine = true
-        )
-
-        OutlinedProfileField(
-            value = uiState.form.hourlyRate,
-            onValueChange = onHourlyRateChange,
-            label = "💰 Hourly rate",
-            singleLine = true
-        )
-
-        OutlinedProfileField(
-            value = uiState.form.skills,
-            onValueChange = onSkillsChange,
-            label = "🛠 Skills",
-            supportingText = "Example: Kotlin, React, UI Design"
-        )
-
-        OutlinedProfileField(
-            value = uiState.form.responseTimeExpectation,
-            onValueChange = onResponseTimeChange,
-            label = "⏱ Response time expectation",
-            singleLine = true
-        )
-
-        uiState.errorMessage?.let { message ->
             Text(
-                text = message,
-                color = MaterialTheme.colorScheme.error,
+                text = "Profile information",
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.SemiBold,
                 modifier = Modifier.padding(horizontal = 2.dp)
             )
 
-            TextButton(onClick = onClearMessages) {
-                Text("Dismiss")
-            }
-        }
+            OutlinedProfileField(
+                value = uiState.form.tagline,
+                onValueChange = onTaglineChange,
+                label = "⭐ Tagline",
+                singleLine = true
+            )
 
-        Spacer(modifier = Modifier.height(12.dp))
+            OutlinedProfileField(
+                value = uiState.form.bio,
+                onValueChange = onBioChange,
+                label = "📝 Bio",
+                minLines = 4
+            )
+
+            OutlinedProfileField(
+                value = uiState.form.college,
+                onValueChange = onCollegeChange,
+                label = "🎓 College",
+                singleLine = true
+            )
+
+            OutlinedProfileField(
+                value = uiState.form.category,
+                onValueChange = onCategoryChange,
+                label = "📂 Category",
+                singleLine = true
+            )
+
+            OutlinedProfileField(
+                value = uiState.form.hourlyRate,
+                onValueChange = onHourlyRateChange,
+                label = "💰 Hourly rate",
+                singleLine = true
+            )
+
+            OutlinedProfileField(
+                value = uiState.form.skills,
+                onValueChange = onSkillsChange,
+                label = "🛠 Skills",
+                supportingText = "Example: Kotlin, React, UI Design"
+            )
+
+            OutlinedProfileField(
+                value = uiState.form.responseTimeExpectation,
+                onValueChange = onResponseTimeChange,
+                label = "⏱ Response time expectation",
+                singleLine = true
+            )
+
+            uiState.errorMessage?.let { message ->
+                Text(
+                    text = message,
+                    color = MaterialTheme.colorScheme.error,
+                    modifier = Modifier.padding(horizontal = 2.dp)
+                )
+
+                TextButton(onClick = onClearMessages) {
+                    Text("Dismiss")
+                }
+            }
+
+            Spacer(modifier = Modifier.height(12.dp))
+        }
     }
 }
 
