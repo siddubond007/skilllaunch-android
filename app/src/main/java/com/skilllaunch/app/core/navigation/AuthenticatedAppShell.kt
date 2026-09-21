@@ -60,6 +60,7 @@ fun AuthenticatedAppShell(
     profileRepository: ProfileRepository,
     gigRepository: GigRepository,
     onLogout: () -> Unit,
+    darkTheme: Boolean,
     onToggleTheme: () -> Unit
 ) {
     val backStack = remember {
@@ -150,6 +151,7 @@ fun AuthenticatedAppShell(
                         HomeScreen(
                             user = user,
                             onOpenDestination = ::openDestination,
+                            darkTheme = darkTheme,
                             onToggleTheme = onToggleTheme
                         )
                     }
