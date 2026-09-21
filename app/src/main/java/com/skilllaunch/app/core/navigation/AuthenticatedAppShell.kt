@@ -59,7 +59,8 @@ fun AuthenticatedAppShell(
     user: AuthUser,
     profileRepository: ProfileRepository,
     gigRepository: GigRepository,
-    onLogout: () -> Unit
+    onLogout: () -> Unit,
+    onToggleTheme: () -> Unit
 ) {
     val backStack = remember {
         mutableStateListOf<AppDestination>(AppDestination.Home)
@@ -148,7 +149,8 @@ fun AuthenticatedAppShell(
                     AppDestination.Home -> NavEntry(key) {
                         HomeScreen(
                             user = user,
-                            onOpenDestination = ::openDestination
+                            onOpenDestination = ::openDestination,
+                            onToggleTheme = onToggleTheme
                         )
                     }
 
