@@ -13,8 +13,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.relocation.BringIntoViewRequester
-import androidx.compose.foundation.relocation.bringIntoViewRequester
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
@@ -40,7 +38,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModelProvider
@@ -319,26 +316,12 @@ private fun OutlinedProfileField(
     minLines: Int = 1,
     supportingText: String? = null
 ) {
-    val requester = remember { BringIntoViewRequester() }
-    var focused by remember { mutableStateOf(false) }
-
-    LaunchedEffect(focused) {
-        if (focused) {
-            kotlinx.coroutines.delay(300)
-            requester.bringIntoView()
-        }
-    }
-
     androidx.compose.material3.OutlinedTextField(
         value = value,
         onValueChange = onValueChange,
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 2.dp)
-            .bringIntoViewRequester(requester)
-            .onFocusChanged {
-                focused = it.isFocused
-            },
+            .padding(horizontal = 2.dp),
         label = { Text(label) },
 
         singleLine = singleLine,
