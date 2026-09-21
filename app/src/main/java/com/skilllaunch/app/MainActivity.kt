@@ -47,6 +47,7 @@ class MainActivity : ComponentActivity() {
 
             SkillLaunchTheme(darkTheme = darkTheme) {
                 SkillLaunchRoot(
+                    darkTheme = darkTheme,
                     onToggleTheme = { darkTheme = !darkTheme }
                 )
             }
@@ -56,6 +57,7 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 private fun SkillLaunchRoot(
+    darkTheme: Boolean,
     onToggleTheme: () -> Unit
 ) {
     val context = androidx.compose.ui.platform.LocalContext.current
@@ -118,6 +120,7 @@ private fun SkillLaunchRoot(
                     profileRepository = profileRepository,
                     gigRepository = gigRepository,
                     onLogout = authViewModel::logout,
+                    darkTheme = darkTheme,
                     onToggleTheme = onToggleTheme
                 )
             }
