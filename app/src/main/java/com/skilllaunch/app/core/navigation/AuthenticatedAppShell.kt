@@ -22,7 +22,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.key
+import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -61,7 +61,7 @@ fun AuthenticatedAppShell(
     profileRepository: ProfileRepository,
     gigRepository: GigRepository,
     onLogout: () -> Unit,
-    darkTheme: Boolean,
+    themeState: State<Boolean>,
     onToggleTheme: () -> Unit
 ) {
     val backStack = remember {
@@ -149,14 +149,12 @@ fun AuthenticatedAppShell(
             entryProvider = { key ->
                 when (key) {
                     AppDestination.Home -> NavEntry(key) {
-                        key(darkTheme) {
-                            HomeScreen(
-                                user = user,
-                                onOpenDestination = ::openDestination,
-                                darkTheme = darkTheme,
-                                onToggleTheme = onToggleTheme
-                            )
-                        }
+                        HomeScreen(
+                            user = user,
+                            onOpenDestination = ::openDestination,
+                            darkTheme = themeState.value,
+                            onToggleTheme = onToggleTheme
+                        )
                     }
 
                     AppDestination.Explore -> NavEntry(key) {
