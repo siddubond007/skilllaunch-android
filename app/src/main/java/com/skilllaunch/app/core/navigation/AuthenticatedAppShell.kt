@@ -4,13 +4,14 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Button
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
@@ -24,6 +25,8 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.border
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import androidx.navigation3.runtime.NavEntry
 import androidx.navigation3.runtime.NavKey
@@ -77,38 +80,50 @@ fun AuthenticatedAppShell(
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
         topBar = {
-            if (current != AppDestination.Profile) {
+            if (current != AppDestination.Home && current != AppDestination.Profile) {
                 CenterAlignedTopAppBar(
                     title = {
                         Text(
-                            text = "SkillLaunch",
+                            text = destinationTitle(current),
                             style = MaterialTheme.typography.titleLarge
                         )
                     },
                     colors = TopAppBarDefaults.topAppBarColors(
-                        containerColor = MaterialTheme.colorScheme.background
+                        containerColor = MaterialTheme.colorScheme.background.copy(alpha = 0.92f)
                     )
                 )
             }
         },
         bottomBar = {
-            if (current != AppDestination.Profile) {
-                NavigationBar {
-                    shellDestinations.forEach { destination ->
-                        NavigationBarItem(
-                            selected = current == destination,
-                            onClick = { openDestination(destination) },
-                            icon = {
-                                Text(
-                                    text = destinationGlyph(destination),
-                                    style = MaterialTheme.typography.titleMedium
-                                )
-                            },
-                            label = {
-                                Text(destinationTitle(destination))
-                            }
-                        )
-                    }
+            NavigationBar(
+                modifier = Modifier
+                    .padding(horizontal = 12.dp, vertical = 8.dp)
+                    .clip(RoundedCornerShape(24.dp))
+                    .border(
+                        BorderStroke(
+                            1.dp,
+                            MaterialTheme.colorScheme.onSurface.copy(alpha = 0.10f)
+                        ),
+                        RoundedCornerShape(24.dp)
+                    ),
+                containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.94f),
+                contentColor = MaterialTheme.colorScheme.onSurface,
+                tonalElevation = 0.dp
+            ) {
+                shellDestinations.forEach { destination ->
+                    NavigationBarItem(
+                        selected = current == destination,
+                        onClick = { openDestination(destination) },
+                        icon = {
+                            Text(
+                                text = destinationGlyph(destination),
+                                style = MaterialTheme.typography.titleMedium
+                            )
+                        },
+                        label = {
+                            Text(destinationTitle(destination))
+                        }
+                    )
                 }
             }
         }
