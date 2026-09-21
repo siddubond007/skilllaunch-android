@@ -15,6 +15,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -43,12 +44,16 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             val systemDarkTheme = isSystemInDarkTheme()
-            var darkTheme by rememberSaveable { mutableStateOf(systemDarkTheme) }
+            val darkThemeState = rememberSaveable {
+                mutableStateOf(systemDarkTheme)
+            }
 
-            SkillLaunchTheme(darkTheme = darkTheme) {
+            SkillLaunchTheme(darkTheme = darkThemeState.value) {
                 SkillLaunchRoot(
-                    darkTheme = darkTheme,
-                    onToggleTheme = { darkTheme = !darkTheme }
+                    themeState = darkThemeState,
+                    onToggleTheme = {
+                        darkThemeState.value = !darkThemeState.value
+                    }
                 )
             }
         }
@@ -57,7 +62,7 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 private fun SkillLaunchRoot(
-    darkTheme: Boolean,
+    themeState: State<Boolean>,
     onToggleTheme: () -> Unit
 ) {
     val context = androidx.compose.ui.platform.LocalContext.current
@@ -120,7 +125,7 @@ private fun SkillLaunchRoot(
                     profileRepository = profileRepository,
                     gigRepository = gigRepository,
                     onLogout = authViewModel::logout,
-                    darkTheme = darkTheme,
+                    themeState = themeState,
                     onToggleTheme = onToggleTheme
                 )
             }
