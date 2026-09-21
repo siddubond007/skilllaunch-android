@@ -7,8 +7,8 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -69,7 +69,6 @@ fun ProfileScreen(
     var moreMenuExpanded by remember { mutableStateOf(false) }
 
     LaunchedEffect(user.id) {
-
         user.id?.let(profileViewModel::loadProfile)
     }
 
@@ -135,30 +134,31 @@ fun ProfileScreen(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(innerPadding)
+                    .consumeWindowInsets(innerPadding)
             ) {
                 if (uiState.isLoading) {
-                Column(
-                    modifier = Modifier.fillMaxSize(),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center
-                ) {
-                    CircularProgressIndicator()
-                    Spacer(modifier = Modifier.height(12.dp))
-                    Text("Loading profile…")
-                }
+                    Column(
+                        modifier = Modifier.fillMaxSize(),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center
+                    ) {
+                        CircularProgressIndicator()
+                        Spacer(modifier = Modifier.height(12.dp))
+                        Text("Loading profile…")
+                    }
                 } else {
                     ProfileContent(
-                    user = user,
-                    uiState = uiState,
-                    onTaglineChange = profileViewModel::updateTagline,
-                    onBioChange = profileViewModel::updateBio,
-                    onCollegeChange = profileViewModel::updateCollege,
-                    onCategoryChange = profileViewModel::updateCategory,
-                    onHourlyRateChange = profileViewModel::updateHourlyRate,
-                    onSkillsChange = profileViewModel::updateSkills,
-                    onResponseTimeChange = profileViewModel::updateResponseTimeExpectation,
+                        user = user,
+                        uiState = uiState,
+                        onTaglineChange = profileViewModel::updateTagline,
+                        onBioChange = profileViewModel::updateBio,
+                        onCollegeChange = profileViewModel::updateCollege,
+                        onCategoryChange = profileViewModel::updateCategory,
+                        onHourlyRateChange = profileViewModel::updateHourlyRate,
+                        onSkillsChange = profileViewModel::updateSkills,
+                        onResponseTimeChange = profileViewModel::updateResponseTimeExpectation,
                         onClearMessages = profileViewModel::clearMessages,
-                    modifier = Modifier.fillMaxSize()
+                        modifier = Modifier.fillMaxSize()
                     )
                 }
             }
@@ -183,7 +183,6 @@ private fun ProfileContent(
     Column(
         modifier = modifier
             .fillMaxSize()
-            .imePadding()
             .verticalScroll(rememberScrollState())
             .padding(horizontal = 16.dp, vertical = 14.dp),
         verticalArrangement = Arrangement.spacedBy(14.dp)
@@ -300,7 +299,10 @@ private fun ProfileContent(
                 color = MaterialTheme.colorScheme.error,
                 modifier = Modifier.padding(horizontal = 2.dp)
             )
-            TextButton(onClick = onClearMessages) { Text("Dismiss") }
+
+            TextButton(onClick = onClearMessages) {
+                Text("Dismiss")
+            }
         }
 
         Spacer(modifier = Modifier.height(12.dp))
@@ -323,7 +325,6 @@ private fun OutlinedProfileField(
             .fillMaxWidth()
             .padding(horizontal = 2.dp),
         label = { Text(label) },
-
         singleLine = singleLine,
         minLines = minLines,
         supportingText = supportingText?.let { text ->
