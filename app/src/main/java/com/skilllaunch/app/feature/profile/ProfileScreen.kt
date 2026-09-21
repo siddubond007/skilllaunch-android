@@ -139,11 +139,9 @@ fun ProfileScreen(
                     .fillMaxSize()
                     .padding(innerPadding)
             ) {
-            if (uiState.isLoading) {
+                if (uiState.isLoading) {
                 Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(innerPadding),
+                    modifier = Modifier.fillMaxSize(),
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Center
                 ) {
@@ -151,8 +149,8 @@ fun ProfileScreen(
                     Spacer(modifier = Modifier.height(12.dp))
                     Text("Loading profile…")
                 }
-            } else {
-                ProfileContent(
+                } else {
+                    ProfileContent(
                     user = user,
                     uiState = uiState,
                     onTaglineChange = profileViewModel::updateTagline,
@@ -163,9 +161,9 @@ fun ProfileScreen(
                     onSkillsChange = profileViewModel::updateSkills,
                     onResponseTimeChange = profileViewModel::updateResponseTimeExpectation,
                         onClearMessages = profileViewModel::clearMessages,
-                    modifier = Modifier.padding(innerPadding)
-                )
-            }
+                    modifier = Modifier.fillMaxSize()
+                    )
+                }
             }
         }
     }
