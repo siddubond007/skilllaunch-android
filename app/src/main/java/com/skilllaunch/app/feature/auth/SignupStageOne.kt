@@ -176,7 +176,11 @@ fun SignupStageOne(
                     label = "Email Address",
                     value = email,
                     onValueChange = onEmailChange,
-                    placeholder = "name@college.edu or name@gmail.com",
+                    placeholder = if (role == "CLIENT") {
+                        "name@company.com or trusted work email"
+                    } else {
+                        "name@college.edu or name@gmail.com"
+                    },
                     keyboardOptions = KeyboardOptions(
                         keyboardType = KeyboardType.Email
                     ),
