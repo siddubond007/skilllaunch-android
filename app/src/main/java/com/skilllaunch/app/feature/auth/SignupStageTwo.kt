@@ -47,7 +47,7 @@ fun SignupStageTwo(
     usernameSuggestions: List<String>,
     onUsernameChange: (String) -> Unit,
     onRefreshSuggestions: () -> Unit,
-    onContinue: () -> Unit,
+    onCreateAccount: () -> Unit,
     onBackToStageOne: () -> Unit
 ) {
     var localError by rememberSaveable { mutableStateOf("") }
@@ -245,7 +245,7 @@ fun SignupStageTwo(
                     Spacer(modifier = Modifier.height(18.dp))
 
                     AuthPrimaryButton(
-                        text = "Continue to Account Type",
+                        text = "Create Account",
                         enabled = !state.isLoading,
                         loading = state.isLoading,
                         onClick = {
@@ -258,7 +258,7 @@ fun SignupStageTwo(
                             }
 
                             if (localError.isBlank()) {
-                                onContinue()
+                                onCreateAccount()
                             }
                         }
                     )
