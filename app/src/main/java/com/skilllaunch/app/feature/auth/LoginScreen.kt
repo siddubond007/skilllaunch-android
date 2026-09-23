@@ -1,6 +1,8 @@
 package com.skilllaunch.app.feature.auth
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -9,10 +11,12 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -28,7 +32,6 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.ui.text.style.TextAlign
 
 @Composable
 fun LoginScreen(
@@ -46,18 +49,20 @@ fun LoginScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .verticalScroll(rememberScrollState())
+                .safeDrawingPadding()
                 .imePadding()
-                .padding(horizontal = 24.dp, vertical = 18.dp),
+                .padding(horizontal = 24.dp, vertical = 12.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Row(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .widthIn(max = 520.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 SkillLaunchBrand(
                     darkTheme = darkTheme,
-                    compact = true
+                    compact = false
                 )
 
                 Spacer(modifier = Modifier.weight(1f))
@@ -68,114 +73,124 @@ fun LoginScreen(
                 )
             }
 
-            Spacer(modifier = Modifier.height(42.dp))
-
-            Column(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalAlignment = Alignment.Start
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f),
+                contentAlignment = Alignment.Center
             ) {
-                Text(
-                    text = "Welcome Back",
-                    color = MaterialTheme.colorScheme.onSurface,
-                    fontSize = 36.sp,
-                    lineHeight = 40.sp,
-                    fontWeight = FontWeight.ExtraBold
-                )
-
-                Text(
-                    text = "Sign in to your SkillLaunch work portal",
-                    modifier = Modifier.padding(top = 5.dp),
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    style = MaterialTheme.typography.bodyMedium
-                )
-            }
-
-            Spacer(modifier = Modifier.height(31.dp))
-
-            Column(
-                modifier = Modifier.fillMaxWidth(),
-                verticalArrangement = Arrangement.spacedBy(13.dp)
-            ) {
-                AuthField(
-                    label = "Email Address",
-                    value = email,
-                    onValueChange = { email = it },
-                    placeholder = "name@college.edu or name@gmail.com",
-                    keyboardOptions = KeyboardOptions(
-                        keyboardType = KeyboardType.Email
-                    ),
-                    leadingIcon = AuthFieldIcon.Email
-                )
-
-                AuthField(
-                    label = "Password",
-                    value = password,
-                    onValueChange = { password = it },
-                    placeholder = "••••••••",
-                    keyboardOptions = KeyboardOptions(
-                        keyboardType = KeyboardType.Password
-                    ),
-                    leadingIcon = AuthFieldIcon.Lock,
-                    password = true,
-                    passwordVisible = passwordVisible,
-                    onTogglePassword = {
-                        passwordVisible = !passwordVisible
-                    }
-                )
-            }
-
-            state.errorMessage?.takeIf { it.isNotBlank() }?.let { message ->
-                Surface(
+                Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(top = 12.dp),
-                    shape = RoundedCornerShape(15.dp),
-                    color = MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.82f)
+                        .widthIn(max = 520.dp)
+                        .verticalScroll(rememberScrollState())
+                        .padding(vertical = 20.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
                 ) {
+                    Column(
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text(
+                            text = "Welcome Back",
+                            color = MaterialTheme.colorScheme.onSurface,
+                            fontSize = 36.sp,
+                            lineHeight = 40.sp,
+                            fontWeight = FontWeight.ExtraBold
+                        )
+
+                        Text(
+                            text = "Sign in to your SkillLaunch work portal",
+                            modifier = Modifier.padding(top = 7.dp),
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(26.dp))
+
+                    Column(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalArrangement = Arrangement.spacedBy(13.dp)
+                    ) {
+                        AuthField(
+                            label = "Email Address",
+                            value = email,
+                            onValueChange = { email = it },
+                            placeholder = "name@college.edu or name@gmail.com",
+                            keyboardOptions = KeyboardOptions(
+                                keyboardType = KeyboardType.Email
+                            ),
+                            leadingIcon = AuthFieldIcon.Email
+                        )
+
+                        AuthField(
+                            label = "Password",
+                            value = password,
+                            onValueChange = { password = it },
+                            placeholder = "Enter your password",
+                            keyboardOptions = KeyboardOptions(
+                                keyboardType = KeyboardType.Password
+                            ),
+                            leadingIcon = AuthFieldIcon.Lock,
+                            password = true,
+                            passwordVisible = passwordVisible,
+                            onTogglePassword = {
+                                passwordVisible = !passwordVisible
+                            }
+                        )
+                    }
+
+                    state.errorMessage?.takeIf { it.isNotBlank() }?.let { message ->
+                        Surface(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(top = 12.dp),
+                            shape = RoundedCornerShape(15.dp),
+                            color = MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.82f)
+                        ) {
+                            Text(
+                                text = message,
+                                modifier = Modifier.padding(
+                                    horizontal = 13.dp,
+                                    vertical = 11.dp
+                                ),
+                                color = MaterialTheme.colorScheme.onErrorContainer,
+                                style = MaterialTheme.typography.bodySmall,
+                                fontWeight = FontWeight.SemiBold
+                            )
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(22.dp))
+
+                    AuthPrimaryButton(
+                        text = "Sign In to Portal",
+                        enabled = !state.isLoading,
+                        loading = state.isLoading,
+                        onClick = {
+                            onLogin(email, password)
+                        }
+                    )
+
+                    Spacer(modifier = Modifier.height(28.dp))
+
                     Text(
-                        text = message,
-                        modifier = Modifier.padding(
-                            horizontal = 13.dp,
-                            vertical = 11.dp
-                        ),
-                        color = MaterialTheme.colorScheme.onErrorContainer,
-                        style = MaterialTheme.typography.bodySmall,
-                        fontWeight = FontWeight.SemiBold
+                        text = "Don't have an account?",
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        style = MaterialTheme.typography.bodySmall
+                    )
+
+                    Text(
+                        text = "Join Free as Student or Client",
+                        modifier = Modifier
+                            .padding(top = 7.dp)
+                            .clickable(onClick = onCreateAccount),
+                        color = MaterialTheme.colorScheme.primary,
+                        style = MaterialTheme.typography.labelLarge,
+                        fontWeight = FontWeight.Bold
                     )
                 }
             }
-
-            Spacer(modifier = Modifier.height(22.dp))
-
-            AuthPrimaryButton(
-                text = "Sign In to Portal",
-                enabled = !state.isLoading,
-                loading = state.isLoading,
-                onClick = {
-                    onLogin(email, password)
-                }
-            )
-
-            Spacer(modifier = Modifier.height(54.dp))
-
-            Text(
-                text = "Don't have an account?",
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                style = MaterialTheme.typography.bodyMedium
-            )
-
-            Text(
-                text = "Join Free as Student or Client",
-                modifier = Modifier
-                    .padding(top = 8.dp)
-                    .clickable(onClick = onCreateAccount),
-                color = MaterialTheme.colorScheme.primary,
-                style = MaterialTheme.typography.labelLarge,
-                fontWeight = FontWeight.Bold,
-                textAlign = TextAlign.Center
-            )
-
-            Spacer(modifier = Modifier.height(18.dp))
         }
     }
 }
