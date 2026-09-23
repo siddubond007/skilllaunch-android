@@ -48,7 +48,7 @@ fun AuthBackground(
 ) {
     Box(
         modifier = Modifier
-            .fillMaxWidth()
+            .fillMaxSize()
             .background(
                 Brush.verticalGradient(
                     colors = if (darkTheme) {
