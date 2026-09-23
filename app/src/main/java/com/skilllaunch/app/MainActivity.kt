@@ -5,6 +5,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -15,6 +16,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import kotlinx.coroutines.delay
 import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -67,6 +69,12 @@ private fun SkillLaunchRoot(
 ) {
     val context = androidx.compose.ui.platform.LocalContext.current
     val showSignup = remember { mutableStateOf(false) }
+    var splashMinimumElapsed by rememberSaveable { mutableStateOf(false) }
+
+    LaunchedEffect(Unit) {
+        delay(1600)
+        splashMinimumElapsed = true
+    }
 
     val sessionStore = remember {
         SessionStore(context.applicationContext)
@@ -117,7 +125,9 @@ private fun SkillLaunchRoot(
         color = MaterialTheme.colorScheme.background
     ) {
         when {
-            state.isCheckingSession -> SessionCheckingScreen()
+            !splashMinimumElapsed || state.isCheckingSession -> SkillLaunchSplashScreen(
+                darkTheme = themeState.value
+            )
 
             state.isAuthenticated && state.user != null -> {
                 AuthenticatedAppShell(
