@@ -1,9 +1,11 @@
 package com.skilllaunch.app
 
+import android.app.Activity
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.core.view.WindowCompat
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.foundation.layout.Arrangement
@@ -16,6 +18,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.SideEffect
 import kotlinx.coroutines.delay
 import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
@@ -25,6 +28,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.skilllaunch.app.core.common.collectAsStateWithLifecycleCompat
@@ -51,6 +55,14 @@ class MainActivity : ComponentActivity() {
             }
 
             SkillLaunchTheme(darkTheme = darkThemeState.value) {
+                val view = LocalView.current
+                SideEffect {
+                    val window = (view.context as Activity).window
+                    val controller = WindowCompat.getInsetsController(window, view)
+                    controller.isAppearanceLightStatusBars = !darkThemeState.value
+                    controller.isAppearanceLightNavigationBars = !darkThemeState.value
+                }
+
                 SkillLaunchRoot(
                     themeState = darkThemeState,
                     onToggleTheme = {
