@@ -211,6 +211,27 @@ fun SignupScreen(
                 },
                 onBackToLogin = onBackToLogin
             )
+        } else if (step == 2) {
+            SignupStageTwo(
+                state = state,
+                darkTheme = darkTheme,
+                onToggleTheme = onToggleTheme,
+                username = username,
+                usernameSuggestions = usernameSuggestions,
+                onUsernameChange = { value ->
+                    username = value
+                    localError = ""
+                },
+                onRefreshSuggestions = ::generateUsernameSuggestions,
+                onContinue = {
+                    localError = ""
+                    step = 3
+                },
+                onBackToStageOne = {
+                    localError = ""
+                    step = 1
+                }
+            )
         } else {
         Column(
             modifier = Modifier
