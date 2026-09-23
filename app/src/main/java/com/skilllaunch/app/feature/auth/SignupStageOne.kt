@@ -2,6 +2,7 @@ package com.skilllaunch.app.feature.auth
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -11,11 +12,11 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
-import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -67,7 +68,9 @@ fun SignupStageOne(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Row(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .widthIn(max = 520.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 TextButton(
@@ -90,245 +93,251 @@ fun SignupStageOne(
                 )
             }
 
-            Spacer(modifier = Modifier.height(39.dp))
-
-            Column(
+            Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .widthIn(max = 520.dp)
+                    .weight(1f),
+                contentAlignment = Alignment.Center
             ) {
-                Text(
-                    text = "Join SkillLaunch",
-                    color = MaterialTheme.colorScheme.onSurface,
-                    fontSize = 32.sp,
-                    lineHeight = 36.sp,
-                    fontWeight = FontWeight.ExtraBold
-                )
-
-                Text(
-                    text = "Create your free account and start today",
-                    modifier = Modifier.padding(top = 5.dp),
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    style = MaterialTheme.typography.bodyMedium
-                )
-
-                Spacer(modifier = Modifier.height(25.dp))
-
-                Text(
-                    text = "I'm joining as",
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    style = MaterialTheme.typography.labelMedium,
-                    fontWeight = FontWeight.SemiBold
-                )
-
-                Spacer(modifier = Modifier.height(8.dp))
-
-                AuthRoleToggle(
-                    studentSelected = role == "STUDENT_FREELANCER",
-                    onStudentSelected = {
-                        onRoleChange("STUDENT_FREELANCER")
-                        localError = ""
-                    },
-                    onClientSelected = {
-                        onRoleChange("CLIENT")
-                        localError = ""
-                    }
-                )
-
-                Spacer(modifier = Modifier.height(21.dp))
-
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    AuthField(
-                        label = "First Name",
-                        value = firstName,
-                        onValueChange = { value ->
-                            onFirstNameChange(
-                                value.filter { it.isLetter() || it.isWhitespace() }
-                            )
-                        },
-                        placeholder = "Alex",
-                        keyboardOptions = KeyboardOptions(
-                            keyboardType = KeyboardType.Text
-                        ),
-                        leadingIcon = AuthFieldIcon.User,
-                        modifier = Modifier.weight(1f)
-                    )
-
-                    AuthField(
-                        label = "Last Name",
-                        value = lastName,
-                        onValueChange = { value ->
-                            onLastNameChange(
-                                value.filter { it.isLetter() || it.isWhitespace() }
-                            )
-                        },
-                        placeholder = "Rivera",
-                        keyboardOptions = KeyboardOptions(
-                            keyboardType = KeyboardType.Text
-                        ),
-                        leadingIcon = AuthFieldIcon.User,
-                        modifier = Modifier.weight(1f)
-                    )
-                }
-
-                Spacer(modifier = Modifier.height(12.dp))
-
                 Column(
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .widthIn(max = 520.dp)
+                        .verticalScroll(rememberScrollState())
+                        .padding(vertical = 14.dp)
                 ) {
-                    AuthField(
-                        label = "Email Address",
-                        value = email,
-                        onValueChange = onEmailChange,
-                        placeholder = if (role == "CLIENT") {
-                            "alex@company.com"
-                        } else {
-                            "alex@college.edu"
-                        },
-                        keyboardOptions = KeyboardOptions(
-                            keyboardType = KeyboardType.Email
-                        ),
-                        leadingIcon = AuthFieldIcon.Email
+                    Text(
+                        text = "Join SkillLaunch",
+                        color = MaterialTheme.colorScheme.onSurface,
+                        fontSize = 32.sp,
+                        lineHeight = 36.sp,
+                        fontWeight = FontWeight.ExtraBold
                     )
 
                     Text(
-                        text = if (role == "CLIENT") {
-                            "Use your work or business email"
-                        } else {
-                            "College or personal Gmail accepted"
-                        },
-                        modifier = Modifier.padding(
-                            top = 6.dp,
-                            start = 3.dp
-                        ),
-                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.72f),
-                        fontSize = 11.sp,
-                        fontWeight = FontWeight.Medium
+                        text = "Create your free account and start today",
+                        modifier = Modifier.padding(top = 5.dp),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        style = MaterialTheme.typography.bodyMedium
                     )
-                }
 
-                Spacer(modifier = Modifier.height(12.dp))
+                    Spacer(modifier = Modifier.height(24.dp))
 
-                AuthField(
-                    label = "Password",
-                    value = password,
-                    onValueChange = onPasswordChange,
-                    placeholder = "Min. 8 characters",
-                    keyboardOptions = KeyboardOptions(
-                        keyboardType = KeyboardType.Password
-                    ),
-                    leadingIcon = AuthFieldIcon.Lock,
-                    password = true,
-                    passwordVisible = showPassword,
-                    onTogglePassword = {
-                        showPassword = !showPassword
-                    }
-                )
+                    Text(
+                        text = "I'm joining as",
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        style = MaterialTheme.typography.labelMedium,
+                        fontWeight = FontWeight.SemiBold
+                    )
 
-                Spacer(modifier = Modifier.height(12.dp))
+                    Spacer(modifier = Modifier.height(8.dp))
 
-                AuthField(
-                    label = "Confirm Password",
-                    value = confirmPassword,
-                    onValueChange = {
-                        confirmPassword = it
-                        localError = ""
-                    },
-                    placeholder = "Re-enter your password",
-                    keyboardOptions = KeyboardOptions(
-                        keyboardType = KeyboardType.Password
-                    ),
-                    leadingIcon = AuthFieldIcon.Check,
-                    password = true,
-                    passwordVisible = showPassword
-                )
+                    AuthRoleToggle(
+                        studentSelected = role == "STUDENT_FREELANCER",
+                        onStudentSelected = {
+                            onRoleChange("STUDENT_FREELANCER")
+                            localError = ""
+                        },
+                        onClientSelected = {
+                            onRoleChange("CLIENT")
+                            localError = ""
+                        }
+                    )
 
-                if (visibleError.isNotBlank()) {
-                    Surface(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(top = 12.dp),
-                        shape = RoundedCornerShape(14.dp),
-                        color = MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.82f)
+                    Spacer(modifier = Modifier.height(20.dp))
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
-                        Text(
-                            text = visibleError,
-                            modifier = Modifier.padding(
-                                horizontal = 13.dp,
-                                vertical = 10.dp
+                        AuthField(
+                            label = "First Name",
+                            value = firstName,
+                            onValueChange = { value ->
+                                onFirstNameChange(
+                                    value.filter { it.isLetter() || it.isWhitespace() }
+                                )
+                            },
+                            placeholder = "Alex",
+                            keyboardOptions = KeyboardOptions(
+                                keyboardType = KeyboardType.Text
                             ),
-                            color = MaterialTheme.colorScheme.onErrorContainer,
-                            style = MaterialTheme.typography.bodySmall,
-                            fontWeight = FontWeight.SemiBold
+                            leadingIcon = AuthFieldIcon.User,
+                            modifier = Modifier.weight(1f)
+                        )
+
+                        AuthField(
+                            label = "Last Name",
+                            value = lastName,
+                            onValueChange = { value ->
+                                onLastNameChange(
+                                    value.filter { it.isLetter() || it.isWhitespace() }
+                                )
+                            },
+                            placeholder = "Rivera",
+                            keyboardOptions = KeyboardOptions(
+                                keyboardType = KeyboardType.Text
+                            ),
+                            leadingIcon = AuthFieldIcon.User,
+                            modifier = Modifier.weight(1f)
                         )
                     }
-                }
 
-                Spacer(modifier = Modifier.height(19.dp))
+                    Spacer(modifier = Modifier.height(12.dp))
 
-                AuthPrimaryButton(
-                    text = if (role == "CLIENT") {
-                        "Join Free as Client"
-                    } else {
-                        "Join Free as Student"
-                    },
-                    enabled = !state.isLoading,
-                    loading = state.isLoading,
-                    onClick = {
-                        when {
-                            firstName.trim().length < 3 -> {
-                                localError = "First Name must contain at least 3 letters."
-                            }
-                            lastName.trim().length < 3 -> {
-                                localError = "Last Name must contain at least 3 letters."
-                            }
-                            email.trim().isBlank() -> {
-                                localError = "Please enter your email address."
-                            }
-                            password.length < 8 -> {
-                                localError = "Password must contain at least 8 characters."
-                            }
-                            password != confirmPassword -> {
-                                localError = "Passwords do not match."
-                            }
-                            else -> {
-                                localError = ""
-                                onContinue(role)
-                            }
+                    Column(
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        AuthField(
+                            label = "Email Address",
+                            value = email,
+                            onValueChange = onEmailChange,
+                            placeholder = if (role == "CLIENT") {
+                                "alex@company.com"
+                            } else {
+                                "alex@college.edu"
+                            },
+                            keyboardOptions = KeyboardOptions(
+                                keyboardType = KeyboardType.Email
+                            ),
+                            leadingIcon = AuthFieldIcon.Email
+                        )
+
+                        Text(
+                            text = if (role == "CLIENT") {
+                                "Use your work or business email"
+                            } else {
+                                "College or personal Gmail accepted"
+                            },
+                            modifier = Modifier.padding(
+                                top = 6.dp,
+                                start = 3.dp
+                            ),
+                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.72f),
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight.Medium
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    AuthField(
+                        label = "Password",
+                        value = password,
+                        onValueChange = onPasswordChange,
+                        placeholder = "Min. 8 characters",
+                        keyboardOptions = KeyboardOptions(
+                            keyboardType = KeyboardType.Password
+                        ),
+                        leadingIcon = AuthFieldIcon.Lock,
+                        password = true,
+                        passwordVisible = showPassword,
+                        onTogglePassword = {
+                            showPassword = !showPassword
+                        }
+                    )
+
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    AuthField(
+                        label = "Confirm Password",
+                        value = confirmPassword,
+                        onValueChange = {
+                            confirmPassword = it
+                            localError = ""
+                        },
+                        placeholder = "Re-enter your password",
+                        keyboardOptions = KeyboardOptions(
+                            keyboardType = KeyboardType.Password
+                        ),
+                        leadingIcon = AuthFieldIcon.Check,
+                        password = true,
+                        passwordVisible = showPassword
+                    )
+
+                    if (visibleError.isNotBlank()) {
+                        Surface(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(top = 12.dp),
+                            shape = RoundedCornerShape(14.dp),
+                            color = MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.82f)
+                        ) {
+                            Text(
+                                text = visibleError,
+                                modifier = Modifier.padding(
+                                    horizontal = 13.dp,
+                                    vertical = 10.dp
+                                ),
+                                color = MaterialTheme.colorScheme.onErrorContainer,
+                                style = MaterialTheme.typography.bodySmall,
+                                fontWeight = FontWeight.SemiBold
+                            )
                         }
                     }
-                )
+
+                    Spacer(modifier = Modifier.height(18.dp))
+
+                    AuthPrimaryButton(
+                        text = if (role == "CLIENT") {
+                            "Join Free as Client"
+                        } else {
+                            "Join Free as Student"
+                        },
+                        enabled = !state.isLoading,
+                        loading = state.isLoading,
+                        onClick = {
+                            when {
+                                firstName.trim().length < 3 -> {
+                                    localError = "First Name must contain at least 3 letters."
+                                }
+                                lastName.trim().length < 3 -> {
+                                    localError = "Last Name must contain at least 3 letters."
+                                }
+                                email.trim().isBlank() -> {
+                                    localError = "Please enter your email address."
+                                }
+                                password.length < 8 -> {
+                                    localError = "Password must contain at least 8 characters."
+                                }
+                                password != confirmPassword -> {
+                                    localError = "Passwords do not match."
+                                }
+                                else -> {
+                                    localError = ""
+                                    onContinue(role)
+                                }
+                            }
+                        }
+                    )
+
+                    Spacer(modifier = Modifier.height(18.dp))
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.Center,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = "Already have an account?",
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            style = MaterialTheme.typography.bodySmall
+                        )
+
+                        Spacer(modifier = Modifier.width(5.dp))
+
+                        Text(
+                            text = "Sign in",
+                            color = MaterialTheme.colorScheme.primary,
+                            style = MaterialTheme.typography.labelLarge,
+                            fontWeight = FontWeight.Bold,
+                            modifier = Modifier.clickable(onClick = onBackToLogin)
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(14.dp))
                 }
-
-                Spacer(modifier = Modifier.height(18.dp))
             }
-
-            Spacer(modifier = Modifier.height(12.dp))
-
-            Row(
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = "Already have an account?",
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    style = MaterialTheme.typography.bodySmall
-                )
-
-                Spacer(modifier = Modifier.width(5.dp))
-
-                Text(
-                    text = "Sign in",
-                    color = MaterialTheme.colorScheme.primary,
-                    style = MaterialTheme.typography.labelLarge,
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier.clickable(onClick = onBackToLogin)
-                )
-            }
-
-            Spacer(modifier = Modifier.height(18.dp))
         }
     }
 }
