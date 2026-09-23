@@ -1,0 +1,304 @@
+package com.skilllaunch.app.feature.auth
+
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardOptions
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+
+@Composable
+fun SignupStageOne(
+    state: AuthUiState,
+    darkTheme: Boolean,
+    onToggleTheme: () -> Unit,
+    role: String,
+    firstName: String,
+    lastName: String,
+    email: String,
+    password: String,
+    onRoleChange: (String) -> Unit,
+    onFirstNameChange: (String) -> Unit,
+    onLastNameChange: (String) -> Unit,
+    onEmailChange: (String) -> Unit,
+    onPasswordChange: (String) -> Unit,
+    onContinue: (String) -> Unit,
+    onBackToLogin: () -> Unit
+) {
+    var showPassword by rememberSaveable { mutableStateOf(false) }
+    var confirmPassword by rememberSaveable { mutableStateOf("") }
+    var localError by rememberSaveable { mutableStateOf("") }
+
+    val visibleError = localError.ifBlank { state.errorMessage.orEmpty() }
+
+    AuthBackground(darkTheme = darkTheme) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState())
+                .imePadding()
+                .padding(horizontal = 24.dp, vertical = 18.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                TextButton(
+                    onClick = onBackToLogin,
+                    contentPadding = androidx.compose.foundation.layout.PaddingValues(0.dp)
+                ) {
+                    Text(
+                        text = "←  Back to Sign In",
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        style = MaterialTheme.typography.bodyMedium,
+                        fontWeight = FontWeight.Medium
+                    )
+                }
+
+                Spacer(modifier = Modifier.weight(1f))
+
+                ThemeToggle(
+                    darkTheme = darkTheme,
+                    onToggleTheme = onToggleTheme
+                )
+            }
+
+            Spacer(modifier = Modifier.height(39.dp))
+
+            Column(
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(
+                    text = "Join SkillLaunch",
+                    color = MaterialTheme.colorScheme.onSurface,
+                    fontSize = 32.sp,
+                    lineHeight = 36.sp,
+                    fontWeight = FontWeight.ExtraBold
+                )
+
+                Text(
+                    text = "Create your free account and start today",
+                    modifier = Modifier.padding(top = 5.dp),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    style = MaterialTheme.typography.bodyMedium
+                )
+
+                Spacer(modifier = Modifier.height(25.dp))
+
+                Text(
+                    text = "I'm joining as",
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    style = MaterialTheme.typography.labelMedium,
+                    fontWeight = FontWeight.SemiBold
+                )
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                AuthRoleToggle(
+                    studentSelected = role == "STUDENT_FREELANCER",
+                    onStudentSelected = {
+                        onRoleChange("STUDENT_FREELANCER")
+                        localError = ""
+                    },
+                    onClientSelected = {
+                        onRoleChange("CLIENT")
+                        localError = ""
+                    }
+                )
+
+                Spacer(modifier = Modifier.height(21.dp))
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    AuthField(
+                        label = "First Name",
+                        value = firstName,
+                        onValueChange = { value ->
+                            onFirstNameChange(
+                                value.filter { it.isLetter() || it.isWhitespace() }
+                            )
+                        },
+                        placeholder = "Alex",
+                        keyboardOptions = KeyboardOptions(
+                            keyboardType = KeyboardType.Text
+                        ),
+                        leadingIcon = AuthFieldIcon.User,
+                        modifier = Modifier.weight(1f)
+                    )
+
+                    AuthField(
+                        label = "Last Name",
+                        value = lastName,
+                        onValueChange = { value ->
+                            onLastNameChange(
+                                value.filter { it.isLetter() || it.isWhitespace() }
+                            )
+                        },
+                        placeholder = "Rivera",
+                        keyboardOptions = KeyboardOptions(
+                            keyboardType = KeyboardType.Text
+                        ),
+                        leadingIcon = AuthFieldIcon.User,
+                        modifier = Modifier.weight(1f)
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(12.dp))
+
+                AuthField(
+                    label = "Email Address",
+                    value = email,
+                    onValueChange = onEmailChange,
+                    placeholder = "name@college.edu or name@gmail.com",
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Email
+                    ),
+                    leadingIcon = AuthFieldIcon.Email
+                )
+
+                Spacer(modifier = Modifier.height(12.dp))
+
+                AuthField(
+                    label = "Password",
+                    value = password,
+                    onValueChange = onPasswordChange,
+                    placeholder = "Min. 8 characters",
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Password
+                    ),
+                    leadingIcon = AuthFieldIcon.Lock,
+                    password = true,
+                    passwordVisible = showPassword,
+                    onTogglePassword = {
+                        showPassword = !showPassword
+                    }
+                )
+
+                Spacer(modifier = Modifier.height(12.dp))
+
+                AuthField(
+                    label = "Confirm Password",
+                    value = confirmPassword,
+                    onValueChange = {
+                        confirmPassword = it
+                        localError = ""
+                    },
+                    placeholder = "Re-enter your password",
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Password
+                    ),
+                    leadingIcon = AuthFieldIcon.Check,
+                    password = true,
+                    passwordVisible = showPassword
+                )
+
+                if (visibleError.isNotBlank()) {
+                    Surface(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 12.dp),
+                        shape = RoundedCornerShape(14.dp),
+                        color = MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.82f)
+                    ) {
+                        Text(
+                            text = visibleError,
+                            modifier = Modifier.padding(
+                                horizontal = 13.dp,
+                                vertical = 10.dp
+                            ),
+                            color = MaterialTheme.colorScheme.onErrorContainer,
+                            style = MaterialTheme.typography.bodySmall,
+                            fontWeight = FontWeight.SemiBold
+                        )
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(19.dp))
+
+                AuthPrimaryButton(
+                    text = if (role == "CLIENT") {
+                        "Join Free as Client"
+                    } else {
+                        "Join Free as Student"
+                    },
+                    enabled = !state.isLoading,
+                    loading = state.isLoading,
+                    onClick = {
+                        when {
+                            firstName.trim().length < 3 -> {
+                                localError = "First Name must contain at least 3 letters."
+                            }
+                            lastName.trim().length < 3 -> {
+                                localError = "Last Name must contain at least 3 letters."
+                            }
+                            email.trim().isBlank() -> {
+                                localError = "Please enter your email address."
+                            }
+                            password.length < 8 -> {
+                                localError = "Password must contain at least 8 characters."
+                            }
+                            password != confirmPassword -> {
+                                localError = "Passwords do not match."
+                            }
+                            else -> {
+                                localError = ""
+                                onContinue(role)
+                            }
+                        }
+                    }
+                )
+            }
+
+            Spacer(modifier = Modifier.height(18.dp))
+
+            Row(
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "Already have an account?",
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    style = MaterialTheme.typography.bodySmall
+                )
+
+                Spacer(modifier = Modifier.width(5.dp))
+
+                Text(
+                    text = "Sign in",
+                    color = MaterialTheme.colorScheme.primary,
+                    style = MaterialTheme.typography.labelLarge,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.clickable(onClick = onBackToLogin)
+                )
+            }
+
+            Spacer(modifier = Modifier.height(18.dp))
+        }
+    }
+}
