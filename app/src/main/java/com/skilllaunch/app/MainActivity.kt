@@ -133,6 +133,8 @@ private fun SkillLaunchRoot(
             showSignup.value -> {
                 SignupScreen(
                     state = state,
+                    darkTheme = themeState.value,
+                    onToggleTheme = onToggleTheme,
                     onSignup = authViewModel::signup,
                     onBackToLogin = { showSignup.value = false }
                 )
