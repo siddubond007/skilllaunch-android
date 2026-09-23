@@ -205,7 +205,6 @@ fun SignupStageTwo(
                                             subtitle = if (index < 2) "CLASSIC" else "FANCY",
                                             selected = username == suggestion,
                                             onClick = {
-                                                username = suggestion
                                                 onUsernameChange(suggestion)
                                                 localError = ""
                                             },
@@ -299,7 +298,12 @@ private fun GlassSuggestionCard(
                         )
                     )
                 } else {
-                    MaterialTheme.colorScheme.surface.copy(alpha = 0.34f)
+                    Brush.linearGradient(
+                        listOf(
+                            MaterialTheme.colorScheme.surface.copy(alpha = 0.32f),
+                            MaterialTheme.colorScheme.surface.copy(alpha = 0.22f)
+                        )
+                    )
                 }
             )
             .border(
