@@ -172,20 +172,39 @@ fun SignupStageOne(
 
                 Spacer(modifier = Modifier.height(12.dp))
 
-                AuthField(
-                    label = "Email Address",
-                    value = email,
-                    onValueChange = onEmailChange,
-                    placeholder = if (role == "CLIENT") {
-                        "name@company.com or trusted work email"
-                    } else {
-                        "name@college.edu or name@gmail.com"
-                    },
-                    keyboardOptions = KeyboardOptions(
-                        keyboardType = KeyboardType.Email
-                    ),
-                    leadingIcon = AuthFieldIcon.Email
-                )
+                Column(
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    AuthField(
+                        label = "Email Address",
+                        value = email,
+                        onValueChange = onEmailChange,
+                        placeholder = if (role == "CLIENT") {
+                            "alex@company.com"
+                        } else {
+                            "alex@college.edu"
+                        },
+                        keyboardOptions = KeyboardOptions(
+                            keyboardType = KeyboardType.Email
+                        ),
+                        leadingIcon = AuthFieldIcon.Email
+                    )
+
+                    Text(
+                        text = if (role == "CLIENT") {
+                            "Use your work or business email"
+                        } else {
+                            "College or personal Gmail accepted"
+                        },
+                        modifier = Modifier.padding(
+                            top = 6.dp,
+                            start = 3.dp
+                        ),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.72f),
+                        fontSize = 11.sp,
+                        fontWeight = FontWeight.Medium
+                    )
+                }
 
                 Spacer(modifier = Modifier.height(12.dp))
 
