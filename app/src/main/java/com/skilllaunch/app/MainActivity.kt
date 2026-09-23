@@ -141,6 +141,8 @@ private fun SkillLaunchRoot(
             else -> {
                 LoginScreen(
                     state = state,
+                    darkTheme = themeState.value,
+                    onToggleTheme = onToggleTheme,
                     onLogin = authViewModel::login,
                     onCreateAccount = { showSignup.value = true }
                 )
