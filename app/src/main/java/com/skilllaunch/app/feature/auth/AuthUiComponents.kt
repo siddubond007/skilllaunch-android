@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -30,6 +31,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
@@ -265,6 +267,7 @@ fun AuthField(
             modifier = Modifier.fillMaxWidth(),
             singleLine = true,
             keyboardOptions = keyboardOptions,
+            cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
             visualTransformation = if (password && !passwordVisible) {
                 PasswordVisualTransformation()
             } else {
@@ -272,14 +275,15 @@ fun AuthField(
             },
             textStyle = TextStyle(
                 color = MaterialTheme.colorScheme.onSurface,
-                fontSize = 14.sp,
+                fontSize = 15.sp,
+                lineHeight = 20.sp,
                 fontWeight = FontWeight.Medium
             ),
             decorationBox = { innerTextField ->
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(55.dp)
+                        .height(58.dp)
                         .clip(RoundedCornerShape(16.dp))
                         .background(
                             MaterialTheme.colorScheme.surface.copy(
@@ -291,7 +295,7 @@ fun AuthField(
                             MaterialTheme.colorScheme.onSurface.copy(alpha = 0.09f),
                             RoundedCornerShape(16.dp)
                         )
-                        .padding(horizontal = 15.dp),
+                        .padding(horizontal = 17.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     AuthFieldIconView(
@@ -301,7 +305,12 @@ fun AuthField(
 
                     Spacer(modifier = Modifier.width(12.dp))
 
-                    Box(modifier = Modifier.weight(1f)) {
+                    Box(
+                        modifier = Modifier
+                            .weight(1f)
+                            .fillMaxHeight(),
+                        contentAlignment = Alignment.CenterStart
+                    ) {
                         if (value.isEmpty()) {
                             Text(
                                 text = placeholder,
@@ -460,7 +469,7 @@ fun AuthPrimaryButton(
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .height(55.dp)
+            .height(58.dp)
             .clip(RoundedCornerShape(17.dp))
             .background(
                 Brush.horizontalGradient(
