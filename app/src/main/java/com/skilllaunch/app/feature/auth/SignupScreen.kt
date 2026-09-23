@@ -581,120 +581,26 @@ fun SignupScreen(
                     }
 
                     2 -> {
-                        LazyColumn(
-                            modifier = Modifier.fillMaxSize(),
-                            verticalArrangement = Arrangement.spacedBy(12.dp)
-                        ) {
-                            item {
-                                OutlinedTextField(
-                                    value = username,
-                                    onValueChange = {
-                                        username = it
-                                            .lowercase(Locale.US)
-                                            .filter { c ->
-                                                c.isLetterOrDigit() || c == '_'
-                                            }
-                                    },
-                                    modifier = Modifier.fillMaxWidth(),
-                                    label = { Text("Username") },
-                                    placeholder = {
-                                        Text("your_unique_username")
-                                    },
-                                    singleLine = true
-                                )
-
-                                Spacer(Modifier.height(2.dp))
-
-                                Text(
-                                    "Minimum 3 characters. Lowercase letters, numbers and underscore are allowed.",
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                                )
-
-                                TextButton(
-                                    onClick = ::generateUsernameSuggestions
-                                ) {
-                                    Text("Refresh Suggestions")
-                                }
-
-                                Text(
-                                    "Choose a suggestion",
-                                    style = MaterialTheme.typography.labelLarge,
-                                    fontWeight = FontWeight.Bold
-                                )
+                        SignupStageTwo(
+                            state = state,
+                            darkTheme = darkTheme,
+                            onToggleTheme = onToggleTheme,
+                            username = username,
+                            usernameSuggestions = usernameSuggestions,
+                            onUsernameChange = { value ->
+                                username = value
+                                localError = ""
+                            },
+                            onRefreshSuggestions = ::generateUsernameSuggestions,
+                            onContinue = {
+                                localError = ""
+                                step = 3
+                            },
+                            onBackToStageOne = {
+                                localError = ""
+                                step = 1
                             }
-
-                            itemsIndexed(usernameSuggestions) { index, suggestion ->
-                                val fancy = index >= 2
-
-                                Card(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .clickable {
-                                            username = suggestion
-                                            localError = ""
-                                        },
-                                    colors = CardDefaults.cardColors(
-                                        containerColor = if (username == suggestion) {
-                                            MaterialTheme.colorScheme.primaryContainer
-                                        } else {
-                                            MaterialTheme.colorScheme.surface
-                                        }
-                                    )
-                                ) {
-                                    Row(
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .padding(16.dp),
-                                        verticalAlignment = Alignment.CenterVertically
-                                    ) {
-                                        Text(
-                                            if (fancy) "FANCY" else "CLASSIC",
-                                            style = MaterialTheme.typography.labelSmall,
-                                            fontWeight = FontWeight.Bold,
-                                            color = if (fancy) {
-                                                Color(0xFF8B5CF6)
-                                            } else {
-                                                MaterialTheme.colorScheme.primary
-                                            }
-                                        )
-
-                                        Spacer(Modifier.width(12.dp))
-
-                                        Text(
-                                            "@$suggestion",
-                                            fontWeight = FontWeight.Bold
-                                        )
-                                    }
-                                }
-                            }
-
-                            item {
-                                Button(
-                                    onClick = {
-                                        localError = when {
-                                            username.trim().length < 3 ->
-                                                "Please choose a username of at least 3 characters."
-                                            !username.matches(Regex("[a-z0-9_]+")) ->
-                                                "Username can contain only lowercase letters, numbers and underscore."
-                                            else -> ""
-                                        }
-
-                                        if (localError.isBlank()) {
-                                            step = 3
-                                        }
-                                    },
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .height(52.dp)
-                                ) {
-                                    Text(
-                                        "Next: Select Account Type",
-                                        fontWeight = FontWeight.Bold
-                                    )
-                                }
-                            }
-                        }
+                        )
                     }
 
                     else -> {
