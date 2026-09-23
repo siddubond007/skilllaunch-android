@@ -58,6 +58,8 @@ import kotlin.random.Random
 @Composable
 fun SignupScreen(
     state: AuthUiState,
+    darkTheme: Boolean,
+    onToggleTheme: () -> Unit,
     onSignup: (String, String?, String, String, String, String, String, Int) -> Unit,
     onBackToLogin: () -> Unit
 ) {
@@ -69,7 +71,7 @@ fun SignupScreen(
     var dobIso by rememberSaveable { mutableStateOf("") }
     var password by rememberSaveable { mutableStateOf("") }
     var username by rememberSaveable { mutableStateOf("") }
-    var role by rememberSaveable { mutableStateOf("") }
+    var role by rememberSaveable { mutableStateOf("STUDENT_FREELANCER") }
     var parentConsent by rememberSaveable { mutableStateOf(false) }
     var showPassword by rememberSaveable { mutableStateOf(false) }
     var passwordFocused by rememberSaveable { mutableStateOf(false) }
@@ -183,6 +185,33 @@ fun SignupScreen(
         modifier = Modifier.fillMaxSize(),
         color = MaterialTheme.colorScheme.background
     ) {
+        if (step == 1) {
+            SignupStageOne(
+                state = state,
+                darkTheme = darkTheme,
+                onToggleTheme = onToggleTheme,
+                role = role,
+                firstName = firstName,
+                lastName = lastName,
+                email = email,
+                password = password,
+                onRoleChange = { role = it },
+                onFirstNameChange = { firstName = it },
+                onLastNameChange = { lastName = it },
+                onEmailChange = { email = it },
+                onPasswordChange = { password = it },
+                onContinue = { selectedRole ->
+                    localError = ""
+                    generateUsernameSuggestions()
+                    if (username.isBlank() && usernameSuggestions.isNotEmpty()) {
+                        username = usernameSuggestions.first()
+                    }
+                    role = selectedRole
+                    step = 2
+                },
+                onBackToLogin = onBackToLogin
+            )
+        } else {
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -739,6 +768,8 @@ fun SignupScreen(
                     }
                 }
             }
+        }
+    }
         }
     }
 }
