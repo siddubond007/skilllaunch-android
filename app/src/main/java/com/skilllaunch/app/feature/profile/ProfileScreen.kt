@@ -55,7 +55,8 @@ import com.skilllaunch.app.data.repository.profile.ProfileRepository
 fun ProfileScreen(
     user: AuthUser,
     repository: ProfileRepository,
-    onLogout: () -> Unit
+    onLogout: () -> Unit,
+    onOpenOnboarding: () -> Unit
 ) {
     val factory = remember(repository) {
         object : ViewModelProvider.Factory {
@@ -247,14 +248,46 @@ private fun ProfileContent(
                 }
             }
 
+            val profile = uiState.profileUser?.profile
+
+            if (profile?.onboardingStatus == "SKIPPED") {
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 2.dp)
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(
+                                text = "Complete your SkillLaunch setup",
+                                style = MaterialTheme.typography.titleSmall,
+                                fontWeight = FontWeight.ExtraBold
+                            )
+                            Text(
+                                text = "Your profile can be discovered more accurately when you finish your focus, skills, availability and intro.",
+                                modifier = Modifier.padding(top = 4.dp),
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                style = MaterialTheme.typography.bodySmall
+                            )
+                        }
+                        TextButton(onClick = onOpenOnboarding) {
+                            Text("Finish")
+                        }
+                    }
+                }
+            }
+
             Text(
                 text = "Profile information",
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.SemiBold,
                 modifier = Modifier.padding(horizontal = 2.dp)
             )
-
-            val profile = uiState.profileUser?.profile
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -275,6 +308,30 @@ private fun ProfileContent(
                             text = "Primary focus: $it",
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                             style = MaterialTheme.typography.bodyMedium
+                        )
+                    }
+
+                    profile?.onboardingData?.academicStatus?.takeIf { it.isNotBlank() }?.let {
+                        Text(
+                            text = "Journey: $it",
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            style = MaterialTheme.typography.bodySmall
+                        )
+                    }
+
+                    profile?.onboardingData?.graduationYear?.let {
+                        Text(
+                            text = "Graduation: $it",
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            style = MaterialTheme.typography.bodySmall
+                        )
+                    }
+
+                    profile?.onboardingData?.availability?.takeIf { it.isNotBlank() }?.let {
+                        Text(
+                            text = "Availability: $it",
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            style = MaterialTheme.typography.bodySmall
                         )
                     }
 
