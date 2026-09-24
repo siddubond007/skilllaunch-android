@@ -26,6 +26,16 @@ class ProfileRepository(
         }
     }
 
+    suspend fun getMyProfile(): Result<ProfileUser> {
+        return runCatching {
+            userApi.getMyProfile()
+        }.recoverCatching { error ->
+            throw Exception(
+                error.message ?: "Unable to load your profile right now"
+            )
+        }
+    }
+
 
 
     suspend fun uploadResume(context: Context, uri: Uri): Result<com.skilllaunch.app.data.model.upload.ResumeUploadResponse> {
