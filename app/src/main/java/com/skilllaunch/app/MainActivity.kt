@@ -153,7 +153,8 @@ private fun SkillLaunchRoot(
                 .onSuccess { profile ->
                     val status = profile.profile?.onboardingStatus
                     showOnboarding = when (status) {
-                        "SKIPPED", "COMPLETED" -> false
+                        "SKIPPED" -> false
+                        "COMPLETED" -> profile.profile?.onboardingCompleted == false
                         "NOT_STARTED", "PENDING", "IN_PROGRESS" -> true
                         else -> profile.profile?.onboardingCompleted == false
                     }
