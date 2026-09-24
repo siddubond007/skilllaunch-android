@@ -83,6 +83,10 @@ class AuthViewModel(
         }
     }
 
+    fun clearError() {
+        _uiState.value = _uiState.value.copy(errorMessage = null)
+    }
+
     fun logout() {
         viewModelScope.launch {
             repository.logout()
