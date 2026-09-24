@@ -225,7 +225,7 @@ fun SignupStageOne(
                         label = "Password",
                         value = password,
                         onValueChange = onPasswordChange,
-                        placeholder = "Min. 8 characters",
+                        placeholder = "Create a strong password",
                         keyboardOptions = KeyboardOptions(
                             keyboardType = KeyboardType.Password
                         ),
@@ -236,6 +236,8 @@ fun SignupStageOne(
                             showPassword = !showPassword
                         }
                     )
+
+                    PasswordRequirements(password = password)
 
                     Spacer(modifier = Modifier.height(12.dp))
 
@@ -300,6 +302,9 @@ fun SignupStageOne(
                                 password.length < 8 -> {
                                     localError = "Password must contain at least 8 characters."
                                 }
+                                !hasStrongPassword(password) -> {
+                                    localError = "Use 8+ characters with uppercase, lowercase, a number, and a special character."
+                                }
                                 password != confirmPassword -> {
                                     localError = "Passwords do not match."
                                 }
@@ -338,6 +343,46 @@ fun SignupStageOne(
                     Spacer(modifier = Modifier.height(14.dp))
                 }
             }
+        }
+    }
+}
+
+
+private fun hasStrongPassword(password: String): Boolean {
+    return password.length >= 8 &&
+        password.any(Char::isUpperCase) &&
+        password.any(Char::isLowerCase) &&
+        password.any(Char::isDigit) &&
+        password.any { !it.isLetterOrDigit() } &&
+        password.none(Char::isWhitespace)
+}
+
+@Composable
+private fun PasswordRequirements(password: String) {
+    val checks = listOf(
+        password.length >= 8 to "8+ characters",
+        password.any(Char::isUpperCase) to "One uppercase letter",
+        password.any(Char::isLowerCase) to "One lowercase letter",
+        password.any(Char::isDigit) to "One number",
+        password.any { !it.isLetterOrDigit() } to "One special character",
+        password.isNotEmpty() && password.none(Char::isWhitespace) to "No spaces"
+    )
+
+    Column(
+        modifier = Modifier.padding(top = 8.dp, start = 3.dp),
+        verticalArrangement = Arrangement.spacedBy(3.dp)
+    ) {
+        checks.forEach { (met, text) ->
+            Text(
+                text = (if (met) "✓ " else "○ ") + text,
+                color = if (met) {
+                    MaterialTheme.colorScheme.primary
+                } else {
+                    MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.78f)
+                },
+                fontSize = 11.sp,
+                fontWeight = if (met) FontWeight.Bold else FontWeight.Medium
+            )
         }
     }
 }
