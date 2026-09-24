@@ -391,19 +391,91 @@ fun OnboardingScreen(
                         isStudent && step == 3 -> item {
                             SectionHeader(
                                 emoji = "🎓",
-                                title = "Where are you in your journey?",
-                                subtitle = "Tell clients what stage you're at and when you're generally available."
+                                title = "What stage are you at?",
+                                subtitle = "Your status helps clients understand your background and helps us tailor your profile."
                             )
+
+                            Text(
+                                text = "Current status",
+                                color = MaterialTheme.colorScheme.onSurface,
+                                style = MaterialTheme.typography.labelLarge,
+                                fontWeight = FontWeight.Bold
+                            )
+                            Text(
+                                text = if (academicStatus.isBlank()) {
+                                    "Choose one to continue"
+                                } else {
+                                    "Selected: $academicStatus"
+                                },
+                                modifier = Modifier.padding(top = 3.dp),
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                style = MaterialTheme.typography.bodySmall
+                            )
+
+                            Spacer(modifier = Modifier.height(4.dp))
+
                             SelectionChipGroup(
                                 options = academicStatuses,
-                                selected = listOf(academicStatus),
+                                selected = if (academicStatus.isBlank()) emptyList() else listOf(academicStatus),
                                 onToggle = { value ->
                                     academicStatus = value
+                                    if (value == "Self-taught / Career Switcher") {
+                                        graduationYear = ""
+                                    }
                                     error = ""
                                 },
                                 singleSelect = true
                             )
+
+                            Spacer(modifier = Modifier.height(6.dp))
+
+                            if (academicStatus.isBlank()) {
+                                Surface(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    shape = RoundedCornerShape(14.dp),
+                                    color = MaterialTheme.colorScheme.surface.copy(alpha = 0.38f)
+                                ) {
+                                    Text(
+                                        text = "Pick the option that best describes you. We won't assume your academic stage.",
+                                        modifier = Modifier.padding(
+                                            horizontal = 14.dp,
+                                            vertical = 11.dp
+                                        ),
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                        style = MaterialTheme.typography.bodySmall
+                                    )
+                                }
+                            }
+
                             if (academicStatus.isNotBlank() && academicStatus != "Self-taught / Career Switcher") {
+                                Spacer(modifier = Modifier.height(2.dp))
+
+                                Text(
+                                    text = "Academic timeline",
+                                    color = MaterialTheme.colorScheme.onSurface,
+                                    style = MaterialTheme.typography.labelLarge,
+                                    fontWeight = FontWeight.Bold
+                                )
+
+                                Text(
+                                    text = when (academicStatus) {
+                                        "High School Student",
+                                        "Undergraduate Student",
+                                        "Postgraduate Student" ->
+                                            "Still studying? Add your expected completion year."
+                                        "Recently Graduated",
+                                        "Graduate / Early Career" ->
+                                            "Already finished? Add the year you graduated."
+                                        else ->
+                                            "Add an academic year only when it applies to you."
+                                    },
+                                    modifier = Modifier.padding(top = 3.dp),
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    style = MaterialTheme.typography.bodySmall
+                                )
+
+                                Spacer(modifier = Modifier.height(6.dp))
+
                                 AuthField(
                                     label = graduationYearLabel(academicStatus),
                                     value = graduationYear,
@@ -418,26 +490,46 @@ fun OnboardingScreen(
                                     ),
                                     leadingIcon = AuthFieldIcon.Graduation
                                 )
-                                Text(
-                                    text = when (academicStatus) {
-                                        "High School Student",
-                                        "Undergraduate Student",
-                                        "Postgraduate Student" -> "Add the year you expect to complete your current program."
-                                        else -> "Optional, but useful for presenting your academic timeline."
-                                    },
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                    style = MaterialTheme.typography.bodySmall
-                                )
                             }
+
+                            if (academicStatus == "Self-taught / Career Switcher") {
+                                Surface(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    shape = RoundedCornerShape(14.dp),
+                                    color = MaterialTheme.colorScheme.surface.copy(alpha = 0.38f)
+                                ) {
+                                    Text(
+                                        text = "No graduation year is required. You can highlight your skills and proof of work instead.",
+                                        modifier = Modifier.padding(
+                                            horizontal = 14.dp,
+                                            vertical = 11.dp
+                                        ),
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                        style = MaterialTheme.typography.bodySmall
+                                    )
+                                }
+                            }
+
+                            Spacer(modifier = Modifier.height(10.dp))
+
                             Text(
-                                text = "Availability",
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                text = "When can you work?",
+                                color = MaterialTheme.colorScheme.onSurface,
                                 style = MaterialTheme.typography.labelLarge,
                                 fontWeight = FontWeight.Bold
                             )
+                            Text(
+                                text = "Choose the type of work schedule you can realistically take on.",
+                                modifier = Modifier.padding(top = 3.dp),
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                style = MaterialTheme.typography.bodySmall
+                            )
+
+                            Spacer(modifier = Modifier.height(5.dp))
+
                             SelectionChipGroup(
                                 options = availabilityOptions,
-                                selected = listOf(availability),
+                                selected = if (availability.isBlank()) emptyList() else listOf(availability),
                                 onToggle = { value ->
                                     availability = value
                                     error = ""
