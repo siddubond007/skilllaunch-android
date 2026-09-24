@@ -746,7 +746,7 @@ fun OnboardingScreen(
                     isLastStep -> "Explore Talent"
                     else -> "Continue"
                 },
-                enabled = buttonEnabled,
+                enabled = true,
                 loading = saving
             ) {
                 if (isLastStep) {
