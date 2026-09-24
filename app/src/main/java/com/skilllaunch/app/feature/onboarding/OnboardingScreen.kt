@@ -137,6 +137,7 @@ fun OnboardingScreen(
             repository = repository,
             user = user,
             primaryDomain = primaryDomain,
+            customSkill = customSkill,
             selectedSkills = selectedSkills,
             githubUrl = githubUrl,
             youtubeUrl = youtubeUrl,
@@ -276,12 +277,7 @@ fun OnboardingScreen(
                                 }
                             )
 
-                            AnimatedVisibility(
-                                modifier = Modifier.fillMaxWidth(),
-                                visible = primaryDomain == "Other",
-                                enter = fadeIn() + slideInVertically(initialOffsetY = { it / 2 }),
-                                exit = fadeOut() + slideOutVertically(targetOffsetY = { it / 2 })
-                            ) {
+                            if (primaryDomain == "Other") {
                                 Column(
                                     modifier = Modifier.padding(top = 2.dp),
                                     verticalArrangement = Arrangement.spacedBy(7.dp)
@@ -644,6 +640,7 @@ fun OnboardingScreen(
                         repository = repository,
                         user = user,
                         primaryDomain = primaryDomain,
+                        customSkill = customSkill,
                         selectedSkills = selectedSkills,
                         githubUrl = githubUrl,
                         youtubeUrl = youtubeUrl,
@@ -924,6 +921,7 @@ private fun validateAndSave(
     repository: ProfileRepository,
     user: AuthUser,
     primaryDomain: String,
+    customSkill: String,
     selectedSkills: List<String>,
     githubUrl: String,
     youtubeUrl: String,
@@ -973,7 +971,11 @@ private fun validateAndSave(
 
     val data = OnboardingData(
         role = if (isStudent) "STUDENT_FREELANCER" else "CLIENT",
-        primaryDomain = primaryDomain.ifBlank { null },
+        primaryDomain = if (primaryDomain == "Other") {
+            customSkill.trim().ifBlank { null }
+        } else {
+            primaryDomain.ifBlank { null }
+        },
         selectedSkills = selectedSkills,
         githubUrl = githubUrl.trim().ifBlank { null },
         youtubeUrl = youtubeUrl.trim().ifBlank { null },
@@ -1029,6 +1031,7 @@ private fun skipOnboarding(
     repository: ProfileRepository,
     user: AuthUser,
     primaryDomain: String,
+    customSkill: String,
     selectedSkills: List<String>,
     githubUrl: String,
     youtubeUrl: String,
