@@ -254,9 +254,9 @@ fun SignupStageOne(
 
                     Text(
                         text = if (role == "CLIENT") {
-                            "Clients must be 18 or older. Students of any supported age can join as student freelancers."
+                            "Clients must be 18 or older. Age is used for account eligibility and safety."
                         } else {
-                            "Used for account eligibility and safety. Enter your current age."
+                            "Age is used for account eligibility and safety. Enter your current age."
                         },
                         modifier = Modifier.padding(top = 6.dp, start = 3.dp),
                         color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.72f),
