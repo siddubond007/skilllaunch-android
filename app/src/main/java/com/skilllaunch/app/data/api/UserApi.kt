@@ -10,6 +10,9 @@ import retrofit2.http.Path
 
 interface UserApi {
 
+    @GET("users/profile/me")
+    suspend fun getMyProfile(): ProfileUser
+
     @GET("users/{userId}")
     suspend fun getUserProfile(
         @Path("userId") userId: String
