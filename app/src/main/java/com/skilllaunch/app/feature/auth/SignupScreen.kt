@@ -48,6 +48,7 @@ fun SignupScreen(
 
     BackHandler {
         localError = ""
+        onClearError()
         if (step == 2) {
             step = 1
         } else {
@@ -208,6 +209,7 @@ fun SignupScreen(
                     },
                     onBackToStageOne = {
                         localError = ""
+                        onClearError()
                         step = 1
                     }
                 )
