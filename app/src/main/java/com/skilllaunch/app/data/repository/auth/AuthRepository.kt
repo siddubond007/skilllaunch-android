@@ -5,6 +5,8 @@ import com.skilllaunch.app.data.api.AuthApi
 import com.skilllaunch.app.data.model.auth.AuthUser
 import com.skilllaunch.app.data.model.auth.LoginRequest
 import com.skilllaunch.app.data.model.auth.RegisterRequest
+import com.skilllaunch.app.data.model.auth.ApiErrorResponse
+import com.google.gson.Gson
 import retrofit2.HttpException
 import java.io.IOException
 
@@ -12,6 +14,8 @@ class AuthRepository(
     private val authApi: AuthApi,
     private val sessionStore: SessionStore
 ) {
+
+    private val gson = Gson()
 
     suspend fun login(
         email: String,
@@ -72,11 +76,20 @@ class AuthRepository(
             sessionStore.saveAccessToken(token)
             Result.success(user)
         } catch (exception: HttpException) {
-            val message = when (exception.code()) {
-                400 -> "Some details are invalid or the account may already exist. Please check and try again."
+            val apiMessage = exception.response()?.errorBody()?.string()?.let { body ->
+                runCatching {
+                    gson.fromJson(body, ApiErrorResponse::class.java).let { parsed ->
+                        parsed.error?.takeIf { it.isNotBlank() }
+                            ?: parsed.message?.takeIf { it.isNotBlank() }
+                    }
+                }.getOrNull()
+            }
+
+            val message = apiMessage ?: when (exception.code()) {
+                400 -> "Some account details are invalid. Please review the highlighted information."
                 401 -> "Invalid email/username or password. Please try again."
                 403 -> "This account type cannot be registered with the selected details."
-                409 -> "This account already exists. Please sign in instead."
+                409 -> "This account already exists. Please use different details or sign in."
                 429 -> "Too many requests. Please wait and try again."
                 else -> "Unable to complete the request right now. Please try again."
             }
