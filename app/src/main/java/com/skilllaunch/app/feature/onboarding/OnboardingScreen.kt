@@ -97,6 +97,15 @@ fun OnboardingScreen(
     var resumeUploaded by rememberSaveable { mutableStateOf(false) }
     var resumeUploading by rememberSaveable { mutableStateOf(false) }
 
+    var clientType by rememberSaveable { mutableStateOf("") }
+    var hiringCategories by rememberSaveable { mutableStateOf(emptyList<String>()) }
+    var hiringIntent by rememberSaveable { mutableStateOf("") }
+    var projectScope by rememberSaveable { mutableStateOf("") }
+    var companyOrProjectName by rememberSaveable { mutableStateOf("") }
+
+    var saving by remember { mutableStateOf(false) }
+    var error by remember { mutableStateOf("") }
+
     val context = LocalContext.current
     val resumePickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.OpenDocument()
@@ -119,15 +128,6 @@ fun OnboardingScreen(
             }
         }
     }
-
-    var clientType by rememberSaveable { mutableStateOf("") }
-    var hiringCategories by rememberSaveable { mutableStateOf(emptyList<String>()) }
-    var hiringIntent by rememberSaveable { mutableStateOf("") }
-    var projectScope by rememberSaveable { mutableStateOf("") }
-    var companyOrProjectName by rememberSaveable { mutableStateOf("") }
-
-    var saving by remember { mutableStateOf(false) }
-    var error by remember { mutableStateOf("") }
 
     val isStudent = user.role == "STUDENT_FREELANCER"
 
