@@ -251,7 +251,11 @@ private fun ProfileContent(
 
             val profile = uiState.profileUser?.profile
 
-            if (profile?.onboardingStatus == "SKIPPED") {
+            if (profile?.onboardingStatus == "SKIPPED" ||
+                profile?.onboardingStatus == "PENDING" ||
+                profile?.onboardingStatus == "IN_PROGRESS" ||
+                (profile?.onboardingStatus == null && profile.onboardingCompleted == false)
+            ) {
                 Card(
                     modifier = Modifier
                         .fillMaxWidth()
