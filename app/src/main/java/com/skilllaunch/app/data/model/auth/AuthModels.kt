@@ -40,3 +40,9 @@ data class AuthUser(
     val age: Int? = null,
     val dob: String? = null
 )
+
+
+data class ApiErrorResponse(
+    val error: String? = null,
+    val message: String? = null
+)
