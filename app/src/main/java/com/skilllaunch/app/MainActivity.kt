@@ -107,6 +107,10 @@ private fun SkillLaunchRoot(
         ApiClient.gigApi(sessionStore)
     }
 
+    val uploadApi = remember(sessionStore) {
+        ApiClient.uploadApi(sessionStore)
+    }
+
     val authRepository = remember(authApi, sessionStore) {
         AuthRepository(
             authApi = authApi,
@@ -114,9 +118,10 @@ private fun SkillLaunchRoot(
         )
     }
 
-    val profileRepository = remember(userApi) {
+    val profileRepository = remember(userApi, uploadApi) {
         ProfileRepository(
-            userApi = userApi
+            userApi = userApi,
+            uploadApi = uploadApi
         )
     }
 
