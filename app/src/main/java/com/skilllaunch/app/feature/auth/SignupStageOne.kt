@@ -59,6 +59,21 @@ fun SignupStageOne(
     var localError by rememberSaveable { mutableStateOf("") }
 
     val visibleError = localError.ifBlank { state.errorMessage.orEmpty() }
+    val emailError = visibleError.takeIf {
+        it.contains("email", ignoreCase = true) ||
+            it.contains("account is already", ignoreCase = true)
+    }
+    val ageError = visibleError.takeIf {
+        it.contains("age", ignoreCase = true) ||
+            it.contains("18", ignoreCase = true) ||
+            it.contains("legal capacity", ignoreCase = true)
+    }
+    val passwordError = visibleError.takeIf {
+        it.contains("password", ignoreCase = true)
+    }
+    val generalError = visibleError.takeUnless {
+        emailError != null || ageError != null || passwordError != null
+    }
 
     AuthBackground(darkTheme = darkTheme) {
         Column(
@@ -219,6 +234,9 @@ fun SignupStageOne(
                             fontSize = 11.sp,
                             fontWeight = FontWeight.Medium
                         )
+                        emailError?.let { message ->
+                            SignupFieldError(message)
+                        }
                     }
 
                     Spacer(modifier = Modifier.height(12.dp))
@@ -245,6 +263,9 @@ fun SignupStageOne(
                         fontSize = 11.sp,
                         fontWeight = FontWeight.Medium
                     )
+                    ageError?.let { message ->
+                        SignupFieldError(message)
+                    }
 
                     Spacer(modifier = Modifier.height(12.dp))
 
@@ -265,6 +286,9 @@ fun SignupStageOne(
                     )
 
                     PasswordRequirements(password = password)
+                    passwordError?.let { message ->
+                        SignupFieldError(message)
+                    }
 
                     Spacer(modifier = Modifier.height(12.dp))
 
@@ -302,16 +326,16 @@ fun SignupStageOne(
                         )
                     }
 
-                    if (visibleError.isNotBlank()) {
+                    generalError?.let { message ->
                         Surface(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(top = 12.dp),
                             shape = RoundedCornerShape(14.dp),
-                            color = MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.82f)
+                            color = MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.90f)
                         ) {
                             Text(
-                                text = visibleError,
+                                text = message,
                                 modifier = Modifier.padding(
                                     horizontal = 13.dp,
                                     vertical = 10.dp
@@ -441,5 +465,20 @@ private fun PasswordRequirementLine(met: Boolean, label: String) {
         },
         fontSize = 11.sp,
         fontWeight = if (met) FontWeight.Bold else FontWeight.Medium
+    )
+}
+
+
+@Composable
+private fun SignupFieldError(message: String) {
+    Text(
+        text = "⚠ $message",
+        modifier = Modifier.padding(
+            top = 6.dp,
+            start = 3.dp
+        ),
+        color = MaterialTheme.colorScheme.error,
+        style = MaterialTheme.typography.bodySmall,
+        fontWeight = FontWeight.SemiBold
     )
 }
