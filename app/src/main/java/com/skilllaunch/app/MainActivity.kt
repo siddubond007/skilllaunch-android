@@ -41,6 +41,7 @@ import com.skilllaunch.app.data.repository.profile.ProfileRepository
 import com.skilllaunch.app.feature.auth.AuthViewModel
 import com.skilllaunch.app.feature.auth.LoginScreen
 import com.skilllaunch.app.feature.auth.SignupScreen
+import com.skilllaunch.app.feature.onboarding.OnboardingScreen
 import com.skilllaunch.app.ui.theme.SkillLaunchTheme
 
 class MainActivity : ComponentActivity() {
@@ -82,6 +83,8 @@ private fun SkillLaunchRoot(
     val context = androidx.compose.ui.platform.LocalContext.current
     val showSignup = remember { mutableStateOf(false) }
     var splashMinimumElapsed by rememberSaveable { mutableStateOf(false) }
+    var onboardingResolvedForUser by rememberSaveable { mutableStateOf(false) }
+    var showOnboarding by rememberSaveable { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
         delay(1600)
@@ -132,6 +135,25 @@ private fun SkillLaunchRoot(
 
     val state by authViewModel.uiState.collectAsStateWithLifecycleCompat()
 
+    LaunchedEffect(state.isAuthenticated, state.user?.id) {
+        val userId = state.user?.id
+        if (!state.isAuthenticated || userId.isNullOrBlank()) {
+            showOnboarding = false
+            onboardingResolvedForUser = false
+        } else {
+            onboardingResolvedForUser = false
+            profileRepository.getProfile(userId)
+                .onSuccess { profile ->
+                    showOnboarding = profile.profile?.onboardingCompleted == false
+                    onboardingResolvedForUser = true
+                }
+                .onFailure {
+                    showOnboarding = false
+                    onboardingResolvedForUser = true
+                }
+        }
+    }
+
     Surface(
         modifier = Modifier.fillMaxSize(),
         color = MaterialTheme.colorScheme.background
@@ -140,6 +162,22 @@ private fun SkillLaunchRoot(
             !splashMinimumElapsed || state.isCheckingSession -> SkillLaunchSplashScreen(
                 darkTheme = themeState.value
             )
+
+            state.isAuthenticated && state.user != null && !onboardingResolvedForUser -> {
+                SkillLaunchSplashScreen(
+                    darkTheme = themeState.value
+                )
+            }
+
+            state.isAuthenticated && state.user != null && showOnboarding -> {
+                OnboardingScreen(
+                    user = state.user!!,
+                    repository = profileRepository,
+                    darkTheme = themeState.value,
+                    onToggleTheme = onToggleTheme,
+                    onFinished = { showOnboarding = false }
+                )
+            }
 
             state.isAuthenticated && state.user != null -> {
                 AuthenticatedAppShell(
