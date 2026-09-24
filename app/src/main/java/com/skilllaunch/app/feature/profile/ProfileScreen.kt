@@ -256,7 +256,7 @@ private fun ProfileContent(
             if (profile?.onboardingStatus == "SKIPPED" ||
                 profile?.onboardingStatus == "PENDING" ||
                 profile?.onboardingStatus == "IN_PROGRESS" ||
-                (profile?.onboardingStatus == null && profile?.onboardingCompleted == false)
+                (profile?.onboardingCompleted == false)
             ) {
                 Card(
                     modifier = Modifier
