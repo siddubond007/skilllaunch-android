@@ -257,6 +257,24 @@ fun SignupStageOne(
                         passwordVisible = showPassword
                     )
 
+                    if (confirmPassword.isNotEmpty()) {
+                        Text(
+                            text = if (password == confirmPassword) {
+                                "✓ Passwords match"
+                            } else {
+                                "○ Passwords do not match yet"
+                            },
+                            modifier = Modifier.padding(top = 7.dp, start = 3.dp),
+                            color = if (password == confirmPassword) {
+                                MaterialTheme.colorScheme.primary
+                            } else {
+                                MaterialTheme.colorScheme.onSurfaceVariant
+                            },
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight.SemiBold
+                        )
+                    }
+
                     if (visibleError.isNotBlank()) {
                         Surface(
                             modifier = Modifier
