@@ -26,6 +26,7 @@ fun SignupScreen(
     var firstName by remember { mutableStateOf("") }
     var lastName by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
+    var age by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var username by remember { mutableStateOf("") }
     var role by remember { mutableStateOf("STUDENT_FREELANCER") }
@@ -34,9 +35,12 @@ fun SignupScreen(
 
     LaunchedEffect(state.errorMessage) {
         val serverError = state.errorMessage.orEmpty()
-        if (serverError.contains("email", ignoreCase = true) &&
-            (serverError.contains("registered", ignoreCase = true) ||
-             serverError.contains("already", ignoreCase = true))
+        if (
+            (serverError.contains("email", ignoreCase = true) &&
+                (serverError.contains("registered", ignoreCase = true) ||
+                 serverError.contains("already", ignoreCase = true))) ||
+            serverError.contains("under 18", ignoreCase = true) ||
+            serverError.contains("legal capacity", ignoreCase = true)
         ) {
             step = 1
         }
@@ -109,6 +113,7 @@ fun SignupScreen(
                     firstName = firstName,
                     lastName = lastName,
                     email = email,
+                    age = age,
                     password = password,
                     onRoleChange = {
                         role = it
@@ -127,6 +132,11 @@ fun SignupScreen(
                     },
                     onEmailChange = {
                         email = it
+                        localError = ""
+                        onClearError()
+                    },
+                    onAgeChange = {
+                        age = it.filter(Char::isDigit).take(3)
                         localError = ""
                         onClearError()
                     },
@@ -192,7 +202,7 @@ fun SignupScreen(
                                 email.trim(),
                                 password,
                                 role,
-                                null
+                                age.toIntOrNull()
                             )
                         }
                     },
