@@ -377,30 +377,36 @@ private fun hasStrongPassword(password: String): Boolean {
 
 @Composable
 private fun PasswordRequirements(password: String) {
-    val checks = listOf(
-        password.length >= 8 to "8+ characters",
-        password.any(Char::isUpperCase) to "One uppercase letter",
-        password.any(Char::isLowerCase) to "One lowercase letter",
-        password.any(Char::isDigit) to "One number",
-        password.any { !it.isLetterOrDigit() } to "One special character",
-        password.isNotEmpty() && password.none(Char::isWhitespace) to "No spaces"
-    )
+    val lengthMet = password.length >= 8
+    val upperMet = password.any(Char::isUpperCase)
+    val lowerMet = password.any(Char::isLowerCase)
+    val numberMet = password.any(Char::isDigit)
+    val specialMet = password.any { !it.isLetterOrDigit() }
+    val spacesMet = password.isNotEmpty() && password.none(Char::isWhitespace)
 
     Column(
         modifier = Modifier.padding(top = 8.dp, start = 3.dp),
         verticalArrangement = Arrangement.spacedBy(3.dp)
     ) {
-        checks.forEach { (met, text) ->
-            Text(
-                text = (if (met) "✓ " else "○ ") + text,
-                color = if (met) {
-                    MaterialTheme.colorScheme.primary
-                } else {
-                    MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.78f)
-                },
-                fontSize = 11.sp,
-                fontWeight = if (met) FontWeight.Bold else FontWeight.Medium
-            )
-        }
+        PasswordRequirementLine(lengthMet, "8+ characters")
+        PasswordRequirementLine(upperMet, "One uppercase letter")
+        PasswordRequirementLine(lowerMet, "One lowercase letter")
+        PasswordRequirementLine(numberMet, "One number")
+        PasswordRequirementLine(specialMet, "One special character")
+        PasswordRequirementLine(spacesMet, "No spaces")
     }
+}
+
+@Composable
+private fun PasswordRequirementLine(met: Boolean, label: String) {
+    Text(
+        text = (if (met) "✓ " else "○ ") + label,
+        color = if (met) {
+            MaterialTheme.colorScheme.primary
+        } else {
+            MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.78f)
+        },
+        fontSize = 11.sp,
+        fontWeight = if (met) FontWeight.Bold else FontWeight.Medium
+    )
 }
