@@ -43,11 +43,13 @@ fun SignupStageOne(
     firstName: String,
     lastName: String,
     email: String,
+    age: String,
     password: String,
     onRoleChange: (String) -> Unit,
     onFirstNameChange: (String) -> Unit,
     onLastNameChange: (String) -> Unit,
     onEmailChange: (String) -> Unit,
+    onAgeChange: (String) -> Unit,
     onPasswordChange: (String) -> Unit,
     onContinue: (String) -> Unit,
     onBackToLogin: () -> Unit
@@ -222,6 +224,31 @@ fun SignupStageOne(
                     Spacer(modifier = Modifier.height(12.dp))
 
                     AuthField(
+                        label = "Age",
+                        value = age,
+                        onValueChange = onAgeChange,
+                        placeholder = "Your age in years",
+                        keyboardOptions = KeyboardOptions(
+                            keyboardType = KeyboardType.Number
+                        ),
+                        leadingIcon = AuthFieldIcon.User
+                    )
+
+                    Text(
+                        text = if (role == "CLIENT") {
+                            "Clients must be 18 or older. Students of any supported age can join as student freelancers."
+                        } else {
+                            "Used for account eligibility and safety. Enter your current age."
+                        },
+                        modifier = Modifier.padding(top = 6.dp, start = 3.dp),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.72f),
+                        fontSize = 11.sp,
+                        fontWeight = FontWeight.Medium
+                    )
+
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    AuthField(
                         label = "Password",
                         value = password,
                         onValueChange = onPasswordChange,
@@ -316,6 +343,12 @@ fun SignupStageOne(
                                 }
                                 email.trim().isBlank() -> {
                                     localError = "Please enter your email address."
+                                }
+                                age.toIntOrNull() !in 1..120 -> {
+                                    localError = "Enter a valid age between 1 and 120."
+                                }
+                                role == "CLIENT" && age.toIntOrNull()?.let { it < 18 } == true -> {
+                                    localError = "Clients must be 18 or older. You can continue as a Student Freelancer."
                                 }
                                 password.length < 8 -> {
                                     localError = "Password must contain at least 8 characters."
