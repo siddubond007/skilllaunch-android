@@ -165,6 +165,7 @@ fun ProfileScreen(
                         onSkillsChange = profileViewModel::updateSkills,
                         onResponseTimeChange = profileViewModel::updateResponseTimeExpectation,
                         onClearMessages = profileViewModel::clearMessages,
+                        onOpenOnboarding = onOpenOnboarding,
                         modifier = Modifier.fillMaxSize()
                     )
                 }
@@ -185,6 +186,7 @@ private fun ProfileContent(
     onSkillsChange: (String) -> Unit,
     onResponseTimeChange: (String) -> Unit,
     onClearMessages: () -> Unit,
+    onOpenOnboarding: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Box(
