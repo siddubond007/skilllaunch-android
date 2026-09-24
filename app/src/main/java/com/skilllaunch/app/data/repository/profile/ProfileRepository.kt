@@ -10,18 +10,22 @@ import android.provider.OpenableColumns
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.toRequestBody
+import retrofit2.HttpException
+import com.google.gson.Gson
 
 class ProfileRepository(
     private val userApi: UserApi,
     private val uploadApi: com.skilllaunch.app.data.api.UploadApi
 ) {
 
+    private val gson = Gson()
+
     suspend fun getProfile(userId: String): Result<ProfileUser> {
         return runCatching {
             userApi.getUserProfile(userId)
         }.recoverCatching { error ->
             throw Exception(
-                error.message ?: "Unable to load your profile right now"
+                apiErrorMessage(error, "Unable to load your profile right now")
             )
         }
     }
@@ -31,7 +35,7 @@ class ProfileRepository(
             userApi.getMyProfile()
         }.recoverCatching { error ->
             throw Exception(
-                error.message ?: "Unable to load your profile right now"
+                apiErrorMessage(error, "Unable to load your profile right now")
             )
         }
     }
@@ -93,8 +97,37 @@ class ProfileRepository(
             userApi.updateProfile(request)
         }.recoverCatching { error ->
             throw Exception(
-                error.message ?: "Unable to save your profile right now"
+                apiErrorMessage(error, "Unable to save your profile right now")
             )
+        }
+    }
+
+    private fun apiErrorMessage(error: Throwable, fallback: String): String {
+        if (error !is HttpException) {
+            return error.message ?: fallback
+        }
+
+        val body = error.response()?.errorBody()?.string()
+        if (!body.isNullOrBlank()) {
+            val parsed = runCatching {
+                gson.fromJson(
+                    body,
+                    com.skilllaunch.app.data.model.auth.ApiErrorResponse::class.java
+                )
+            }.getOrNull()
+
+            parsed?.error?.takeIf { it.isNotBlank() }?.let { return it }
+            parsed?.message?.takeIf { it.isNotBlank() }?.let { return it }
+        }
+
+        return when (error.code()) {
+            400 -> "Some profile details are invalid. Please check and try again."
+            401 -> "Your session has expired. Please sign in again."
+            403 -> "You are not allowed to update this profile."
+            404 -> "The requested profile resource was not found."
+            413 -> "The selected file is too large."
+            429 -> "Too many requests. Please wait and try again."
+            else -> fallback
         }
     }
 }
