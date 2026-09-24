@@ -1,6 +1,11 @@
 package com.skilllaunch.app.feature.onboarding
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -75,6 +80,7 @@ fun OnboardingScreen(
     var step by rememberSaveable { mutableIntStateOf(1) }
     var primaryDomain by rememberSaveable { mutableStateOf("") }
     var selectedSkills by rememberSaveable { mutableStateOf(emptyList<String>()) }
+    var skillSearch by rememberSaveable { mutableStateOf("") }
     var githubUrl by rememberSaveable { mutableStateOf("") }
     var youtubeUrl by rememberSaveable { mutableStateOf("") }
     var portfolioUrl by rememberSaveable { mutableStateOf("") }
@@ -178,7 +184,39 @@ fun OnboardingScreen(
                 total = if (isStudent) 4 else 3
             )
 
-            Spacer(modifier = Modifier.height(14.dp))
+            Text(
+                text = "Step " + step + " of " + (if (isStudent) 4 else 3) + " • " +
+                    if (isStudent) studentStepLabels[step - 1] else clientStepLabels[step - 1],
+                modifier = Modifier.padding(top = 7.dp),
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                style = MaterialTheme.typography.labelSmall,
+                fontWeight = FontWeight.SemiBold
+            )
+
+            AnimatedVisibility(
+                visible = step > 1,
+                enter = fadeIn() + slideInVertically(initialOffsetY = { -it / 2 }),
+                exit = fadeOut() + slideOutVertically(targetOffsetY = { -it / 2 })
+            ) {
+                TextButton(
+                    onClick = {
+                        step -= 1
+                        error = ""
+                    },
+                    contentPadding = androidx.compose.foundation.layout.PaddingValues(
+                        horizontal = 0.dp,
+                        vertical = 2.dp
+                    )
+                ) {
+                    Text(
+                        text = "← Back to previous step",
+                        color = MaterialTheme.colorScheme.primary,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(8.dp))
 
             Box(
                 modifier = Modifier
@@ -203,6 +241,7 @@ fun OnboardingScreen(
                                 onSelect = {
                                     primaryDomain = it
                                     selectedSkills = emptyList()
+                                    skillSearch = ""
                                     error = ""
                                 }
                             )
@@ -214,8 +253,31 @@ fun OnboardingScreen(
                                 title = "Show, don't tell.",
                                 subtitle = "Pick the skills you use most and add a place where clients can see your work. Everything here can be edited later."
                             )
+                            AuthField(
+                                label = "Search skills",
+                                value = skillSearch,
+                                onValueChange = {
+                                    skillSearch = it
+                                    error = ""
+                                },
+                                placeholder = "Search " + primaryDomain.ifBlank { "your domain" } + " skills",
+                                keyboardOptions = KeyboardOptions(
+                                    keyboardType = KeyboardType.Text,
+                                    imeAction = ImeAction.Next
+                                ),
+                                leadingIcon = AuthFieldIcon.Search
+                            )
+                            Spacer(modifier = Modifier.height(5.dp))
+                            Text(
+                                text = selectedSkills.size.toString() + "/6 primary skills selected",
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                style = MaterialTheme.typography.labelSmall,
+                                fontWeight = FontWeight.SemiBold
+                            )
                             SelectionChipGroup(
-                                options = studentDomains[primaryDomain] ?: emptyList(),
+                                options = (studentDomains[primaryDomain] ?: emptyList()).filter {
+                                    it.contains(skillSearch.trim(), ignoreCase = true)
+                                },
                                 selected = selectedSkills,
                                 onToggle = { skill ->
                                     selectedSkills = toggleMulti(selectedSkills, skill, 6)
@@ -912,22 +974,70 @@ private fun skipOnboarding(
 }
 
 private val studentDomains = linkedMapOf(
-    "Web Development" to listOf("Frontend", "Backend", "Full Stack", "React", "Node.js", "E-commerce"),
-    "Mobile Development" to listOf("Android", "iOS", "Flutter", "React Native", "Mobile UI", "App APIs"),
-    "Software & APIs" to listOf("Java", "Python", "C/C++", "APIs", "Desktop Apps", "Automation"),
-    "Data & AI" to listOf("Machine Learning", "Deep Learning", "Data Analysis", "Generative AI", "Computer Vision", "NLP"),
-    "Cybersecurity" to listOf("Web Security", "Network Security", "Ethical Hacking", "SOC", "Security Testing", "Cloud Security"),
-    "Cloud & DevOps" to listOf("AWS", "Azure", "Docker", "Kubernetes", "CI/CD", "Linux"),
-    "UI/UX Design" to listOf("UI Design", "UX Research", "Figma", "Prototyping", "Design Systems", "Mobile UX"),
-    "Graphic & Brand Design" to listOf("Logos", "Branding", "Social Media", "Illustration", "Print Design", "Presentation Design"),
-    "Video & Motion" to listOf("Video Editing", "Short-form", "YouTube", "Motion Graphics", "Color Grading", "Reels"),
-    "Writing & Content" to listOf("Content Writing", "Copywriting", "Technical Writing", "Blogging", "Proofreading", "Script Writing"),
-    "Marketing & SEO" to listOf("SEO", "Social Media", "Email Marketing", "Content Strategy", "Ads", "Market Research"),
-    "Business & Research" to listOf("Business Analysis", "Market Research", "Presentations", "Data Research", "Strategy", "Documentation"),
-    "Education & Tutoring" to listOf("Programming", "Math", "Science", "Languages", "Academic Help", "Test Preparation"),
-    "Photography & Creative" to listOf("Photography", "Photo Editing", "Retouching", "Product Photos", "Creative Direction", "Canva"),
-    "Game Development" to listOf("Unity", "Unreal Engine", "Game Design", "3D Assets", "Gameplay", "Level Design"),
-    "Other" to listOf("Virtual Assistance", "Data Entry", "Transcription", "Research", "Presentation Work", "Other Skills")
+    "Web Development" to listOf(
+        "Frontend", "Backend", "Full Stack", "React", "Next.js", "Vue.js",
+        "Angular", "Node.js", "Express", "REST APIs", "E-commerce", "Web Performance"
+    ),
+    "Mobile Development" to listOf(
+        "Android", "Kotlin", "Java", "iOS", "Swift", "Flutter",
+        "React Native", "Mobile UI", "Jetpack Compose", "App APIs", "Firebase", "App Testing"
+    ),
+    "Software & APIs" to listOf(
+        "Java", "Python", "C", "C++", "C#", "Go", "Rust",
+        "REST APIs", "GraphQL", "Desktop Apps", "Automation", "Scripting"
+    ),
+    "Data & AI" to listOf(
+        "Machine Learning", "Deep Learning", "Data Analysis", "Generative AI", "NLP",
+        "Computer Vision", "Python", "Pandas", "NumPy", "TensorFlow", "PyTorch", "Data Visualization"
+    ),
+    "Cybersecurity" to listOf(
+        "Web Security", "Network Security", "Ethical Hacking", "Penetration Testing",
+        "SOC", "SIEM", "Security Testing", "Vulnerability Assessment", "OSINT", "Cloud Security", "Linux", "Digital Forensics"
+    ),
+    "Cloud & DevOps" to listOf(
+        "AWS", "Azure", "Google Cloud", "Docker", "Kubernetes", "CI/CD",
+        "GitHub Actions", "Terraform", "Linux", "Nginx", "Monitoring", "Cloud Architecture"
+    ),
+    "UI/UX Design" to listOf(
+        "UI Design", "UX Research", "Figma", "Prototyping", "Wireframing", "Design Systems",
+        "Mobile UX", "Web UX", "Interaction Design", "Usability Testing", "Design Audits", "Accessibility"
+    ),
+    "Graphic & Brand Design" to listOf(
+        "Logos", "Branding", "Social Media", "Illustration", "Print Design", "Presentation Design",
+        "Canva", "Photoshop", "Illustrator", "Posters", "Thumbnails", "Brand Guidelines"
+    ),
+    "Video & Motion" to listOf(
+        "Video Editing", "Short-form", "YouTube", "Motion Graphics", "Color Grading",
+        "Reels", "DaVinci Resolve", "Premiere Pro", "After Effects", "Subtitles", "Storyboarding", "Podcast Editing"
+    ),
+    "Writing & Content" to listOf(
+        "Content Writing", "Copywriting", "Technical Writing", "Blogging", "Proofreading",
+        "Script Writing", "Documentation", "Editing", "Research Writing", "Product Descriptions", "Ghostwriting", "Resume Writing"
+    ),
+    "Marketing & SEO" to listOf(
+        "SEO", "Social Media", "Email Marketing", "Content Strategy", "Google Ads",
+        "Meta Ads", "Keyword Research", "Analytics", "Influencer Marketing", "Lead Generation", "Campaign Planning", "Community Management"
+    ),
+    "Business & Research" to listOf(
+        "Business Analysis", "Market Research", "Presentations", "Data Research", "Strategy",
+        "Documentation", "Competitor Research", "Business Plans", "Financial Research", "Process Mapping", "Operations", "Reports"
+    ),
+    "Education & Tutoring" to listOf(
+        "Programming", "Mathematics", "Science", "English", "Languages", "Academic Help",
+        "Test Preparation", "Computer Science", "Study Planning", "Presentation Coaching", "Assignment Guidance", "Tutoring"
+    ),
+    "Photography & Creative" to listOf(
+        "Photography", "Photo Editing", "Retouching", "Product Photos", "Creative Direction",
+        "Canva", "Lightroom", "Portraits", "Event Photography", "Photo Manipulation", "Background Removal", "Color Correction"
+    ),
+    "Game Development" to listOf(
+        "Unity", "Unreal Engine", "Game Design", "3D Assets", "Gameplay",
+        "Level Design", "C#", "Blender", "2D Games", "3D Games", "Shaders", "Game UI"
+    ),
+    "Other" to listOf(
+        "Virtual Assistance", "Data Entry", "Transcription", "Research", "Presentation Work",
+        "Other Skills", "Customer Support", "Spreadsheet Work", "Web Research", "File Conversion", "Typing", "Administrative Support"
+    )
 )
 
 private val studentDomainIcons = mapOf(
@@ -967,6 +1077,9 @@ private val studentDomainDescriptions = mapOf(
     "Game Development" to "Games, gameplay, 3D",
     "Other" to "Skills outside these categories"
 )
+
+private val studentStepLabels = listOf("Focus", "Skills", "Journey", "Profile")
+private val clientStepLabels = listOf("Client type", "Hiring needs", "Identity")
 
 private val academicStatuses = listOf(
     "High School",
