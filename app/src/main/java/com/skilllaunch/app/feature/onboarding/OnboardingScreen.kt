@@ -207,6 +207,7 @@ fun OnboardingScreen(
     BackHandler {
         when {
             showSkipConfirmation -> showSkipConfirmation = false
+            loadingInitialProfile -> error = "Please wait while your profile setup is loading."
             resumeUploading -> error = "Please wait for the resume upload to finish."
             step > 1 -> {
                 step -= 1
@@ -767,7 +768,7 @@ fun OnboardingScreen(
                                 showSkipConfirmation = false
                                 finishWithSkip()
                             },
-                            enabled = !saving
+                            enabled = !saving && !loadingInitialProfile && !resumeUploading
                         ) {
                             Text("Skip for now")
                         }
