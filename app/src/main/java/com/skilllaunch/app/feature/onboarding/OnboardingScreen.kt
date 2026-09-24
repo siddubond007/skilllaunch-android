@@ -1249,7 +1249,11 @@ private fun skipOnboarding(
 ) {
     val data = OnboardingData(
         role = user.role ?: "STUDENT_FREELANCER",
-        primaryDomain = primaryDomain.ifBlank { null },
+        primaryDomain = if (primaryDomain == "Other") {
+            customSkill.trim().ifBlank { null }
+        } else {
+            primaryDomain.ifBlank { null }
+        },
         selectedSkills = selectedSkills,
         githubUrl = githubUrl.trim().ifBlank { null },
         youtubeUrl = youtubeUrl.trim().ifBlank { null },
@@ -1265,6 +1269,31 @@ private fun skipOnboarding(
     )
 
     val request = ProfileUpdateRequest(
+        tagline = if (user.role == "STUDENT_FREELANCER") {
+            tagline.trim().ifBlank { null }
+        } else {
+            companyOrProjectName.trim().ifBlank { null }
+        },
+        bio = if (user.role == "STUDENT_FREELANCER") {
+            bio.trim().ifBlank { null }
+        } else {
+            tagline.trim().ifBlank { null }
+        },
+        category = if (user.role == "STUDENT_FREELANCER") {
+            if (primaryDomain == "Other") {
+                customSkill.trim().ifBlank { null }
+            } else {
+                primaryDomain.trim().ifBlank { null }
+            }
+        } else {
+            hiringCategories.firstOrNull()
+        },
+        skills = selectedSkills.ifEmpty { null },
+        responseTimeExpectation = if (user.role == "STUDENT_FREELANCER") {
+            availability.trim().ifBlank { null }
+        } else {
+            projectScope.trim().ifBlank { null }
+        },
         githubUrl = githubUrl.trim().ifBlank { null },
         youtubeUrl = youtubeUrl.trim().ifBlank { null },
         drivePortfolio = portfolioUrl.trim().ifBlank { null },
