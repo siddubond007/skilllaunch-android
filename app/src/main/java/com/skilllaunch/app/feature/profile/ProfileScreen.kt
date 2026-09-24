@@ -56,7 +56,8 @@ fun ProfileScreen(
     user: AuthUser,
     repository: ProfileRepository,
     onLogout: () -> Unit,
-    onOpenOnboarding: () -> Unit
+    onOpenOnboarding: () -> Unit,
+    refreshVersion: Int = 0
 ) {
     val factory = remember(repository) {
         object : ViewModelProvider.Factory {
@@ -74,8 +75,8 @@ fun ProfileScreen(
     val snackbarHostState = remember { SnackbarHostState() }
     var moreMenuExpanded by remember { mutableStateOf(false) }
 
-    LaunchedEffect(user.id) {
-        user.id?.let(profileViewModel::loadProfile)
+    LaunchedEffect(user.id, refreshVersion) {
+        user.id?.let { profileViewModel.loadProfile(it, forceRefresh = refreshVersion > 0) }
     }
 
     LaunchedEffect(uiState.successMessage) {
