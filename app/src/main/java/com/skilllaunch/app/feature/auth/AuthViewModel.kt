@@ -66,8 +66,8 @@ class AuthViewModel(
         }
     }
 
-    fun signup(firstName: String, middleName: String?, lastName: String, username: String?, email: String, password: String, role: String, age: Int) {
-        if (firstName.isBlank() || lastName.isBlank() || email.isBlank() || password.isBlank() || age <= 0) {
+    fun signup(firstName: String, middleName: String?, lastName: String, username: String?, email: String, password: String, role: String, age: Int?) {
+        if (firstName.isBlank() || lastName.isBlank() || email.isBlank() || password.isBlank()) {
             _uiState.value = _uiState.value.copy(errorMessage = "Please complete all required fields."); return
         }
 
