@@ -61,7 +61,7 @@ class ProfileViewModel(
                 successMessage = null
             )
 
-            repository.getProfile(userId)
+            repository.getMyProfile()
                 .onSuccess { user ->
                     _uiState.value = _uiState.value.copy(
                         isLoading = false,
