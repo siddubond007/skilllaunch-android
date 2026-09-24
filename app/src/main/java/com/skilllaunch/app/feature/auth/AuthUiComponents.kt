@@ -346,7 +346,8 @@ enum class AuthFieldIcon {
     Eye,
     Check,
     User,
-    Search
+    Search,
+    Graduation
 }
 
 @Composable
@@ -362,6 +363,7 @@ private fun AuthFieldIconView(
             AuthFieldIcon.Check -> drawCheckIcon(color)
             AuthFieldIcon.User -> drawUserIcon(color)
             AuthFieldIcon.Search -> drawSearchIcon(color)
+            AuthFieldIcon.Graduation -> drawGraduationIcon(color)
         }
     }
 }
@@ -600,5 +602,57 @@ private fun DrawScope.drawSearchIcon(color: Color) {
         ),
         strokeWidth = size.minDimension * 0.11f,
         cap = StrokeCap.Round
+    )
+}
+
+
+private fun DrawScope.drawGraduationIcon(color: Color) {
+    val stroke = Stroke(
+        width = size.minDimension * 0.09f,
+        cap = StrokeCap.Round,
+        join = StrokeJoin.Round
+    )
+    val w = size.width
+    val h = size.height
+
+    val cap = Path().apply {
+        moveTo(w * 0.10f, h * 0.38f)
+        lineTo(w * 0.50f, h * 0.16f)
+        lineTo(w * 0.90f, h * 0.38f)
+        lineTo(w * 0.50f, h * 0.60f)
+        close()
+    }
+    drawPath(cap, color = color, style = stroke)
+
+    drawLine(
+        color = color,
+        start = androidx.compose.ui.geometry.Offset(w * 0.50f, h * 0.60f),
+        end = androidx.compose.ui.geometry.Offset(w * 0.50f, h * 0.82f),
+        strokeWidth = stroke.width,
+        cap = StrokeCap.Round
+    )
+
+    drawArc(
+        color = color,
+        startAngle = 10f,
+        sweepAngle = 160f,
+        useCenter = false,
+        topLeft = androidx.compose.ui.geometry.Offset(w * 0.24f, h * 0.48f),
+        size = androidx.compose.ui.geometry.Size(w * 0.52f, h * 0.36f),
+        style = stroke
+    )
+
+    drawLine(
+        color = color,
+        start = androidx.compose.ui.geometry.Offset(w * 0.86f, h * 0.38f),
+        end = androidx.compose.ui.geometry.Offset(w * 0.86f, h * 0.68f),
+        strokeWidth = stroke.width,
+        cap = StrokeCap.Round
+    )
+
+    drawCircle(
+        color = color,
+        radius = stroke.width * 0.8f,
+        center = androidx.compose.ui.geometry.Offset(w * 0.86f, h * 0.72f)
     )
 }
