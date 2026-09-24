@@ -56,7 +56,7 @@ data class ProfileUpdateResponse(
 
 data class OnboardingData(
     val version: Int = 1,
-    val role: String,
+    val role: String? = null,
     val primaryDomain: String? = null,
     val selectedSkills: List<String> = emptyList(),
     val githubUrl: String? = null,
