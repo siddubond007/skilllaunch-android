@@ -13,7 +13,7 @@ data class RegisterRequest(
     val lastName: String,
     val username: String? = null,
     val role: String = "STUDENT_FREELANCER",
-    val age: Int = 18,
+    val age: Int? = null,
     val dob: String? = null
 )
 
