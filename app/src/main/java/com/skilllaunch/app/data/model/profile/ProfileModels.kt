@@ -31,6 +31,7 @@ data class ProfileData(
     val resumeUrl: String? = null,
     val resumeFileName: String? = null,
     val onboardingCompleted: Boolean? = null,
+    val onboardingStatus: String? = null,
     val onboardingData: OnboardingData? = null
 )
 
@@ -48,6 +49,7 @@ data class ProfileUpdateRequest(
     val resumeUrl: String? = null,
     val resumeFileName: String? = null,
     val onboardingCompleted: Boolean? = null,
+    val onboardingStatus: String? = null,
     val onboardingData: OnboardingData? = null
 )
 
