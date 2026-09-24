@@ -28,6 +28,8 @@ data class ProfileData(
     val githubUrl: String? = null,
     val youtubeUrl: String? = null,
     val drivePortfolio: String? = null,
+    val resumeUrl: String? = null,
+    val resumeFileName: String? = null,
     val onboardingCompleted: Boolean? = null,
     val onboardingData: OnboardingData? = null
 )
@@ -43,6 +45,8 @@ data class ProfileUpdateRequest(
     val githubUrl: String? = null,
     val youtubeUrl: String? = null,
     val drivePortfolio: String? = null,
+    val resumeUrl: String? = null,
+    val resumeFileName: String? = null,
     val onboardingCompleted: Boolean? = null,
     val onboardingData: OnboardingData? = null
 )
