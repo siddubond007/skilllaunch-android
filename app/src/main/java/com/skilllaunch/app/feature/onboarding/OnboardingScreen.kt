@@ -106,6 +106,7 @@ fun OnboardingScreen(
     var companyOrProjectName by rememberSaveable { mutableStateOf("") }
 
     var saving by remember { mutableStateOf(false) }
+    var loadingInitialProfile by remember { mutableStateOf(true) }
     var error by remember { mutableStateOf("") }
 
     val context = LocalContext.current
@@ -132,6 +133,47 @@ fun OnboardingScreen(
     }
 
     val isStudent = user.role == "STUDENT_FREELANCER"
+
+    LaunchedEffect(user.id) {
+        repository.getMyProfile()
+            .onSuccess { profileUser ->
+                val profile = profileUser.profile
+                val data = profile?.onboardingData
+
+                if (isStudent) {
+                    val savedDomain = data?.primaryDomain.orEmpty()
+                    if (savedDomain.isNotBlank() && studentDomains.containsKey(savedDomain)) {
+                        primaryDomain = savedDomain
+                    } else if (savedDomain.isNotBlank()) {
+                        primaryDomain = "Other"
+                        customSkill = savedDomain
+                    }
+                    selectedSkills = data?.selectedSkills.orEmpty()
+                    githubUrl = data?.githubUrl.orEmpty()
+                    youtubeUrl = data?.youtubeUrl.orEmpty()
+                    portfolioUrl = data?.portfolioUrl.orEmpty()
+                    academicStatus = data?.academicStatus.orEmpty()
+                    graduationYear = data?.graduationYear?.toString().orEmpty()
+                    availability = data?.availability.orEmpty()
+                    tagline = profile?.tagline.orEmpty()
+                    bio = profile?.bio.orEmpty()
+                } else {
+                    clientType = data?.clientType.orEmpty()
+                    hiringCategories = data?.hiringCategories.orEmpty()
+                    hiringIntent = data?.hiringIntent.orEmpty()
+                    projectScope = data?.projectScope.orEmpty()
+                    companyOrProjectName = data?.companyOrProjectName.orEmpty()
+                    tagline = profile?.bio.orEmpty()
+                }
+
+                resumeFileName = profile?.resumeFileName.orEmpty()
+                resumeUploaded = !profile?.resumeUrl.isNullOrBlank()
+                loadingInitialProfile = false
+            }
+            .onFailure {
+                loadingInitialProfile = false
+            }
+    }
 
     fun finishWithSkip() {
         skipOnboarding(
@@ -708,7 +750,7 @@ fun OnboardingScreen(
 
             val isLastStep = step == if (isStudent) 4 else 3
             val buttonEnabled = when {
-                saving || resumeUploading -> false
+                saving || loadingInitialProfile || resumeUploading -> false
                 isStudent && step == 1 -> primaryDomain.isNotBlank() &&
                     (primaryDomain != "Other" || customSkill.trim().length >= 2)
                 isStudent && step == 2 -> selectedSkills.isNotEmpty()
