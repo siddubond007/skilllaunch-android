@@ -1,5 +1,6 @@
 package com.skilllaunch.app.feature.auth
 
+import android.util.Patterns
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
@@ -8,7 +9,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.rememberSaveable
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 
 @Composable
@@ -16,18 +17,18 @@ fun SignupScreen(
     state: AuthUiState,
     darkTheme: Boolean,
     onToggleTheme: () -> Unit,
-    onSignup: (String, String?, String, String, String, String, String, Int) -> Unit,
+    onSignup: (String, String?, String, String, String, String, String, Int?) -> Unit,
     onBackToLogin: () -> Unit
 ) {
-    var step by rememberSaveable { mutableIntStateOf(1) }
-    var firstName by rememberSaveable { mutableStateOf("") }
-    var lastName by rememberSaveable { mutableStateOf("") }
-    var email by rememberSaveable { mutableStateOf("") }
-    var password by rememberSaveable { mutableStateOf("") }
-    var username by rememberSaveable { mutableStateOf("") }
-    var role by rememberSaveable { mutableStateOf("STUDENT_FREELANCER") }
-    var localError by rememberSaveable { mutableStateOf("") }
-    var usernameSuggestions by rememberSaveable { mutableStateOf(emptyList<String>()) }
+    var step by remember { mutableIntStateOf(1) }
+    var firstName by remember { mutableStateOf("") }
+    var lastName by remember { mutableStateOf("") }
+    var email by remember { mutableStateOf("") }
+    var password by remember { mutableStateOf("") }
+    var username by remember { mutableStateOf("") }
+    var role by remember { mutableStateOf("STUDENT_FREELANCER") }
+    var localError by remember { mutableStateOf("") }
+    var usernameSuggestions by remember { mutableStateOf(emptyList<String>()) }
 
     BackHandler {
         localError = ""
@@ -38,7 +39,7 @@ fun SignupScreen(
         }
     }
 
-    fun generateUsernameSuggestions() {
+    fun generateUsernameSuggestions(): List<String> {
         val first = firstName.lowercase().filter { it.isLetterOrDigit() }
         val last = lastName.lowercase().filter { it.isLetterOrDigit() }
         val base = first.ifBlank { "user" }.take(10)
@@ -79,7 +80,7 @@ fun SignupScreen(
             base + "_" + aesthetics[3]
         ).distinct().shuffled().take(2)
 
-        usernameSuggestions = (classic + fancy).distinct().take(4)
+        return (classic + fancy).distinct().take(4)
     }
 
     Surface(
@@ -120,9 +121,10 @@ fun SignupScreen(
                     onContinue = { selectedRole ->
                         localError = ""
                         role = selectedRole
-                        generateUsernameSuggestions()
-                        if (username.isBlank() && usernameSuggestions.isNotEmpty()) {
-                            username = usernameSuggestions.first()
+                        val suggestions = generateUsernameSuggestions()
+                        usernameSuggestions = suggestions
+                        if (username.isBlank() && suggestions.isNotEmpty()) {
+                            username = suggestions.first()
                         }
                         step = 2
                     },
@@ -141,14 +143,16 @@ fun SignupScreen(
                         username = it
                         localError = ""
                     },
-                    onRefreshSuggestions = ::generateUsernameSuggestions,
+                    onRefreshSuggestions = {
+                        usernameSuggestions = generateUsernameSuggestions()
+                    },
                     onCreateAccount = {
                         localError = when {
                             firstName.trim().length < 3 ->
                                 "First Name must contain at least 3 letters."
                             lastName.trim().length < 3 ->
                                 "Last Name must contain at least 3 letters."
-                            !android.util.Patterns.EMAIL_ADDRESS
+                            !Patterns.EMAIL_ADDRESS
                                 .matcher(email.trim())
                                 .matches() ->
                                 "Enter a valid email address."
@@ -170,7 +174,7 @@ fun SignupScreen(
                                 email.trim(),
                                 password,
                                 role,
-                                18
+                                null
                             )
                         }
                     },
