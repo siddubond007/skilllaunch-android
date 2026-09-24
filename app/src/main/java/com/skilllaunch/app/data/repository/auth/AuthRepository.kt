@@ -35,7 +35,7 @@ class AuthRepository(
         email: String,
         password: String,
         role: String,
-        age: Int
+        age: Int?
     ): Result<AuthUser> {
         return authenticate {
             authApi.register(
