@@ -39,7 +39,7 @@ class ProfileViewModel(
 
     private var loadedUserId: String? = null
 
-    fun loadProfile(userId: String) {
+    fun loadProfile(userId: String, forceRefresh: Boolean = false) {
         if (userId.isBlank()) {
             _uiState.value = _uiState.value.copy(
                 isLoading = false,
@@ -48,7 +48,7 @@ class ProfileViewModel(
             return
         }
 
-        if (loadedUserId == userId && _uiState.value.profileUser != null) {
+        if (!forceRefresh && loadedUserId == userId && _uiState.value.profileUser != null) {
             return
         }
 
