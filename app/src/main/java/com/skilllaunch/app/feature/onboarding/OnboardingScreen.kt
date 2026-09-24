@@ -1198,6 +1198,7 @@ private fun validateAndSave(
         youtubeUrl = youtubeUrl.trim().ifBlank { null },
         drivePortfolio = portfolioUrl.trim().ifBlank { null },
         onboardingCompleted = true,
+        onboardingStatus = "COMPLETED",
         onboardingData = data
     )
 
@@ -1265,7 +1266,8 @@ private fun skipOnboarding(
         githubUrl = githubUrl.trim().ifBlank { null },
         youtubeUrl = youtubeUrl.trim().ifBlank { null },
         drivePortfolio = portfolioUrl.trim().ifBlank { null },
-        onboardingCompleted = true,
+        onboardingCompleted = false,
+        onboardingStatus = "SKIPPED",
         onboardingData = data
     )
 
@@ -1278,9 +1280,12 @@ private fun skipOnboarding(
                 setSaving(false)
                 onFinished()
             }
-            .onFailure {
+            .onFailure { exception ->
                 setSaving(false)
-                setError("We couldn't save that right now. Try again.")
+                setError(
+                    exception.message
+                        ?: "We couldn't save your progress right now. Try again."
+                )
             }
     }
 }
