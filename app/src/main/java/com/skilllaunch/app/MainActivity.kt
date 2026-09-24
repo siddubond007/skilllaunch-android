@@ -149,7 +149,12 @@ private fun SkillLaunchRoot(
             onboardingResolvedForUser = false
             profileRepository.getProfile(userId)
                 .onSuccess { profile ->
-                    showOnboarding = profile.profile?.onboardingCompleted == false
+                    val status = profile.profile?.onboardingStatus
+                    showOnboarding = when (status) {
+                        "SKIPPED", "COMPLETED" -> false
+                        "PENDING", "IN_PROGRESS" -> true
+                        else -> profile.profile?.onboardingCompleted == false
+                    }
                     onboardingResolvedForUser = true
                 }
                 .onFailure {
@@ -190,6 +195,7 @@ private fun SkillLaunchRoot(
                     profileRepository = profileRepository,
                     gigRepository = gigRepository,
                     onLogout = authViewModel::logout,
+                    onOpenOnboarding = { showOnboarding = true },
                     themeState = themeState,
                     onToggleTheme = onToggleTheme
                 )
