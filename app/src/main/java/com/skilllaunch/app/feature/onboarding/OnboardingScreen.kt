@@ -33,6 +33,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -107,6 +108,7 @@ fun OnboardingScreen(
 
     var saving by remember { mutableStateOf(false) }
     var loadingInitialProfile by remember { mutableStateOf(true) }
+    var showSkipConfirmation by remember { mutableStateOf(false) }
     var error by remember { mutableStateOf("") }
 
     val context = LocalContext.current
@@ -203,10 +205,14 @@ fun OnboardingScreen(
     }
 
     BackHandler {
-        if (step > 1) {
-            step -= 1
-        } else {
-            finishWithSkip()
+        when {
+            showSkipConfirmation -> showSkipConfirmation = false
+            resumeUploading -> error = "Please wait for the resume upload to finish."
+            step > 1 -> {
+                step -= 1
+                error = ""
+            }
+            else -> showSkipConfirmation = true
         }
     }
 
@@ -245,8 +251,8 @@ fun OnboardingScreen(
                 )
                 Spacer(modifier = Modifier.weight(1f))
                 TextButton(
-                    onClick = ::finishWithSkip,
-                    enabled = !saving
+                    onClick = { showSkipConfirmation = true },
+                    enabled = !saving && !resumeUploading && !loadingInitialProfile
                 ) {
                     Text("Skip for now")
                 }
@@ -737,53 +743,43 @@ fun OnboardingScreen(
                         }
                     }
 
-                    if (error.isNotBlank()) {
-                        item {
-                            Text(
-                                text = error,
-                                color = MaterialTheme.colorScheme.error,
-                                style = MaterialTheme.typography.bodySmall,
-                                fontWeight = FontWeight.SemiBold
-                            )
-                        }
-                    }
                 }
             }
 
             Spacer(modifier = Modifier.height(10.dp))
 
             val isLastStep = step == if (isStudent) 4 else 3
-            val buttonEnabled = when {
-                saving || loadingInitialProfile || resumeUploading -> false
-                isStudent && step == 1 -> primaryDomain.isNotBlank() &&
-                    (primaryDomain != "Other" || customSkill.trim().length >= 2)
-                isStudent && step == 2 -> selectedSkills.isNotEmpty()
-                isStudent && step == 3 -> academicStatus.isNotBlank() && availability.isNotBlank()
-                isStudent && step == 4 -> true
-                !isStudent && step == 1 -> clientType.isNotBlank()
-                !isStudent && step == 2 -> hiringCategories.isNotEmpty() && hiringIntent.isNotBlank() && projectScope.isNotBlank()
-                else -> companyOrProjectName.isNotBlank()
-            }
 
-            if (error.isNotBlank()) {
-                Surface(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = 8.dp),
-                    shape = RoundedCornerShape(14.dp),
-                    color = MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.90f)
-                ) {
-                    Text(
-                        text = error,
-                        modifier = Modifier.padding(
-                            horizontal = 14.dp,
-                            vertical = 11.dp
-                        ),
-                        color = MaterialTheme.colorScheme.onErrorContainer,
-                        style = MaterialTheme.typography.bodySmall,
-                        fontWeight = FontWeight.SemiBold
-                    )
-                }
+            if (showSkipConfirmation) {
+                AlertDialog(
+                    onDismissRequest = { showSkipConfirmation = false },
+                    title = {
+                        Text("Skip profile setup?")
+                    },
+                    text = {
+                        Text(
+                            "Your progress will be saved. You can return to Profile later and finish the setup."
+                        )
+                    },
+                    confirmButton = {
+                        TextButton(
+                            onClick = {
+                                showSkipConfirmation = false
+                                finishWithSkip()
+                            },
+                            enabled = !saving
+                        ) {
+                            Text("Skip for now")
+                        }
+                    },
+                    dismissButton = {
+                        TextButton(
+                            onClick = { showSkipConfirmation = false }
+                        ) {
+                            Text("Keep setting up")
+                        }
+                    }
+                )
             }
 
             AuthPrimaryButton(
