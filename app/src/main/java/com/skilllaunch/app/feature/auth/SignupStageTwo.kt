@@ -55,7 +55,9 @@ fun SignupStageTwo(
         it.contains("username", ignoreCase = true) ||
             it.contains("handle", ignoreCase = true)
     }
-    val generalError = visibleError.takeUnless { usernameError != null }
+    val generalError = visibleError
+        .takeIf { it.isNotBlank() }
+        ?.takeUnless { usernameError != null }
 
     AuthBackground(darkTheme = darkTheme) {
         Column(
