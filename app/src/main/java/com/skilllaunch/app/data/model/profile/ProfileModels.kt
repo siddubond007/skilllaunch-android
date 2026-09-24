@@ -39,7 +39,12 @@ data class ProfileUpdateRequest(
     val category: String? = null,
     val hourlyRate: Double? = null,
     val skills: List<String>? = null,
-    val responseTimeExpectation: String? = null
+    val responseTimeExpectation: String? = null,
+    val githubUrl: String? = null,
+    val youtubeUrl: String? = null,
+    val drivePortfolio: String? = null,
+    val onboardingCompleted: Boolean? = null,
+    val onboardingData: OnboardingData? = null
 )
 
 data class ProfileUpdateResponse(
