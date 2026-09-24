@@ -1,6 +1,8 @@
 package com.skilllaunch.app.feature.onboarding
 
 import androidx.activity.compose.BackHandler
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -53,6 +55,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.platform.LocalContext
 import com.skilllaunch.app.data.model.auth.AuthUser
 import com.skilllaunch.app.data.model.profile.OnboardingData
 import com.skilllaunch.app.data.model.profile.ProfileUpdateRequest
@@ -90,6 +93,32 @@ fun OnboardingScreen(
     var availability by rememberSaveable { mutableStateOf("") }
     var tagline by rememberSaveable { mutableStateOf("") }
     var bio by rememberSaveable { mutableStateOf("") }
+    var resumeFileName by rememberSaveable { mutableStateOf("") }
+    var resumeUploaded by rememberSaveable { mutableStateOf(false) }
+    var resumeUploading by rememberSaveable { mutableStateOf(false) }
+
+    val context = LocalContext.current
+    val resumePickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.OpenDocument()
+    ) { uri ->
+        if (uri != null) {
+            resumeUploading = true
+            error = ""
+            scope.launch {
+                repository.uploadResume(context, uri)
+                    .onSuccess { response ->
+                        resumeFileName = response.fileName.orEmpty().ifBlank { "Resume uploaded" }
+                        resumeUploaded = true
+                        resumeUploading = false
+                    }
+                    .onFailure { exception ->
+                        resumeUploading = false
+                        resumeUploaded = false
+                        error = exception.message ?: "Unable to upload your resume."
+                    }
+            }
+        }
+    }
 
     var clientType by rememberSaveable { mutableStateOf("") }
     var hiringCategories by rememberSaveable { mutableStateOf(emptyList<String>()) }
@@ -378,25 +407,32 @@ fun OnboardingScreen(
                                 },
                                 singleSelect = true
                             )
-                            AuthField(
-                                label = "Expected graduation year",
-                                value = graduationYear,
-                                onValueChange = { value ->
-                                    graduationYear = value.filter(Char::isDigit).take(4)
-                                    error = ""
-                                },
-                                placeholder = "2028",
-                                keyboardOptions = KeyboardOptions(
-                                    keyboardType = KeyboardType.Number,
-                                    imeAction = ImeAction.Next
-                                ),
-                                leadingIcon = AuthFieldIcon.Check
-                            )
-                            Text(
-                                text = "Optional for self-taught or recently graduated users.",
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                style = MaterialTheme.typography.bodySmall
-                            )
+                            if (academicStatus.isNotBlank() && academicStatus != "Self-taught / Career Switcher") {
+                                AuthField(
+                                    label = graduationYearLabel(academicStatus),
+                                    value = graduationYear,
+                                    onValueChange = { value ->
+                                        graduationYear = value.filter(Char::isDigit).take(4)
+                                        error = ""
+                                    },
+                                    placeholder = graduationYearPlaceholder(academicStatus),
+                                    keyboardOptions = KeyboardOptions(
+                                        keyboardType = KeyboardType.Number,
+                                        imeAction = ImeAction.Next
+                                    ),
+                                    leadingIcon = AuthFieldIcon.Graduation
+                                )
+                                Text(
+                                    text = when (academicStatus) {
+                                        "High School Student",
+                                        "Undergraduate Student",
+                                        "Postgraduate Student" -> "Add the year you expect to complete your current program."
+                                        else -> "Optional, but useful for presenting your academic timeline."
+                                    },
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    style = MaterialTheme.typography.bodySmall
+                                )
+                            }
                             Text(
                                 text = "Availability",
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -417,8 +453,8 @@ fun OnboardingScreen(
                         isStudent && step == 4 -> item {
                             SectionHeader(
                                 emoji = "✨",
-                                title = "Put a little personality in your profile.",
-                                subtitle = "A short headline and micro-bio help clients understand you quickly."
+                                title = "Make your profile yours.",
+                                subtitle = "Add a strong headline, a short intro, and optionally attach your resume."
                             )
                             AuthField(
                                 label = "Headline",
@@ -446,6 +482,24 @@ fun OnboardingScreen(
                                 textAlign = androidx.compose.ui.text.style.TextAlign.End,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 style = MaterialTheme.typography.bodySmall
+                            )
+
+                            Spacer(modifier = Modifier.height(6.dp))
+
+                            ResumeUploadCard(
+                                fileName = resumeFileName,
+                                uploaded = resumeUploaded,
+                                uploading = resumeUploading,
+                                onUpload = {
+                                    error = ""
+                                    resumePickerLauncher.launch(
+                                        arrayOf(
+                                            "application/pdf",
+                                            "application/msword",
+                                            "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                                        )
+                                    )
+                                }
                             )
                         }
 
@@ -564,7 +618,7 @@ fun OnboardingScreen(
 
             val isLastStep = step == if (isStudent) 4 else 3
             val buttonEnabled = when {
-                saving -> false
+                saving || resumeUploading -> false
                 isStudent && step == 1 -> primaryDomain.isNotBlank() &&
                     (primaryDomain != "Other" || customSkill.trim().length >= 2)
                 isStudent && step == 2 -> selectedSkills.isNotEmpty()
@@ -1143,19 +1197,34 @@ private val studentStepLabels = listOf("Focus", "Skills", "Journey", "Profile")
 private val clientStepLabels = listOf("Client type", "Hiring needs", "Identity")
 
 private val academicStatuses = listOf(
-    "High School",
-    "Undergraduate",
-    "Postgraduate",
+    "High School Student",
+    "Undergraduate Student",
+    "Postgraduate Student",
     "Recently Graduated",
-    "Self-taught / Early Career"
+    "Graduate / Early Career",
+    "Self-taught / Career Switcher"
 )
+
+private fun graduationYearLabel(status: String): String = when (status) {
+    "High School Student",
+    "Undergraduate Student",
+    "Postgraduate Student" -> "Expected graduation year"
+    else -> "Graduation year"
+}
+
+private fun graduationYearPlaceholder(status: String): String = when (status) {
+    "High School Student" -> "2027"
+    "Undergraduate Student" -> "2028"
+    "Postgraduate Student" -> "2027"
+    else -> "2025"
+}
 
 private val availabilityOptions = listOf(
     "Small tasks",
     "Part-time projects",
-    "Large projects",
+    "Full projects",
     "Evenings / Weekends",
-    "Just browsing"
+    "Flexible / Open"
 )
 
 private val clientTypes = listOf(
@@ -1193,3 +1262,72 @@ private val projectScopeOptions = listOf(
     "1–3 months",
     "3+ months"
 )
+
+
+@Composable
+private fun ResumeUploadCard(
+    fileName: String,
+    uploaded: Boolean,
+    uploading: Boolean,
+    onUpload: () -> Unit
+) {
+    val shape = RoundedCornerShape(18.dp)
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(shape)
+            .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.42f))
+            .border(
+                BorderStroke(
+                    1.dp,
+                    if (uploaded) {
+                        MaterialTheme.colorScheme.primary.copy(alpha = 0.40f)
+                    } else {
+                        MaterialTheme.colorScheme.onSurface.copy(alpha = 0.10f)
+                    }
+                ),
+                shape
+            )
+            .padding(16.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = if (uploaded) "✓" else "📄",
+                fontSize = 22.sp,
+                color = if (uploaded) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
+            )
+            Spacer(modifier = Modifier.size(10.dp))
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = if (uploaded) "Resume attached" else "Add your resume (optional)",
+                    style = MaterialTheme.typography.titleSmall,
+                    fontWeight = FontWeight.ExtraBold
+                )
+                Text(
+                    text = if (uploaded && fileName.isNotBlank()) fileName
+                    else "PDF, DOC or DOCX • maximum 10 MB",
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    style = MaterialTheme.typography.bodySmall,
+                    maxLines = 2
+                )
+            }
+            TextButton(
+                onClick = onUpload,
+                enabled = !uploading
+            ) {
+                Text(if (uploading) "Uploading…" else if (uploaded) "Replace" else "Upload")
+            }
+        }
+
+        Text(
+            text = "Your skills and portfolio are still the main profile signals. The resume is an optional supporting document.",
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            style = MaterialTheme.typography.bodySmall
+        )
+    }
+}
