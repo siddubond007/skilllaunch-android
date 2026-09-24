@@ -2,6 +2,8 @@ package com.skilllaunch.app.feature.profile
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -47,7 +49,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.skilllaunch.app.data.model.auth.AuthUser
 import com.skilllaunch.app.data.repository.profile.ProfileRepository
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 fun ProfileScreen(
     user: AuthUser,
@@ -250,6 +252,83 @@ private fun ProfileContent(
                 fontWeight = FontWeight.SemiBold,
                 modifier = Modifier.padding(horizontal = 2.dp)
             )
+
+            val profile = uiState.profileUser?.profile
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 2.dp)
+            ) {
+                Column(
+                    modifier = Modifier.padding(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(10.dp)
+                ) {
+                    Text(
+                        text = "🚀 SkillLaunch highlights",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold
+                    )
+
+                    profile?.category?.takeIf { it.isNotBlank() }?.let {
+                        Text(
+                            text = "Primary focus: $it",
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                    }
+
+                    val selectedSkills = profile?.skills.orEmpty().filter { it.isNotBlank() }
+                    if (selectedSkills.isNotEmpty()) {
+                        Text(
+                            text = "Selected skills",
+                            style = MaterialTheme.typography.labelLarge,
+                            fontWeight = FontWeight.SemiBold
+                        )
+                        FlowRow(
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            verticalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            selectedSkills.forEach { skill ->
+                                Surface(
+                                    shape = androidx.compose.foundation.shape.RoundedCornerShape(50),
+                                    color = MaterialTheme.colorScheme.primary.copy(alpha = 0.12f)
+                                ) {
+                                    Text(
+                                        text = skill,
+                                        modifier = Modifier.padding(
+                                            horizontal = 11.dp,
+                                            vertical = 7.dp
+                                        ),
+                                        color = MaterialTheme.colorScheme.primary,
+                                        style = MaterialTheme.typography.labelMedium,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                }
+                            }
+                        }
+                    }
+
+                    val proofLinks = listOfNotNull(
+                        profile?.githubUrl?.takeIf { it.isNotBlank() }?.let { "GitHub • $it" },
+                        profile?.youtubeUrl?.takeIf { it.isNotBlank() }?.let { "YouTube / Vimeo • $it" },
+                        profile?.drivePortfolio?.takeIf { it.isNotBlank() }?.let { "Portfolio • $it" }
+                    )
+                    if (proofLinks.isNotEmpty()) {
+                        Text(
+                            text = "Proof of work",
+                            style = MaterialTheme.typography.labelLarge,
+                            fontWeight = FontWeight.SemiBold
+                        )
+                        proofLinks.forEach { link ->
+                            Text(
+                                text = link,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                style = MaterialTheme.typography.bodySmall
+                            )
+                        }
+                    }
+                }
+            }
 
             OutlinedProfileField(
                 value = uiState.form.tagline,
