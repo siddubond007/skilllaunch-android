@@ -569,6 +569,8 @@ private fun SelectionGrid(
                 row.forEach { option ->
                     ChoiceCard(
                         text = option,
+                        description = studentDomainDescriptions[option].orEmpty(),
+                        icon = studentDomainIcons[option] ?: "✦",
                         selected = selected == option,
                         modifier = Modifier.weight(1f),
                         onClick = { onSelect(option) }
@@ -611,6 +613,8 @@ private fun SelectionChipGroup(
 @Composable
 private fun ChoiceCard(
     text: String,
+    description: String,
+    icon: String,
     selected: Boolean,
     modifier: Modifier,
     onClick: () -> Unit
@@ -618,7 +622,7 @@ private fun ChoiceCard(
     val shape = RoundedCornerShape(18.dp)
     Box(
         modifier = modifier
-            .height(78.dp)
+            .height(92.dp)
             .clip(shape)
             .then(
                 if (selected) {
@@ -645,20 +649,34 @@ private fun ChoiceCard(
             .padding(14.dp),
         contentAlignment = Alignment.CenterStart
     ) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            if (selected) {
-                Text(
-                    text = "✓ ",
-                    color = Color.White,
-                    fontWeight = FontWeight.Bold
-                )
-            }
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(10.dp)
+        ) {
             Text(
-                text = text,
-                color = if (selected) Color.White else MaterialTheme.colorScheme.onSurface,
-                style = MaterialTheme.typography.labelLarge,
+                text = if (selected) "✓" else icon,
+                color = if (selected) Color.White else MaterialTheme.colorScheme.primary,
+                fontSize = 21.sp,
                 fontWeight = FontWeight.Bold
             )
+            Column(verticalArrangement = Arrangement.spacedBy(3.dp)) {
+                Text(
+                    text = text,
+                    color = if (selected) Color.White else MaterialTheme.colorScheme.onSurface,
+                    style = MaterialTheme.typography.labelLarge,
+                    fontWeight = FontWeight.ExtraBold
+                )
+                Text(
+                    text = description,
+                    color = if (selected) {
+                        Color.White.copy(alpha = 0.82f)
+                    } else {
+                        MaterialTheme.colorScheme.onSurfaceVariant
+                    },
+                    style = MaterialTheme.typography.bodySmall,
+                    maxLines = 2
+                )
+            }
         }
     }
 }
@@ -894,12 +912,60 @@ private fun skipOnboarding(
 }
 
 private val studentDomains = linkedMapOf(
-    "Software Engineering" to listOf("Frontend", "Backend", "Full Stack", "APIs", "Web Apps", "E-commerce"),
+    "Web Development" to listOf("Frontend", "Backend", "Full Stack", "React", "Node.js", "E-commerce"),
     "Mobile Development" to listOf("Android", "iOS", "Flutter", "React Native", "Mobile UI", "App APIs"),
+    "Software & APIs" to listOf("Java", "Python", "C/C++", "APIs", "Desktop Apps", "Automation"),
     "Data & AI" to listOf("Machine Learning", "Deep Learning", "Data Analysis", "Generative AI", "Computer Vision", "NLP"),
-    "Design" to listOf("UI/UX", "Graphic Design", "Branding", "Figma", "Presentation Design", "Illustration"),
-    "Content & Marketing" to listOf("Content Writing", "Copywriting", "SEO", "Social Media", "Email Marketing", "Research"),
-    "Video & Audio" to listOf("Video Editing", "Short-form", "YouTube", "Motion Graphics", "Color Grading", "Podcast Editing")
+    "Cybersecurity" to listOf("Web Security", "Network Security", "Ethical Hacking", "SOC", "Security Testing", "Cloud Security"),
+    "Cloud & DevOps" to listOf("AWS", "Azure", "Docker", "Kubernetes", "CI/CD", "Linux"),
+    "UI/UX Design" to listOf("UI Design", "UX Research", "Figma", "Prototyping", "Design Systems", "Mobile UX"),
+    "Graphic & Brand Design" to listOf("Logos", "Branding", "Social Media", "Illustration", "Print Design", "Presentation Design"),
+    "Video & Motion" to listOf("Video Editing", "Short-form", "YouTube", "Motion Graphics", "Color Grading", "Reels"),
+    "Writing & Content" to listOf("Content Writing", "Copywriting", "Technical Writing", "Blogging", "Proofreading", "Script Writing"),
+    "Marketing & SEO" to listOf("SEO", "Social Media", "Email Marketing", "Content Strategy", "Ads", "Market Research"),
+    "Business & Research" to listOf("Business Analysis", "Market Research", "Presentations", "Data Research", "Strategy", "Documentation"),
+    "Education & Tutoring" to listOf("Programming", "Math", "Science", "Languages", "Academic Help", "Test Preparation"),
+    "Photography & Creative" to listOf("Photography", "Photo Editing", "Retouching", "Product Photos", "Creative Direction", "Canva"),
+    "Game Development" to listOf("Unity", "Unreal Engine", "Game Design", "3D Assets", "Gameplay", "Level Design"),
+    "Other" to listOf("Virtual Assistance", "Data Entry", "Transcription", "Research", "Presentation Work", "Other Skills")
+)
+
+private val studentDomainIcons = mapOf(
+    "Web Development" to "🌐",
+    "Mobile Development" to "📱",
+    "Software & APIs" to "⚙️",
+    "Data & AI" to "🧠",
+    "Cybersecurity" to "🛡️",
+    "Cloud & DevOps" to "☁️",
+    "UI/UX Design" to "🎨",
+    "Graphic & Brand Design" to "✨",
+    "Video & Motion" to "🎬",
+    "Writing & Content" to "✍️",
+    "Marketing & SEO" to "📣",
+    "Business & Research" to "📊",
+    "Education & Tutoring" to "🎓",
+    "Photography & Creative" to "📷",
+    "Game Development" to "🎮",
+    "Other" to "✦"
+)
+
+private val studentDomainDescriptions = mapOf(
+    "Web Development" to "Sites, apps, storefronts",
+    "Mobile Development" to "Android, iOS, cross-platform",
+    "Software & APIs" to "Apps, automation, integrations",
+    "Data & AI" to "ML, GenAI, analytics",
+    "Cybersecurity" to "Security, testing, defense",
+    "Cloud & DevOps" to "Cloud, containers, CI/CD",
+    "UI/UX Design" to "Interfaces, research, prototypes",
+    "Graphic & Brand Design" to "Branding, visuals, presentations",
+    "Video & Motion" to "Editing, reels, motion graphics",
+    "Writing & Content" to "Articles, copy, scripts",
+    "Marketing & SEO" to "SEO, social, campaigns",
+    "Business & Research" to "Analysis, research, strategy",
+    "Education & Tutoring" to "Subjects, coding, languages",
+    "Photography & Creative" to "Photos, editing, creative work",
+    "Game Development" to "Games, gameplay, 3D",
+    "Other" to "Skills outside these categories"
 )
 
 private val academicStatuses = listOf(
