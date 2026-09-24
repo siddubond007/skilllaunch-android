@@ -1289,7 +1289,12 @@ private fun skipOnboarding(
         } else {
             hiringCategories.firstOrNull()
         },
-        skills = selectedSkills.ifEmpty { null },
+        skills = when {
+            selectedSkills.isNotEmpty() -> selectedSkills
+            primaryDomain == "Other" && customSkill.trim().isNotBlank() ->
+                listOf(customSkill.trim())
+            else -> null
+        },
         responseTimeExpectation = if (user.role == "STUDENT_FREELANCER") {
             availability.trim().ifBlank { null }
         } else {
