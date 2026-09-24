@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -18,6 +19,7 @@ fun SignupScreen(
     darkTheme: Boolean,
     onToggleTheme: () -> Unit,
     onSignup: (String, String?, String, String, String, String, String, Int?) -> Unit,
+    onClearError: () -> Unit,
     onBackToLogin: () -> Unit
 ) {
     var step by remember { mutableIntStateOf(1) }
@@ -29,6 +31,16 @@ fun SignupScreen(
     var role by remember { mutableStateOf("STUDENT_FREELANCER") }
     var localError by remember { mutableStateOf("") }
     var usernameSuggestions by remember { mutableStateOf(emptyList<String>()) }
+
+    LaunchedEffect(state.errorMessage) {
+        val serverError = state.errorMessage.orEmpty()
+        if (serverError.contains("email", ignoreCase = true) &&
+            (serverError.contains("registered", ignoreCase = true) ||
+             serverError.contains("already", ignoreCase = true))
+        ) {
+            step = 1
+        }
+    }
 
     BackHandler {
         localError = ""
@@ -101,22 +113,27 @@ fun SignupScreen(
                     onRoleChange = {
                         role = it
                         localError = ""
+                        onClearError()
                     },
                     onFirstNameChange = {
                         firstName = it
                         localError = ""
+                        onClearError()
                     },
                     onLastNameChange = {
                         lastName = it
                         localError = ""
+                        onClearError()
                     },
                     onEmailChange = {
                         email = it
                         localError = ""
+                        onClearError()
                     },
                     onPasswordChange = {
                         password = it
                         localError = ""
+                        onClearError()
                     },
                     onContinue = { selectedRole ->
                         localError = ""
@@ -142,6 +159,7 @@ fun SignupScreen(
                     onUsernameChange = {
                         username = it
                         localError = ""
+                        onClearError()
                     },
                     onRefreshSuggestions = {
                         usernameSuggestions = generateUsernameSuggestions()
