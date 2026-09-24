@@ -62,6 +62,7 @@ fun AuthenticatedAppShell(
     gigRepository: GigRepository,
     onLogout: () -> Unit,
     onOpenOnboarding: () -> Unit,
+    profileRefreshVersion: Int = 0,
     themeState: State<Boolean>,
     onToggleTheme: () -> Unit
 ) {
@@ -183,7 +184,8 @@ fun AuthenticatedAppShell(
                             user = user,
                             repository = profileRepository,
                             onLogout = onLogout,
-                            onOpenOnboarding = onOpenOnboarding
+                            onOpenOnboarding = onOpenOnboarding,
+                            refreshVersion = profileRefreshVersion
                         )
                     }
                 }
