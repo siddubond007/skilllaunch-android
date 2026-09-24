@@ -71,9 +71,11 @@ fun SignupStageOne(
     val passwordError = visibleError.takeIf {
         it.contains("password", ignoreCase = true)
     }
-    val generalError = visibleError.takeUnless {
-        emailError != null || ageError != null || passwordError != null
-    }
+    val generalError = visibleError
+        .takeIf { it.isNotBlank() }
+        ?.takeUnless {
+            emailError != null || ageError != null || passwordError != null
+        }
 
     AuthBackground(darkTheme = darkTheme) {
         Column(
