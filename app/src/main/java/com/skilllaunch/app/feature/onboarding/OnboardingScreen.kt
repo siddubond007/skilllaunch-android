@@ -248,6 +248,7 @@ fun OnboardingScreen(
                             )
 
                             AnimatedVisibility(
+                                modifier = Modifier.fillMaxWidth(),
                                 visible = primaryDomain == "Other",
                                 enter = fadeIn() + slideInVertically(initialOffsetY = { it / 2 }),
                                 exit = fadeOut() + slideOutVertically(targetOffsetY = { it / 2 })
