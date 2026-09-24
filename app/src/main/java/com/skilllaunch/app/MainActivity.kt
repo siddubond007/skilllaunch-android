@@ -154,7 +154,7 @@ private fun SkillLaunchRoot(
                     val status = profile.profile?.onboardingStatus
                     showOnboarding = when (status) {
                         "SKIPPED", "COMPLETED" -> false
-                        "PENDING", "IN_PROGRESS" -> true
+                        "NOT_STARTED", "PENDING", "IN_PROGRESS" -> true
                         else -> profile.profile?.onboardingCompleted == false
                     }
                     onboardingResolvedForUser = true
