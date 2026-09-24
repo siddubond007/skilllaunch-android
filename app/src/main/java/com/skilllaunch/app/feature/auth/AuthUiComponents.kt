@@ -3,6 +3,8 @@ package com.skilllaunch.app.feature.auth
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsFocusedAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
@@ -26,6 +28,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -250,6 +253,9 @@ fun AuthField(
     passwordVisible: Boolean = false,
     onTogglePassword: (() -> Unit)? = null
 ) {
+    val interactionSource = remember { MutableInteractionSource() }
+    val focused by interactionSource.collectIsFocusedAsState()
+
     Column(
         modifier = modifier,
         verticalArrangement = Arrangement.spacedBy(7.dp)
@@ -267,7 +273,7 @@ fun AuthField(
             modifier = Modifier.fillMaxWidth(),
             singleLine = true,
             keyboardOptions = keyboardOptions,
-            cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
+            cursorBrush = SolidColor(MaterialTheme.colorScheme.onSurface),
             visualTransformation = if (password && !passwordVisible) {
                 PasswordVisualTransformation()
             } else {
@@ -275,8 +281,8 @@ fun AuthField(
             },
             textStyle = TextStyle(
                 color = MaterialTheme.colorScheme.onSurface,
-                fontSize = 15.sp,
-                lineHeight = 20.sp,
+                fontSize = 16.sp,
+                lineHeight = 21.sp,
                 fontWeight = FontWeight.Medium
             ),
             decorationBox = { innerTextField ->
@@ -292,7 +298,11 @@ fun AuthField(
                         )
                         .border(
                             1.dp,
-                            MaterialTheme.colorScheme.onSurface.copy(alpha = 0.09f),
+                            if (focused) {
+                                MaterialTheme.colorScheme.primary.copy(alpha = 0.72f)
+                            } else {
+                                MaterialTheme.colorScheme.onSurface.copy(alpha = 0.10f)
+                            },
                             RoundedCornerShape(16.dp)
                         )
                         .padding(horizontal = 17.dp),
@@ -314,7 +324,7 @@ fun AuthField(
                         if (value.isEmpty()) {
                             Text(
                                 text = placeholder,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.64f),
+                                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.52f),
                                 style = MaterialTheme.typography.bodyMedium,
                                 maxLines = 1
                             )
