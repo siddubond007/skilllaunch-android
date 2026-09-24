@@ -20,7 +20,6 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.weight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
@@ -621,13 +620,17 @@ private fun ChoiceCard(
         modifier = modifier
             .height(78.dp)
             .clip(shape)
-            .background(
+            .then(
                 if (selected) {
-                    Brush.horizontalGradient(
-                        listOf(Color(0xFF5845E9), Color(0xFF8B3BEB))
+                    Modifier.background(
+                        brush = Brush.horizontalGradient(
+                            listOf(Color(0xFF5845E9), Color(0xFF8B3BEB))
+                        )
                     )
                 } else {
-                    MaterialTheme.colorScheme.surface.copy(alpha = 0.48f)
+                    Modifier.background(
+                        color = MaterialTheme.colorScheme.surface.copy(alpha = 0.48f)
+                    )
                 }
             )
             .border(
