@@ -5,6 +5,7 @@ import com.skilllaunch.app.core.session.SessionStore
 import com.skilllaunch.app.data.api.AuthApi
 import com.skilllaunch.app.data.api.GigApi
 import com.skilllaunch.app.data.api.UserApi
+import com.skilllaunch.app.data.api.UploadApi
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
@@ -27,6 +28,11 @@ object ApiClient {
     fun gigApi(sessionStore: SessionStore): GigApi {
         return createRetrofit(sessionStore)
             .create(GigApi::class.java)
+    }
+
+    fun uploadApi(sessionStore: SessionStore): UploadApi {
+        return createRetrofit(sessionStore)
+            .create(UploadApi::class.java)
     }
 
     private fun createRetrofit(sessionStore: SessionStore): Retrofit {
