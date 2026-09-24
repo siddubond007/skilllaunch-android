@@ -61,6 +61,7 @@ fun AuthenticatedAppShell(
     profileRepository: ProfileRepository,
     gigRepository: GigRepository,
     onLogout: () -> Unit,
+    onOpenOnboarding: () -> Unit,
     themeState: State<Boolean>,
     onToggleTheme: () -> Unit
 ) {
@@ -181,7 +182,8 @@ fun AuthenticatedAppShell(
                         com.skilllaunch.app.feature.profile.ProfileScreen(
                             user = user,
                             repository = profileRepository,
-                            onLogout = onLogout
+                            onLogout = onLogout,
+                            onOpenOnboarding = onOpenOnboarding
                         )
                     }
                 }
