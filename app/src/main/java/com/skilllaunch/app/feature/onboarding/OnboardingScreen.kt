@@ -735,7 +735,7 @@ private fun ChoiceCard(
     val shape = RoundedCornerShape(18.dp)
     Box(
         modifier = modifier
-            .height(92.dp)
+            .height(76.dp)
             .clip(shape)
             .then(
                 if (selected) {
@@ -769,15 +769,16 @@ private fun ChoiceCard(
             Text(
                 text = if (selected) "✓" else icon,
                 color = if (selected) Color.White else MaterialTheme.colorScheme.primary,
-                fontSize = 21.sp,
+                fontSize = 19.sp,
                 fontWeight = FontWeight.Bold
             )
             Column(verticalArrangement = Arrangement.spacedBy(3.dp)) {
                 Text(
                     text = text,
                     color = if (selected) Color.White else MaterialTheme.colorScheme.onSurface,
-                    style = MaterialTheme.typography.labelLarge,
-                    fontWeight = FontWeight.ExtraBold
+                    style = MaterialTheme.typography.labelMedium,
+                    fontWeight = FontWeight.ExtraBold,
+                    maxLines = 1
                 )
                 Text(
                     text = description,
@@ -786,8 +787,8 @@ private fun ChoiceCard(
                     } else {
                         MaterialTheme.colorScheme.onSurfaceVariant
                     },
-                    style = MaterialTheme.typography.bodySmall,
-                    maxLines = 2
+                    style = MaterialTheme.typography.bodySmall.copy(fontSize = 10.sp),
+                    maxLines = 1
                 )
             }
         }
