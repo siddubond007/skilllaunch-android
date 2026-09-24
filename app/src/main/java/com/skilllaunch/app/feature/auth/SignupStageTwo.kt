@@ -51,6 +51,11 @@ fun SignupStageTwo(
 ) {
     var localError by rememberSaveable { mutableStateOf("") }
     val visibleError = localError.ifBlank { state.errorMessage.orEmpty() }
+    val usernameError = visibleError.takeIf {
+        it.contains("username", ignoreCase = true) ||
+            it.contains("handle", ignoreCase = true)
+    }
+    val generalError = visibleError.takeUnless { usernameError != null }
 
     AuthBackground(darkTheme = darkTheme) {
         Column(
@@ -145,6 +150,15 @@ fun SignupStageTwo(
                         fontSize = 11.sp,
                         fontWeight = FontWeight.Medium
                     )
+                    usernameError?.let { message ->
+                        Text(
+                            text = "⚠ $message",
+                            modifier = Modifier.padding(top = 6.dp, start = 3.dp),
+                            color = MaterialTheme.colorScheme.error,
+                            style = MaterialTheme.typography.bodySmall,
+                            fontWeight = FontWeight.SemiBold
+                        )
+                    }
 
                     Spacer(modifier = Modifier.height(19.dp))
 
@@ -220,16 +234,16 @@ fun SignupStageTwo(
                         }
                     }
 
-                    if (visibleError.isNotBlank()) {
+                    generalError?.let { message ->
                         Surface(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(top = 14.dp),
                             shape = RoundedCornerShape(14.dp),
-                            color = MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.82f)
+                            color = MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.90f)
                         ) {
                             Text(
-                                text = visibleError,
+                                text = message,
                                 modifier = Modifier.padding(
                                     horizontal = 13.dp,
                                     vertical = 10.dp
