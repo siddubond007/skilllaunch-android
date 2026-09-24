@@ -10,7 +10,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 
 @Composable
@@ -22,16 +22,16 @@ fun SignupScreen(
     onClearError: () -> Unit,
     onBackToLogin: () -> Unit
 ) {
-    var step by remember { mutableIntStateOf(1) }
-    var firstName by remember { mutableStateOf("") }
-    var lastName by remember { mutableStateOf("") }
-    var email by remember { mutableStateOf("") }
-    var age by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("") }
-    var username by remember { mutableStateOf("") }
-    var role by remember { mutableStateOf("STUDENT_FREELANCER") }
-    var localError by remember { mutableStateOf("") }
-    var usernameSuggestions by remember { mutableStateOf(emptyList<String>()) }
+    var step by rememberSaveable { mutableIntStateOf(1) }
+    var firstName by rememberSaveable { mutableStateOf("") }
+    var lastName by rememberSaveable { mutableStateOf("") }
+    var email by rememberSaveable { mutableStateOf("") }
+    var age by rememberSaveable { mutableStateOf("") }
+    var password by rememberSaveable { mutableStateOf("") }
+    var username by rememberSaveable { mutableStateOf("") }
+    var role by rememberSaveable { mutableStateOf("STUDENT_FREELANCER") }
+    var localError by rememberSaveable { mutableStateOf("") }
+    var usernameSuggestions by rememberSaveable { mutableStateOf(emptyList<String>()) }
 
     LaunchedEffect(state.errorMessage) {
         val serverError = state.errorMessage.orEmpty()
