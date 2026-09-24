@@ -313,6 +313,8 @@ fun OnboardingScreen(
                             SelectionGrid(
                                 options = studentDomains.keys.toList(),
                                 selected = primaryDomain,
+                                descriptionMap = studentDomainDescriptions,
+                                iconMap = studentDomainIcons,
                                 onSelect = {
                                     primaryDomain = it
                                     selectedSkills = emptyList()
@@ -644,6 +646,8 @@ fun OnboardingScreen(
                             SelectionGrid(
                                 options = clientTypes,
                                 selected = clientType,
+                                descriptionMap = clientTypeDescriptions,
+                                iconMap = clientTypeIcons,
                                 onSelect = {
                                     clientType = it
                                     error = ""
@@ -905,6 +909,8 @@ private fun SectionHeader(
 private fun SelectionGrid(
     options: List<String>,
     selected: String,
+    descriptionMap: Map<String, String> = emptyMap(),
+    iconMap: Map<String, String> = emptyMap(),
     onSelect: (String) -> Unit
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(9.dp)) {
@@ -916,8 +922,8 @@ private fun SelectionGrid(
                 row.forEach { option ->
                     ChoiceCard(
                         text = option,
-                        description = studentDomainDescriptions[option].orEmpty(),
-                        icon = studentDomainIcons[option] ?: "✦",
+                        description = descriptionMap[option].orEmpty(),
+                        icon = iconMap[option] ?: "✦",
                         selected = selected == option,
                         modifier = Modifier.weight(1f),
                         onClick = { onSelect(option) }
@@ -1436,6 +1442,24 @@ private val clientTypes = listOf(
     "Company",
     "Academic / Research",
     "Non-profit / Organization"
+)
+
+private val clientTypeIcons = mapOf(
+    "Solo Founder / Individual" to "👤",
+    "Early-stage Startup" to "🚀",
+    "Small Business" to "🏪",
+    "Company" to "🏢",
+    "Academic / Research" to "🎓",
+    "Non-profit / Organization" to "🤝"
+)
+
+private val clientTypeDescriptions = mapOf(
+    "Solo Founder / Individual" to "Personal or founder-led work",
+    "Early-stage Startup" to "Fast-moving new products",
+    "Small Business" to "Growing local or online business",
+    "Company" to "Established team or organization",
+    "Academic / Research" to "Research or education projects",
+    "Non-profit / Organization" to "Mission-driven projects"
 )
 
 private val clientCategories = listOf(
