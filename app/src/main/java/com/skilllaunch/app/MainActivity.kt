@@ -85,6 +85,7 @@ private fun SkillLaunchRoot(
     var splashMinimumElapsed by rememberSaveable { mutableStateOf(false) }
     var onboardingResolvedForUser by rememberSaveable { mutableStateOf(false) }
     var showOnboarding by rememberSaveable { mutableStateOf(false) }
+    var profileRefreshVersion by rememberSaveable { mutableIntStateOf(0) }
 
     LaunchedEffect(Unit) {
         delay(1600)
@@ -185,7 +186,10 @@ private fun SkillLaunchRoot(
                     repository = profileRepository,
                     darkTheme = themeState.value,
                     onToggleTheme = onToggleTheme,
-                    onFinished = { showOnboarding = false }
+                    onFinished = {
+                        showOnboarding = false
+                        profileRefreshVersion += 1
+                    }
                 )
             }
 
@@ -196,6 +200,7 @@ private fun SkillLaunchRoot(
                     gigRepository = gigRepository,
                     onLogout = authViewModel::logout,
                     onOpenOnboarding = { showOnboarding = true },
+                    profileRefreshVersion = profileRefreshVersion,
                     themeState = themeState,
                     onToggleTheme = onToggleTheme
                 )
