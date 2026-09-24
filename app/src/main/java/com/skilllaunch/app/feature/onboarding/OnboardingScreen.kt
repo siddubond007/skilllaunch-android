@@ -946,6 +946,11 @@ private fun OnboardingTextArea(
     onValueChange: (String) -> Unit,
     placeholder: String
 ) {
+    val interactionSource = remember { androidx.compose.foundation.interaction.MutableInteractionSource() }
+    val focused by androidx.compose.foundation.interaction.collectIsFocusedAsState(
+        interactionSource
+    )
+
     Column(verticalArrangement = Arrangement.spacedBy(7.dp)) {
         Text(
             text = label,
@@ -961,10 +966,15 @@ private fun OnboardingTextArea(
                 .height(105.dp),
             minLines = 4,
             maxLines = 4,
+            interactionSource = interactionSource,
+            cursorBrush = androidx.compose.ui.graphics.SolidColor(
+                MaterialTheme.colorScheme.onSurface
+            ),
             textStyle = TextStyle(
                 color = MaterialTheme.colorScheme.onSurface,
-                fontSize = 15.sp,
-                lineHeight = 21.sp
+                fontSize = 16.sp,
+                lineHeight = 22.sp,
+                fontWeight = FontWeight.Medium
             ),
             decorationBox = { inner ->
                 Box(
@@ -974,7 +984,11 @@ private fun OnboardingTextArea(
                         .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.48f))
                         .border(
                             1.dp,
-                            MaterialTheme.colorScheme.onSurface.copy(alpha = 0.09f),
+                            if (focused) {
+                                MaterialTheme.colorScheme.primary.copy(alpha = 0.72f)
+                            } else {
+                                MaterialTheme.colorScheme.onSurface.copy(alpha = 0.10f)
+                            },
                             RoundedCornerShape(16.dp)
                         )
                         .padding(16.dp),
@@ -983,7 +997,7 @@ private fun OnboardingTextArea(
                     if (value.isBlank()) {
                         Text(
                             text = placeholder,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.64f),
+                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.52f),
                             style = MaterialTheme.typography.bodyMedium
                         )
                     }
