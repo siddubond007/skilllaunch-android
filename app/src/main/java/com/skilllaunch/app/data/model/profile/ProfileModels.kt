@@ -24,7 +24,12 @@ data class ProfileData(
     val avatarUrl: String? = null,
     val coverUrl: String? = null,
     val skills: List<String>? = null,
-    val responseTimeExpectation: String? = null
+    val responseTimeExpectation: String? = null,
+    val githubUrl: String? = null,
+    val youtubeUrl: String? = null,
+    val drivePortfolio: String? = null,
+    val onboardingCompleted: Boolean? = null,
+    val onboardingData: OnboardingData? = null
 )
 
 data class ProfileUpdateRequest(
@@ -42,3 +47,22 @@ data class ProfileUpdateResponse(
     val profile: ProfileData? = null
 )
 
+
+
+data class OnboardingData(
+    val version: Int = 1,
+    val role: String,
+    val primaryDomain: String? = null,
+    val selectedSkills: List<String> = emptyList(),
+    val githubUrl: String? = null,
+    val youtubeUrl: String? = null,
+    val portfolioUrl: String? = null,
+    val academicStatus: String? = null,
+    val graduationYear: Int? = null,
+    val availability: String? = null,
+    val clientType: String? = null,
+    val hiringCategories: List<String> = emptyList(),
+    val hiringIntent: String? = null,
+    val projectScope: String? = null,
+    val companyOrProjectName: String? = null
+)
