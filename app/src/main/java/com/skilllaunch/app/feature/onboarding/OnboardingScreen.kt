@@ -9,6 +9,8 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.interaction.collectIsFocusedAsState
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -947,9 +949,7 @@ private fun OnboardingTextArea(
     placeholder: String
 ) {
     val interactionSource = remember { androidx.compose.foundation.interaction.MutableInteractionSource() }
-    val focused by androidx.compose.foundation.interaction.collectIsFocusedAsState(
-        interactionSource
-    )
+    val focused = interactionSource.collectIsFocusedAsState().value
 
     Column(verticalArrangement = Arrangement.spacedBy(7.dp)) {
         Text(
