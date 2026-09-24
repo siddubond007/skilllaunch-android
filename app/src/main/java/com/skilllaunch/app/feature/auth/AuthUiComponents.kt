@@ -254,7 +254,8 @@ fun AuthField(
     onTogglePassword: (() -> Unit)? = null
 ) {
     val interactionSource = remember { MutableInteractionSource() }
-    val focused by interactionSource.collectIsFocusedAsState()
+    val focusedState = interactionSource.collectIsFocusedAsState()
+    val focused = focusedState.value
 
     Column(
         modifier = modifier,
