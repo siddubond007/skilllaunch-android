@@ -345,7 +345,8 @@ enum class AuthFieldIcon {
     Lock,
     Eye,
     Check,
-    User
+    User,
+    Search
 }
 
 @Composable
@@ -360,6 +361,7 @@ private fun AuthFieldIconView(
             AuthFieldIcon.Eye -> drawEyeIcon(color)
             AuthFieldIcon.Check -> drawCheckIcon(color)
             AuthFieldIcon.User -> drawUserIcon(color)
+            AuthFieldIcon.Search -> drawSearchIcon(color)
         }
     }
 }
@@ -572,4 +574,31 @@ private fun RoleToggleOption(
             fontWeight = FontWeight.Bold
         )
     }
+}
+
+
+private fun DrawScope.drawSearchIcon(color: Color) {
+    val stroke = Stroke(width = size.minDimension * 0.11f, cap = StrokeCap.Round, join = StrokeJoin.Round)
+    drawCircle(
+        color = color,
+        radius = size.minDimension * 0.30f,
+        center = androidx.compose.ui.geometry.Offset(
+            size.width * 0.42f,
+            size.height * 0.42f
+        ),
+        style = stroke
+    )
+    drawLine(
+        color = color,
+        start = androidx.compose.ui.geometry.Offset(
+            size.width * 0.64f,
+            size.height * 0.64f
+        ),
+        end = androidx.compose.ui.geometry.Offset(
+            size.width * 0.86f,
+            size.height * 0.86f
+        ),
+        strokeWidth = size.minDimension * 0.11f,
+        cap = StrokeCap.Round
+    )
 }
