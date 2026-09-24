@@ -79,6 +79,7 @@ fun OnboardingScreen(
 
     var step by rememberSaveable { mutableIntStateOf(1) }
     var primaryDomain by rememberSaveable { mutableStateOf("") }
+    var customSkill by rememberSaveable { mutableStateOf("") }
     var selectedSkills by rememberSaveable { mutableStateOf(emptyList<String>()) }
     var skillSearch by rememberSaveable { mutableStateOf("") }
     var githubUrl by rememberSaveable { mutableStateOf("") }
@@ -245,6 +246,43 @@ fun OnboardingScreen(
                                     error = ""
                                 }
                             )
+
+                            AnimatedVisibility(
+                                visible = primaryDomain == "Other",
+                                enter = fadeIn() + slideInVertically(initialOffsetY = { it / 2 }),
+                                exit = fadeOut() + slideOutVertically(targetOffsetY = { it / 2 })
+                            ) {
+                                Column(
+                                    modifier = Modifier.padding(top = 2.dp),
+                                    verticalArrangement = Arrangement.spacedBy(7.dp)
+                                ) {
+                                    Text(
+                                        text = "What skill do you offer?",
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                        style = MaterialTheme.typography.labelLarge,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                    AuthField(
+                                        label = "Custom skill",
+                                        value = customSkill,
+                                        onValueChange = {
+                                            customSkill = it.take(50)
+                                            error = ""
+                                        },
+                                        placeholder = "e.g. CAD drafting, voice acting, Excel dashboards",
+                                        keyboardOptions = KeyboardOptions(
+                                            keyboardType = KeyboardType.Text,
+                                            imeAction = ImeAction.Done
+                                        ),
+                                        leadingIcon = AuthFieldIcon.User
+                                    )
+                                    Text(
+                                        text = "This becomes your primary profile skill instead of leaving your profile as “Other”.",
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                        style = MaterialTheme.typography.bodySmall
+                                    )
+                                }
+                            }
                         }
 
                         isStudent && step == 2 -> item {
@@ -275,7 +313,11 @@ fun OnboardingScreen(
                                 fontWeight = FontWeight.SemiBold
                             )
                             SelectionChipGroup(
-                                options = (studentDomains[primaryDomain] ?: emptyList()).filter {
+                                options = (
+                                    listOfNotNull(customSkill.trim().takeIf {
+                                        primaryDomain == "Other" && it.isNotBlank()
+                                    }) + (studentDomains[primaryDomain] ?: emptyList())
+                                ).distinct().filter {
                                     it.contains(skillSearch.trim(), ignoreCase = true)
                                 },
                                 selected = selectedSkills,
@@ -522,7 +564,8 @@ fun OnboardingScreen(
             val isLastStep = step == if (isStudent) 4 else 3
             val buttonEnabled = when {
                 saving -> false
-                isStudent && step == 1 -> primaryDomain.isNotBlank()
+                isStudent && step == 1 -> primaryDomain.isNotBlank() &&
+                    (primaryDomain != "Other" || customSkill.trim().length >= 2)
                 isStudent && step == 2 -> selectedSkills.isNotEmpty()
                 isStudent && step == 3 -> academicStatus.isNotBlank() && availability.isNotBlank()
                 isStudent && step == 4 -> true
@@ -566,6 +609,14 @@ fun OnboardingScreen(
                         isStudent = isStudent
                     )
                 } else {
+                    if (isStudent && step == 1 && primaryDomain == "Other") {
+                        val cleanCustomSkill = customSkill.trim()
+                        if (cleanCustomSkill.length < 2) {
+                            error = "Tell us the skill you want to offer so your profile has a real focus."
+                            return@AuthPrimaryButton
+                        }
+                        selectedSkills = listOf(cleanCustomSkill)
+                    }
                     error = ""
                     step += 1
                 }
@@ -841,6 +892,10 @@ private fun validateAndSave(
             setError("Choose your main focus to continue.")
             return
         }
+        if (primaryDomain == "Other" && customSkill.trim().length < 2) {
+            setError("Tell us the skill you want to offer so your profile has a real focus.")
+            return
+        }
         if (selectedSkills.isEmpty()) {
             setError("Choose at least one skill.")
             return
@@ -880,7 +935,11 @@ private fun validateAndSave(
     val request = ProfileUpdateRequest(
         tagline = if (isStudent) tagline.trim().ifBlank { null } else companyOrProjectName.trim().ifBlank { null },
         bio = if (isStudent) bio.trim().ifBlank { null } else tagline.trim().ifBlank { null },
-        category = if (isStudent) primaryDomain else hiringCategories.firstOrNull(),
+        category = if (isStudent) {
+            if (primaryDomain == "Other") customSkill.trim().ifBlank { null } else primaryDomain
+        } else {
+            hiringCategories.firstOrNull()
+        },
         skills = if (isStudent) selectedSkills else null,
         responseTimeExpectation = if (isStudent) availability else projectScope,
         githubUrl = githubUrl.trim().ifBlank { null },
