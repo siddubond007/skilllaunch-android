@@ -196,6 +196,7 @@ private fun SkillLaunchRoot(
                     darkTheme = themeState.value,
                     onToggleTheme = onToggleTheme,
                     onSignup = authViewModel::signup,
+                    onClearError = authViewModel::clearError,
                     onBackToLogin = { showSignup.value = false }
                 )
             }
