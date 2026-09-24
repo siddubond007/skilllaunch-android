@@ -249,7 +249,7 @@ fun OnboardingScreen(
                 }
             }
 
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(4.dp))
 
             Box(
                 modifier = Modifier
@@ -719,6 +719,27 @@ fun OnboardingScreen(
                 else -> companyOrProjectName.isNotBlank()
             }
 
+            if (error.isNotBlank()) {
+                Surface(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 8.dp),
+                    shape = RoundedCornerShape(14.dp),
+                    color = MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.90f)
+                ) {
+                    Text(
+                        text = error,
+                        modifier = Modifier.padding(
+                            horizontal = 14.dp,
+                            vertical = 11.dp
+                        ),
+                        color = MaterialTheme.colorScheme.onErrorContainer,
+                        style = MaterialTheme.typography.bodySmall,
+                        fontWeight = FontWeight.SemiBold
+                    )
+                }
+            }
+
             AuthPrimaryButton(
                 text = when {
                     isLastStep && isStudent -> "Find My First Project"
@@ -755,14 +776,39 @@ fun OnboardingScreen(
                         isStudent = isStudent
                     )
                 } else {
-                    if (isStudent && step == 1 && primaryDomain == "Other") {
-                        val cleanCustomSkill = customSkill.trim()
-                        if (cleanCustomSkill.length < 2) {
-                            error = "Tell us the skill you want to offer so your profile has a real focus."
-                            return@AuthPrimaryButton
-                        }
-                        selectedSkills = listOf(cleanCustomSkill)
+                    val validationMessage = when {
+                        isStudent && step == 1 && primaryDomain.isBlank() ->
+                            "Choose your main focus to continue."
+                        isStudent && step == 1 && primaryDomain == "Other" && customSkill.trim().length < 2 ->
+                            "Add the skill you offer so your profile has a clear focus."
+                        isStudent && step == 2 && selectedSkills.isEmpty() ->
+                            "Choose at least one primary skill to continue."
+                        isStudent && step == 3 && academicStatus.isBlank() ->
+                            "Choose your current academic status first."
+                        isStudent && step == 3 && availability.isBlank() ->
+                            "Choose when you can work so we can match you appropriately."
+                        !isStudent && step == 1 && clientType.isBlank() ->
+                            "Choose the client type to continue."
+                        !isStudent && step == 2 && hiringCategories.isEmpty() ->
+                            "Choose at least one talent category."
+                        !isStudent && step == 2 && hiringIntent.isBlank() ->
+                            "Choose your hiring goal."
+                        !isStudent && step == 2 && projectScope.isBlank() ->
+                            "Choose the project scope."
+                        !isStudent && step == 3 && companyOrProjectName.isBlank() ->
+                            "Add a company or project name."
+                        else -> ""
                     }
+
+                    if (validationMessage.isNotBlank()) {
+                        error = validationMessage
+                        return@AuthPrimaryButton
+                    }
+
+                    if (isStudent && step == 1 && primaryDomain == "Other") {
+                        selectedSkills = listOf(customSkill.trim())
+                    }
+
                     error = ""
                     step += 1
                 }
