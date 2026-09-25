@@ -38,6 +38,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -160,7 +161,6 @@ fun OnboardingScreen(
                 }
 
                 resumeFileName = profile?.resumeFileName.orEmpty()
-                resumeUploaded = !profile?.resumeUrl.isNullOrBlank()
                 loadingInitialProfile = false
             }
             .onFailure {
