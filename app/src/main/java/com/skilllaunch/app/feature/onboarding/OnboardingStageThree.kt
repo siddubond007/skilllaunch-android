@@ -1,6 +1,7 @@
 package com.skilllaunch.app.feature.onboarding
 
 import android.app.DatePickerDialog
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -17,10 +18,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -33,30 +36,30 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.foundation.Canvas
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.platform.LocalContext
 import com.skilllaunch.app.feature.auth.SkillLaunchBrand
+import java.text.DateFormatSymbols
 import java.util.Calendar
 
-private val academicStatusOptions = listOf(
-    "Freshman",
-    "Sophomore",
-    "Junior",
-    "Senior",
-    "Graduated",
-    "Self-Taught"
+private val stageThreeAcademicStatuses = listOf(
+    "High School",
+    "Undergraduate",
+    "Postgraduate",
+    "Bootcamp / Cert",
+    "Self-Taught",
+    "Professional"
 )
 
-private val availabilityOptions = listOf(
-    "Part-time",
-    "Half-time",
-    "Full-time"
+private val stageThreeAvailabilityOptions = listOf(
+    "Part-time (< 20 hrs)",
+    "Half-time (20-30 hrs)",
+    "Full-time (40+ hrs)"
 )
 
 @Composable
@@ -67,11 +70,15 @@ internal fun OnboardingStageThree(
     darkTheme: Boolean,
     error: String,
     saving: Boolean,
+    skipConfirmation: Boolean,
     onBack: () -> Unit,
+    onSkip: () -> Unit,
     onAcademicStatusChange: (String) -> Unit,
     onGraduationYearChange: (String) -> Unit,
     onAvailabilityChange: (String) -> Unit,
-    onContinue: () -> Unit
+    onContinue: () -> Unit,
+    onConfirmSkip: () -> Unit,
+    onDismissSkip: () -> Unit
 ) {
     val background = if (darkTheme) Color(0xFF1A1A1D) else Color(0xFFF7F7FB)
     val surface = if (darkTheme) Color(0xFF262629) else Color.White
@@ -85,7 +92,7 @@ internal fun OnboardingStageThree(
     var graduationMonth by remember { mutableIntStateOf(Calendar.MAY) }
 
     val displayedGraduation = graduationYear.toIntOrNull()?.let { year ->
-        val monthName = java.text.DateFormatSymbols().months[graduationMonth]
+        val monthName = DateFormatSymbols().months[graduationMonth]
             .takeIf { it.isNotBlank() }
             ?: "May"
         "$monthName $year"
@@ -98,11 +105,33 @@ internal fun OnboardingStageThree(
             .systemBarsPadding()
             .padding(horizontal = 24.dp)
     ) {
-        StageThreeTopBar(
-            darkTheme = darkTheme,
-            textPrimary = textPrimary,
-            onBack = onBack
-        )
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(58.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = "Profile setup",
+                color = textPrimary,
+                fontSize = 14.sp,
+                fontWeight = FontWeight.Bold
+            )
+
+            Spacer(modifier = Modifier.weight(1f))
+
+            TextButton(
+                onClick = onSkip,
+                enabled = !saving
+            ) {
+                Text(
+                    text = "Skip for now",
+                    color = textSecondary,
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Medium
+                )
+            }
+        }
 
         Spacer(modifier = Modifier.height(16.dp))
 
@@ -112,6 +141,35 @@ internal fun OnboardingStageThree(
         )
 
         Spacer(modifier = Modifier.height(16.dp))
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = "Step 3 of 4 • Journey",
+                color = textSecondary,
+                fontSize = 13.sp,
+                fontWeight = FontWeight.SemiBold
+            )
+
+            Spacer(modifier = Modifier.weight(1f))
+
+            TextButton(
+                onClick = onBack,
+                contentPadding = PaddingValues(horizontal = 0.dp, vertical = 2.dp),
+                enabled = !saving
+            ) {
+                Text(
+                    text = "← Back to previous step",
+                    color = textSecondary,
+                    fontSize = 13.sp,
+                    fontWeight = FontWeight.Medium
+                )
+            }
+        }
+
+        Spacer(modifier = Modifier.height(10.dp))
 
         Text(
             text = "What stage are you at?",
@@ -134,7 +192,7 @@ internal fun OnboardingStageThree(
             lineHeight = 21.sp
         )
 
-        Spacer(modifier = Modifier.height(22.dp))
+        Spacer(modifier = Modifier.height(20.dp))
 
         StageThreeSectionLabel(
             text = "ACADEMIC STATUS",
@@ -145,7 +203,6 @@ internal fun OnboardingStageThree(
 
         AcademicStatusGrid(
             selected = academicStatus,
-            darkTheme = darkTheme,
             surface = surface,
             primaryAccent = primaryAccent,
             textPrimary = textPrimary,
@@ -154,7 +211,7 @@ internal fun OnboardingStageThree(
             onSelect = onAcademicStatusChange
         )
 
-        Spacer(modifier = Modifier.height(20.dp))
+        Spacer(modifier = Modifier.height(18.dp))
 
         StageThreeSectionLabel(
             text = "EXPECTED GRADUATION",
@@ -165,13 +222,13 @@ internal fun OnboardingStageThree(
 
         GraduationInputShell(
             displayText = displayedGraduation,
-            darkTheme = darkTheme,
             surface = surface,
             textPrimary = textPrimary,
+            textSecondary = textSecondary,
             borderSubtle = borderSubtle,
             onClick = {
-                val calendar = Calendar.getInstance()
                 val initialYear = graduationYear.toIntOrNull() ?: 2027
+
                 DatePickerDialog(
                     context,
                     { _, year, month, _ ->
@@ -185,7 +242,7 @@ internal fun OnboardingStageThree(
             }
         )
 
-        Spacer(modifier = Modifier.height(20.dp))
+        Spacer(modifier = Modifier.height(18.dp))
 
         StageThreeSectionLabel(
             text = "WORK AVAILABILITY",
@@ -194,24 +251,26 @@ internal fun OnboardingStageThree(
 
         Spacer(modifier = Modifier.height(10.dp))
 
-        availabilityOptions.forEach { option ->
+        stageThreeAvailabilityOptions.forEachIndexed { index, option ->
             AvailabilityCard(
                 text = option,
                 selected = availability == option,
-                darkTheme = darkTheme,
                 surface = surface,
                 primaryAccent = primaryAccent,
                 textPrimary = textPrimary,
                 borderSubtle = borderSubtle,
                 onClick = { onAvailabilityChange(option) }
             )
-            Spacer(modifier = Modifier.height(10.dp))
+
+            if (index < stageThreeAvailabilityOptions.lastIndex) {
+                Spacer(modifier = Modifier.height(10.dp))
+            }
         }
 
         if (error.isNotBlank()) {
             Text(
                 text = error,
-                modifier = Modifier.padding(top = 2.dp),
+                modifier = Modifier.padding(top = 8.dp),
                 color = if (darkTheme) Color(0xFFFF8A8A) else Color(0xFFB91C1C),
                 fontSize = 13.sp,
                 fontWeight = FontWeight.SemiBold
@@ -233,8 +292,7 @@ internal fun OnboardingStageThree(
                 contentColor = selectedText,
                 disabledContainerColor = primaryAccent.copy(alpha = 0.55f),
                 disabledContentColor = selectedText.copy(alpha = 0.70f)
-            ),
-            contentPadding = PaddingValues(horizontal = 24.dp)
+            )
         ) {
             Text(
                 text = "Continue  →",
@@ -242,44 +300,33 @@ internal fun OnboardingStageThree(
                 fontWeight = FontWeight.Bold
             )
         }
-    }
-}
 
-@Composable
-private fun StageThreeTopBar(
-    darkTheme: Boolean,
-    textPrimary: Color,
-    onBack: () -> Unit
-) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(58.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        IconButton(
-            onClick = onBack,
-            modifier = Modifier.size(32.dp)
-        ) {
-            Text(
-                text = "<",
-                color = textPrimary,
-                fontSize = 26.sp,
-                lineHeight = 26.sp,
-                fontWeight = FontWeight.Light,
-                textAlign = TextAlign.Center
+        if (skipConfirmation) {
+            AlertDialog(
+                onDismissRequest = onDismissSkip,
+                title = { Text("Skip profile setup?") },
+                text = {
+                    Text(
+                        "Your progress will be saved. You can return to Profile later and finish the setup."
+                    )
+                },
+                confirmButton = {
+                    TextButton(
+                        onClick = onConfirmSkip,
+                        enabled = !saving
+                    ) {
+                        Text("Skip for now")
+                    }
+                },
+                dismissButton = {
+                    TextButton(
+                        onClick = onDismissSkip
+                    ) {
+                        Text("Keep setting up")
+                    }
+                }
             )
         }
-
-        Spacer(modifier = Modifier.weight(1f))
-
-        SkillLaunchBrand(
-            darkTheme = darkTheme,
-            compact = true
-        )
-
-        Spacer(modifier = Modifier.weight(1f))
-        Spacer(modifier = Modifier.size(32.dp))
     }
 }
 
@@ -300,9 +347,7 @@ private fun StageThreeProgress(
                     .weight(1f)
                     .height(4.dp)
                     .clip(RoundedCornerShape(8.dp))
-                    .background(
-                        if (index < 3) activeColor else inactiveColor
-                    )
+                    .background(if (index < 3) activeColor else inactiveColor)
             )
         }
     }
@@ -326,7 +371,6 @@ private fun StageThreeSectionLabel(
 @Composable
 private fun AcademicStatusGrid(
     selected: String,
-    darkTheme: Boolean,
     surface: Color,
     primaryAccent: Color,
     textPrimary: Color,
@@ -337,16 +381,15 @@ private fun AcademicStatusGrid(
     Column(
         verticalArrangement = Arrangement.spacedBy(10.dp)
     ) {
-        academicStatusOptions.chunked(2).forEach { row ->
+        stageThreeAcademicStatuses.chunked(2).forEach { row ->
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(10.dp)
             ) {
                 row.forEach { option ->
-                    StageThreeSelectionChip(
+                    StageThreeAcademicChip(
                         text = option,
                         selected = selected == option,
-                        darkTheme = darkTheme,
                         surface = surface,
                         primaryAccent = primaryAccent,
                         textPrimary = textPrimary,
@@ -362,10 +405,9 @@ private fun AcademicStatusGrid(
 }
 
 @Composable
-private fun StageThreeSelectionChip(
+private fun StageThreeAcademicChip(
     text: String,
     selected: Boolean,
-    darkTheme: Boolean,
     surface: Color,
     primaryAccent: Color,
     textPrimary: Color,
@@ -393,8 +435,10 @@ private fun StageThreeSelectionChip(
         Text(
             text = text,
             color = if (selected) selectedText else textPrimary,
-            fontSize = 14.sp,
-            fontWeight = FontWeight.SemiBold
+            fontSize = 13.sp,
+            fontWeight = FontWeight.SemiBold,
+            textAlign = TextAlign.Center,
+            maxLines = 2
         )
     }
 }
@@ -402,9 +446,9 @@ private fun StageThreeSelectionChip(
 @Composable
 private fun GraduationInputShell(
     displayText: String,
-    darkTheme: Boolean,
     surface: Color,
     textPrimary: Color,
+    textSecondary: Color,
     borderSubtle: Color,
     onClick: () -> Unit
 ) {
@@ -420,10 +464,12 @@ private fun GraduationInputShell(
         verticalAlignment = Alignment.CenterVertically
     ) {
         CalendarGlyph(
-            tint = if (darkTheme) Color(0xFFA0A0A5) else Color(0xFF64748B),
+            tint = textSecondary,
             modifier = Modifier.size(21.dp)
         )
+
         Spacer(modifier = Modifier.size(12.dp))
+
         Text(
             text = displayText,
             color = textPrimary,
@@ -437,7 +483,6 @@ private fun GraduationInputShell(
 private fun AvailabilityCard(
     text: String,
     selected: Boolean,
-    darkTheme: Boolean,
     surface: Color,
     primaryAccent: Color,
     textPrimary: Color,
@@ -449,11 +494,17 @@ private fun AvailabilityCard(
             .fillMaxWidth()
             .height(58.dp)
             .clip(RoundedCornerShape(16.dp))
-            .background(surface)
+            .background(
+                if (selected) {
+                    primaryAccent.copy(alpha = 0.10f)
+                } else {
+                    surface
+                }
+            )
             .border(
-                1.dp,
-                if (selected) primaryAccent else borderSubtle,
-                RoundedCornerShape(16.dp)
+                width = 1.dp,
+                color = if (selected) primaryAccent else borderSubtle,
+                shape = RoundedCornerShape(16.dp)
             )
             .clickable(onClick = onClick)
             .padding(horizontal = 16.dp),
@@ -483,6 +534,7 @@ private fun CalendarGlyph(
 ) {
     Canvas(modifier) {
         val stroke = 1.8.dp.toPx()
+
         drawRoundRect(
             color = tint,
             topLeft = Offset(size.width * 0.16f, size.height * 0.24f),
@@ -496,6 +548,7 @@ private fun CalendarGlyph(
             ),
             style = Stroke(width = stroke)
         )
+
         drawLine(
             color = tint,
             start = Offset(size.width * 0.28f, size.height * 0.13f),
@@ -503,6 +556,7 @@ private fun CalendarGlyph(
             strokeWidth = stroke,
             cap = StrokeCap.Round
         )
+
         drawLine(
             color = tint,
             start = Offset(size.width * 0.72f, size.height * 0.13f),
@@ -510,6 +564,7 @@ private fun CalendarGlyph(
             strokeWidth = stroke,
             cap = StrokeCap.Round
         )
+
         drawLine(
             color = tint,
             start = Offset(size.width * 0.18f, size.height * 0.38f),
@@ -531,6 +586,7 @@ private fun RadioGlyph(
             center = Offset(size.width * 0.50f, size.height * 0.50f),
             style = Stroke(width = 1.8.dp.toPx())
         )
+
         drawCircle(
             color = tint,
             radius = size.minDimension * 0.16f,
