@@ -118,47 +118,6 @@ internal val STUDENT_GIG_FEATURED_DOMAINS: List<DomainOption> =
 
 internal val studentGigDomainNames = STUDENT_GIG_DOMAIN_CATALOG.map { it.title }.toSet()
 
-internal val studentGigDomainSkills = mapOf(
-    "Web Development" to listOf("Frontend Development", "Backend Development", "Full Stack Development", "CMS & Website Builders", "Web Management", "Cloud & DevOps"),
-    "Software & IT Services" to listOf("Desktop & OS Development", "Scripting & Automation", "Web Management", "Cybersecurity", "Software Testing", "API Integration"),
-    "Mobile App Development" to listOf("Android Development", "iOS Development", "Cross-Platform", "App Management & Store", "Mobile UI", "Firebase Integration"),
-    "AI, Machine Learning & Data Science" to listOf("Artificial Intelligence & LLMs", "AI Agents & Chatbots", "Machine Learning & Deep Learning", "Computer Vision & Audio", "Data Science & Analytics", "Data Visualization"),
-    "Design & Creative" to listOf("Graphic & Visual Design", "Branding & Logos", "UI / UX & Web Design", "Illustration & Art", "Presentations & Typography", "Fashion & Merchandise"),
-    "Photography & Image Editing" to listOf("Photography Services", "Image Editing & Retouching", "Product Photography", "Portrait Photography", "Photo Manipulation", "Color Correction"),
-    "Video, Audio & Animation" to listOf("Video Editing & Post-Production", "Short-Form Video", "Animation & Motion Graphics", "Audio Production & Editing", "Voice Over & Acting", "Podcast Production"),
-    "Social Media & Community" to listOf("Social Media Management", "Community Management", "Graphics for Socials", "Content Scheduling", "Community Growth", "Social Analytics"),
-    "Digital Marketing & SEO" to listOf("Marketing Strategy", "Search Engine Optimization (SEO)", "Paid Advertising (PPC)", "PR & Outreach", "Lead Generation", "Campaign Planning"),
-    "E-commerce & Retail" to listOf("Amazon & Marketplaces", "Shopify & Stores", "Product Catalog", "Store Optimization", "Marketplace Management", "Retail Support"),
-    "Writing & Content Creation" to listOf("Content & Blog Writing", "Copywriting & Sales", "Technical & Academic Writing", "Creative Writing & Scripts", "Editing & Proofreading", "Product Descriptions"),
-    "Translation & Transcription" to listOf("Translation & Localization", "Transcription & Subtitles", "Document Translation", "App Localization", "Captioning", "PDF-to-text Conversion"),
-    "Gaming & Esports" to listOf("Game Development & Programming", "Game Art & Level Design", "AR, VR & Metaverse", "Esports, Coaching & Streaming", "Unity", "Unreal Engine"),
-    "Admin, Support & Operations" to listOf("Virtual Assistance & Admin", "Data Entry", "Customer Support", "Operations Support", "Spreadsheet Support", "Research Assistance"),
-    "Business, Finance & HR" to listOf("Finance, Accounting & Trading", "HR & Recruitment", "Business Consulting & Project Mgmt", "Sales & Lead Generation", "Email Marketing", "Business Analysis"),
-    "Legal & Compliance" to listOf("Contracts & Documentation", "Research & IP", "Compliance Support", "Privacy Documentation", "Business Legal Support", "Legal Research"),
-    "Engineering, Architecture & 3D" to listOf("Architecture & 3D Modeling", "Mechanical & Industrial Engineering", "Electrical & Hardware Engineering", "Civil Engineering", "CAD Design", "3D Visualization"),
-    "Education, Tutoring & Coaching" to listOf("Academic Tutoring", "Test & Exam Preparation", "Career Coaching & Personal Branding", "Life Coaching & Wellness", "Programming Tutoring", "Study Mentoring"),
-    "Events, Travel & Local Services" to listOf("Drones & Aerial Mapping", "Events & Travel Planning", "Real Estate Operations", "Event Support", "Travel Research", "Local Technical Support"),
-    "Telecommunications & Networking" to listOf("Network Setup", "VoIP & Communication Systems", "Network Security", "Domain & Hosting Services", "Wi-Fi Setup", "VPN Setup"),
-    "Health & Wellness" to listOf("Fitness & Training", "Nutrition & Meal Planning", "Mental Wellness & Lifestyle", "Sports & Performance", "Workout Planning", "Mindfulness"),
-    "Manufacturing & Product Development" to listOf("Product Design", "CAD & Manufacturing Documentation", "3D Printing & Prototyping", "Packaging & Production Assets", "Sourcing & Supplier Support", "Prototype Design"),
-    "Product Management & Operations" to listOf("Product Strategy", "Project Management", "Process & Operations", "No-Code & Productivity Systems", "MVP Planning", "Agile Planning"),
-    "Market Research & Consumer Insights" to listOf("Market Research", "Competitor Research", "Customer Research", "Business Intelligence Research", "Survey Research", "Market Sizing"),
-    "Public Relations & Communications" to listOf("Public Relations", "Corporate Communications", "Influencer & Creator Relations", "Press Outreach", "Media Outreach", "Communication Planning"),
-    "Career & Professional Services" to listOf("Resume & CV", "LinkedIn & Professional Profiles", "Job Search Support", "Interview Preparation", "Portfolio Review", "Personal Branding"),
-    "Government & Nonprofit Services" to listOf("Government Research", "Nonprofit Operations", "Grant Research", "Public Documentation", "Community Programs", "Policy Research"),
-    "Real Estate & Property Services" to listOf("Property Listing Support", "Real Estate Marketing", "Property Research", "Virtual Staging", "Listing Management", "Property Photography"),
-    "Travel & Hospitality" to listOf("Travel Planning", "Hospitality Support", "Itinerary Design", "Guest Experience", "Hotel Content", "Tourism Research"),
-    "Food & Culinary Services" to listOf("Recipe Development", "Menu Design", "Food Photography", "Food Content", "Culinary Research", "Restaurant Support"),
-    "Beauty & Personal Care" to listOf("Makeup", "Hair & Styling", "Skincare", "Beauty Content", "Personal Grooming", "Beauty Branding"),
-    "Fashion, Jewelry & Accessories" to listOf("Fashion Illustration", "Clothing Design", "Jewelry Design", "Merchandise Design", "Tech Packs", "Pattern Design"),
-    "Scientific & Technical Research" to listOf("Scientific Research", "Technical Analysis", "Literature Review", "Research Documentation", "Data Analysis", "Technical Writing"),
-    "Freight, Delivery & Transportation" to listOf("Logistics Support", "Delivery Operations", "Shipping Coordination", "Route Planning", "Transport Research", "Inventory Support"),
-    "Agriculture & Environmental Services" to listOf("Agriculture Research", "Environmental Research", "Sustainability Planning", "Farm Support", "Ecological Analysis", "Environmental Documentation"),
-    "3D Printing & Digital Fabrication" to listOf("3D Modeling for Fabrication", "Digital Fabrication", "STL Preparation", "CNC Design Files", "Laser Cutting Design", "Prototype Modeling"),
-    "Consulting & Professional Advisory" to listOf("Business Consulting", "Technology Consulting", "Creative Consulting", "Strategy", "Operations Advisory", "Solution Assessment"),
-    "Personal Development & Hobbies" to listOf("Personal Development", "Creative Hobbies", "Hobby Instruction", "Productivity Coaching", "Creative Mentoring", "Beginner Mentoring")
-)
-
 @Composable
 internal fun StudentDomainSelection(
     selectedDomain: String,
