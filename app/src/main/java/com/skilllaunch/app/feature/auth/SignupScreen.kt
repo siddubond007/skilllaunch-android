@@ -18,7 +18,7 @@ fun SignupScreen(
     state: AuthUiState,
     darkTheme: Boolean,
     onToggleTheme: () -> Unit,
-    onSignup: (String, String?, String, String, String, String, String, Int?) -> Unit,
+    onSignup: (String, String?, String, String, String, String, String, String?) -> Unit,
     onClearError: () -> Unit,
     onBackToLogin: () -> Unit
 ) {
@@ -136,8 +136,8 @@ fun SignupScreen(
                         localError = ""
                         onClearError()
                     },
-                    onAgeChange = {
-                        age = it.filter(Char::isDigit).take(3)
+                    onDobChange = {
+                        dob = it
                         localError = ""
                         onClearError()
                     },
@@ -185,6 +185,12 @@ fun SignupScreen(
                                 .matcher(email.trim())
                                 .matches() ->
                                 "Enter a valid email address."
+                            dob.isBlank() ->
+                                "Please select your date of birth."
+                            calculateAgeFromDob(dob)?.let { calculatedAge ->
+                                role == "CLIENT" && calculatedAge < 18
+                            } == true ->
+                                "Clients must be 18 or older. You can continue as a Student Freelancer."
                             password.length < 8 ->
                                 "Password must contain at least 8 characters."
                             username.trim().length < 3 ->
@@ -203,7 +209,7 @@ fun SignupScreen(
                                 email.trim(),
                                 password,
                                 role,
-                                age.toIntOrNull()
+                                dob
                             )
                         }
                     },
