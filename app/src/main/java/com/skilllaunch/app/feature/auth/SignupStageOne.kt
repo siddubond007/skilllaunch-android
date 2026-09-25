@@ -540,9 +540,9 @@ private fun SignupRoleCard(
         ) {
             SignupRoleArtwork(
                 role = if (title == "Student Freelancer") {
-                    SignupRoleArtworkType.Student
+                    SignupRoleChoice.Student
                 } else {
-                    SignupRoleArtworkType.Client
+                    SignupRoleChoice.Client
                 },
                 darkTheme = darkTheme
             )
