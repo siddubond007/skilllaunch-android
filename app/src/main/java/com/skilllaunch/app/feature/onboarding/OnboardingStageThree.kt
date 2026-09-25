@@ -21,7 +21,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -36,14 +35,12 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.skilllaunch.app.feature.auth.SkillLaunchBrand
 import java.text.DateFormatSymbols
 import java.util.Calendar
 
@@ -61,6 +58,41 @@ private val stageThreeAvailabilityOptions = listOf(
     "Half-time (20-30 hrs)",
     "Full-time (40+ hrs)"
 )
+
+private data class StageThreeSemanticColors(
+    val background: Color,
+    val surface: Color,
+    val primaryAccent: Color,
+    val contrastOnPrimary: Color,
+    val textPrimary: Color,
+    val textSecondary: Color,
+    val borderSubtle: Color,
+    val error: Color
+)
+
+private fun stageThreeSemanticColors(darkTheme: Boolean) = if (darkTheme) {
+    StageThreeSemanticColors(
+        background = Color(0xFF1A1A1D),
+        surface = Color(0xFF262629),
+        primaryAccent = Color(0xFFD4C6FF),
+        contrastOnPrimary = Color(0xFF17171A),
+        textPrimary = Color.White,
+        textSecondary = Color(0xFFAAA9AE),
+        borderSubtle = Color(0xFF454449),
+        error = Color(0xFFFF8A8A)
+    )
+} else {
+    StageThreeSemanticColors(
+        background = Color(0xFFF8F7FA),
+        surface = Color.White,
+        primaryAccent = Color(0xFF4338CA),
+        contrastOnPrimary = Color.White,
+        textPrimary = Color(0xFF17171A),
+        textSecondary = Color(0xFF77767D),
+        borderSubtle = Color(0xFFD2D0D6),
+        error = Color(0xFFB91C1C)
+    )
+}
 
 @Composable
 internal fun OnboardingStageThree(
@@ -80,14 +112,8 @@ internal fun OnboardingStageThree(
     onConfirmSkip: () -> Unit,
     onDismissSkip: () -> Unit
 ) {
-    val background = if (darkTheme) Color(0xFF1A1A1D) else Color(0xFFF7F7FB)
-    val surface = if (darkTheme) Color(0xFF262629) else Color.White
-    val primaryAccent = if (darkTheme) Color(0xFFD4C6FF) else Color(0xFF4338CA)
-    val textPrimary = if (darkTheme) Color.White else Color(0xFF0F172A)
-    val textSecondary = if (darkTheme) Color(0xFFA0A0A5) else Color(0xFF64748B)
-    val borderSubtle = if (darkTheme) Color(0xFF3F3F46) else Color(0xFFE2E8F0)
-    val selectedText = if (darkTheme) Color(0xFF17171A) else Color.White
-    val context = LocalContext.current
+    val colors = stageThreeSemanticColors(darkTheme)
+    val context = androidx.compose.ui.platform.LocalContext.current
 
     var graduationMonth by remember { mutableIntStateOf(Calendar.MAY) }
 
@@ -101,79 +127,38 @@ internal fun OnboardingStageThree(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(background)
+            .background(colors.background)
             .systemBarsPadding()
             .padding(horizontal = 24.dp)
     ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(58.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                text = "Profile setup",
-                color = textPrimary,
-                fontSize = 14.sp,
-                fontWeight = FontWeight.Bold
-            )
-
-            Spacer(modifier = Modifier.weight(1f))
-
-            TextButton(
-                onClick = onSkip,
-                enabled = !saving
-            ) {
-                Text(
-                    text = "Skip for now",
-                    color = textSecondary,
-                    fontSize = 14.sp,
-                    fontWeight = FontWeight.Medium
-                )
-            }
-        }
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        StageThreeProgress(
-            darkTheme = darkTheme,
-            activeColor = primaryAccent
+        /*
+         * Stage 2 onboarding scaffolding:
+         * Profile setup | Skip for now
+         * 4-segment progress indicator
+         */
+        StageThreeTopBar(
+            textPrimary = colors.textPrimary,
+            textSecondary = colors.textSecondary,
+            saving = saving,
+            onSkip = onSkip
         )
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                text = "Step 3 of 4 • Journey",
-                color = textSecondary,
-                fontSize = 13.sp,
-                fontWeight = FontWeight.SemiBold
-            )
+        StageThreeProgress(
+            activeColor = colors.primaryAccent,
+            inactiveColor = colors.borderSubtle
+        )
 
-            Spacer(modifier = Modifier.weight(1f))
+        Spacer(modifier = Modifier.height(16.dp))
 
-            TextButton(
-                onClick = onBack,
-                contentPadding = PaddingValues(horizontal = 0.dp, vertical = 2.dp),
-                enabled = !saving
-            ) {
-                Text(
-                    text = "← Back to previous step",
-                    color = textSecondary,
-                    fontSize = 13.sp,
-                    fontWeight = FontWeight.Medium
-                )
-            }
-        }
-
-        Spacer(modifier = Modifier.height(10.dp))
-
+        /*
+         * Body intentionally remains non-scrollable so the footer can use the
+         * same weight-based pinning pattern as the onboarding scaffolding.
+         */
         Text(
             text = "What stage are you at?",
-            color = textPrimary,
+            color = colors.textPrimary,
             style = TextStyle(
                 fontFamily = FontFamily.Serif,
                 fontSize = 32.sp,
@@ -187,7 +172,7 @@ internal fun OnboardingStageThree(
 
         Text(
             text = "Help clients understand your current academic standing and when you’re available to work.",
-            color = textSecondary,
+            color = colors.textSecondary,
             fontSize = 15.sp,
             lineHeight = 21.sp
         )
@@ -196,18 +181,19 @@ internal fun OnboardingStageThree(
 
         StageThreeSectionLabel(
             text = "ACADEMIC STATUS",
-            color = textSecondary
+            color = colors.textSecondary
         )
 
         Spacer(modifier = Modifier.height(10.dp))
 
         AcademicStatusGrid(
             selected = academicStatus,
-            surface = surface,
-            primaryAccent = primaryAccent,
-            textPrimary = textPrimary,
-            selectedText = selectedText,
-            borderSubtle = borderSubtle,
+            primaryAccent = colors.primaryAccent,
+            contrastOnPrimary = colors.contrastOnPrimary,
+            surface = colors.surface,
+            textPrimary = colors.textPrimary,
+            borderSubtle = colors.borderSubtle,
+            enabled = !saving,
             onSelect = onAcademicStatusChange
         )
 
@@ -215,17 +201,18 @@ internal fun OnboardingStageThree(
 
         StageThreeSectionLabel(
             text = "EXPECTED GRADUATION",
-            color = textSecondary
+            color = colors.textSecondary
         )
 
         Spacer(modifier = Modifier.height(10.dp))
 
         GraduationInputShell(
             displayText = displayedGraduation,
-            surface = surface,
-            textPrimary = textPrimary,
-            textSecondary = textSecondary,
-            borderSubtle = borderSubtle,
+            surface = colors.surface,
+            textPrimary = colors.textPrimary,
+            textSecondary = colors.textSecondary,
+            borderSubtle = colors.borderSubtle,
+            enabled = !saving,
             onClick = {
                 val initialYear = graduationYear.toIntOrNull() ?: 2027
 
@@ -246,32 +233,26 @@ internal fun OnboardingStageThree(
 
         StageThreeSectionLabel(
             text = "WORK AVAILABILITY",
-            color = textSecondary
+            color = colors.textSecondary
         )
 
         Spacer(modifier = Modifier.height(10.dp))
 
-        stageThreeAvailabilityOptions.forEachIndexed { index, option ->
-            AvailabilityCard(
-                text = option,
-                selected = availability == option,
-                surface = surface,
-                primaryAccent = primaryAccent,
-                textPrimary = textPrimary,
-                borderSubtle = borderSubtle,
-                onClick = { onAvailabilityChange(option) }
-            )
-
-            if (index < stageThreeAvailabilityOptions.lastIndex) {
-                Spacer(modifier = Modifier.height(10.dp))
-            }
-        }
+        WorkAvailabilityCards(
+            selected = availability,
+            primaryAccent = colors.primaryAccent,
+            surface = colors.surface,
+            textPrimary = colors.textPrimary,
+            borderSubtle = colors.borderSubtle,
+            enabled = !saving,
+            onSelect = onAvailabilityChange
+        )
 
         if (error.isNotBlank()) {
             Text(
                 text = error,
                 modifier = Modifier.padding(top = 8.dp),
-                color = if (darkTheme) Color(0xFFFF8A8A) else Color(0xFFB91C1C),
+                color = colors.error,
                 fontSize = 13.sp,
                 fontWeight = FontWeight.SemiBold
             )
@@ -279,20 +260,33 @@ internal fun OnboardingStageThree(
 
         Spacer(modifier = Modifier.weight(1f))
 
+        /*
+         * Stage 3 footer:
+         * Step metadata + text back action, immediately above the CTA.
+         */
+        StageThreeBottomRow(
+            textSecondary = colors.textSecondary,
+            saving = saving,
+            onBack = onBack
+        )
+
+        Spacer(modifier = Modifier.height(12.dp))
+
         Button(
             onClick = onContinue,
             enabled = !saving,
             modifier = Modifier
                 .fillMaxWidth()
-                .height(56.dp)
-                .padding(bottom = 24.dp),
+                .height(48.dp)
+                .padding(bottom = 0.dp),
             shape = RoundedCornerShape(16.dp),
             colors = ButtonDefaults.buttonColors(
-                containerColor = primaryAccent,
-                contentColor = selectedText,
-                disabledContainerColor = primaryAccent.copy(alpha = 0.55f),
-                disabledContentColor = selectedText.copy(alpha = 0.70f)
-            )
+                containerColor = colors.primaryAccent,
+                contentColor = colors.contrastOnPrimary,
+                disabledContainerColor = colors.primaryAccent.copy(alpha = 0.55f),
+                disabledContentColor = colors.contrastOnPrimary.copy(alpha = 0.70f)
+            ),
+            contentPadding = PaddingValues(horizontal = 24.dp, vertical = 0.dp)
         ) {
             Text(
                 text = "Continue  →",
@@ -301,10 +295,14 @@ internal fun OnboardingStageThree(
             )
         }
 
+        Spacer(modifier = Modifier.height(24.dp))
+
         if (skipConfirmation) {
             AlertDialog(
                 onDismissRequest = onDismissSkip,
-                title = { Text("Skip profile setup?") },
+                title = {
+                    Text("Skip profile setup?")
+                },
                 text = {
                     Text(
                         "Your progress will be saved. You can return to Profile later and finish the setup."
@@ -319,9 +317,7 @@ internal fun OnboardingStageThree(
                     }
                 },
                 dismissButton = {
-                    TextButton(
-                        onClick = onDismissSkip
-                    ) {
+                    TextButton(onClick = onDismissSkip) {
                         Text("Keep setting up")
                     }
                 }
@@ -331,23 +327,60 @@ internal fun OnboardingStageThree(
 }
 
 @Composable
-private fun StageThreeProgress(
-    darkTheme: Boolean,
-    activeColor: Color
+private fun StageThreeTopBar(
+    textPrimary: Color,
+    textSecondary: Color,
+    saving: Boolean,
+    onSkip: () -> Unit
 ) {
-    val inactiveColor = if (darkTheme) Color(0xFF3A393E) else Color(0xFFD8D7DA)
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(58.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = "Profile setup",
+            color = textPrimary,
+            fontSize = 14.sp,
+            fontWeight = FontWeight.Bold
+        )
 
+        Spacer(modifier = Modifier.weight(1f))
+
+        TextButton(
+            onClick = onSkip,
+            enabled = !saving,
+            contentPadding = PaddingValues(horizontal = 0.dp, vertical = 2.dp)
+        ) {
+            Text(
+                text = "Skip for now",
+                color = textSecondary,
+                fontSize = 14.sp,
+                fontWeight = FontWeight.Medium
+            )
+        }
+    }
+}
+
+@Composable
+private fun StageThreeProgress(
+    activeColor: Color,
+    inactiveColor: Color
+) {
     Row(
         modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(4.dp)
+        horizontalArrangement = Arrangement.spacedBy(5.dp)
     ) {
         repeat(4) { index ->
             Box(
                 modifier = Modifier
                     .weight(1f)
-                    .height(4.dp)
-                    .clip(RoundedCornerShape(8.dp))
-                    .background(if (index < 3) activeColor else inactiveColor)
+                    .height(5.dp)
+                    .clip(RoundedCornerShape(50))
+                    .background(
+                        if (index < 3) activeColor else inactiveColor
+                    )
             )
         }
     }
@@ -371,11 +404,12 @@ private fun StageThreeSectionLabel(
 @Composable
 private fun AcademicStatusGrid(
     selected: String,
-    surface: Color,
     primaryAccent: Color,
+    contrastOnPrimary: Color,
+    surface: Color,
     textPrimary: Color,
-    selectedText: Color,
     borderSubtle: Color,
+    enabled: Boolean,
     onSelect: (String) -> Unit
 ) {
     Column(
@@ -390,11 +424,12 @@ private fun AcademicStatusGrid(
                     StageThreeAcademicChip(
                         text = option,
                         selected = selected == option,
-                        surface = surface,
                         primaryAccent = primaryAccent,
+                        contrastOnPrimary = contrastOnPrimary,
+                        surface = surface,
                         textPrimary = textPrimary,
-                        selectedText = selectedText,
                         borderSubtle = borderSubtle,
+                        enabled = enabled,
                         onClick = { onSelect(option) },
                         modifier = Modifier.weight(1f)
                     )
@@ -408,11 +443,12 @@ private fun AcademicStatusGrid(
 private fun StageThreeAcademicChip(
     text: String,
     selected: Boolean,
-    surface: Color,
     primaryAccent: Color,
+    contrastOnPrimary: Color,
+    surface: Color,
     textPrimary: Color,
-    selectedText: Color,
     borderSubtle: Color,
+    enabled: Boolean,
     onClick: () -> Unit,
     modifier: Modifier
 ) {
@@ -422,19 +458,28 @@ private fun StageThreeAcademicChip(
         modifier = modifier
             .height(50.dp)
             .clip(shape)
-            .background(if (selected) primaryAccent else surface)
+            .background(
+                if (selected) primaryAccent else surface
+            )
             .border(
                 width = 1.dp,
                 color = if (selected) primaryAccent else borderSubtle,
                 shape = shape
             )
-            .clickable(onClick = onClick)
+            .clickable(
+                enabled = enabled,
+                onClick = onClick
+            )
             .padding(horizontal = 12.dp),
         contentAlignment = Alignment.Center
     ) {
         Text(
             text = text,
-            color = if (selected) selectedText else textPrimary,
+            color = if (selected) {
+                contrastOnPrimary
+            } else {
+                textPrimary
+            },
             fontSize = 13.sp,
             fontWeight = FontWeight.SemiBold,
             textAlign = TextAlign.Center,
@@ -450,6 +495,7 @@ private fun GraduationInputShell(
     textPrimary: Color,
     textSecondary: Color,
     borderSubtle: Color,
+    enabled: Boolean,
     onClick: () -> Unit
 ) {
     Row(
@@ -458,8 +504,15 @@ private fun GraduationInputShell(
             .height(56.dp)
             .clip(RoundedCornerShape(16.dp))
             .background(surface)
-            .border(1.dp, borderSubtle, RoundedCornerShape(16.dp))
-            .clickable(onClick = onClick)
+            .border(
+                width = 1.dp,
+                color = borderSubtle,
+                shape = RoundedCornerShape(16.dp)
+            )
+            .clickable(
+                enabled = enabled,
+                onClick = onClick
+            )
             .padding(horizontal = 16.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -480,20 +533,51 @@ private fun GraduationInputShell(
 }
 
 @Composable
+private fun WorkAvailabilityCards(
+    selected: String,
+    primaryAccent: Color,
+    surface: Color,
+    textPrimary: Color,
+    borderSubtle: Color,
+    enabled: Boolean,
+    onSelect: (String) -> Unit
+) {
+    Column(
+        verticalArrangement = Arrangement.spacedBy(10.dp)
+    ) {
+        stageThreeAvailabilityOptions.forEach { option ->
+            AvailabilityCard(
+                text = option,
+                selected = selected == option,
+                primaryAccent = primaryAccent,
+                surface = surface,
+                textPrimary = textPrimary,
+                borderSubtle = borderSubtle,
+                enabled = enabled,
+                onClick = { onSelect(option) }
+            )
+        }
+    }
+}
+
+@Composable
 private fun AvailabilityCard(
     text: String,
     selected: Boolean,
-    surface: Color,
     primaryAccent: Color,
+    surface: Color,
     textPrimary: Color,
     borderSubtle: Color,
+    enabled: Boolean,
     onClick: () -> Unit
 ) {
+    val shape = RoundedCornerShape(16.dp)
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .height(58.dp)
-            .clip(RoundedCornerShape(16.dp))
+            .clip(shape)
             .background(
                 if (selected) {
                     primaryAccent.copy(alpha = 0.10f)
@@ -504,9 +588,12 @@ private fun AvailabilityCard(
             .border(
                 width = 1.dp,
                 color = if (selected) primaryAccent else borderSubtle,
-                shape = RoundedCornerShape(16.dp)
+                shape = shape
             )
-            .clickable(onClick = onClick)
+            .clickable(
+                enabled = enabled,
+                onClick = onClick
+            )
             .padding(horizontal = 16.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -522,6 +609,40 @@ private fun AvailabilityCard(
             RadioGlyph(
                 tint = primaryAccent,
                 modifier = Modifier.size(22.dp)
+            )
+        }
+    }
+}
+
+@Composable
+private fun StageThreeBottomRow(
+    textSecondary: Color,
+    saving: Boolean,
+    onBack: () -> Unit
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = "Step 3 of 4 • Journey",
+            color = textSecondary,
+            fontSize = 13.sp,
+            fontWeight = FontWeight.SemiBold
+        )
+
+        Spacer(modifier = Modifier.weight(1f))
+
+        TextButton(
+            onClick = onBack,
+            enabled = !saving,
+            contentPadding = PaddingValues(horizontal = 0.dp, vertical = 2.dp)
+        ) {
+            Text(
+                text = "← Back to previous step",
+                color = textSecondary,
+                fontSize = 13.sp,
+                fontWeight = FontWeight.Medium
             )
         }
     }
