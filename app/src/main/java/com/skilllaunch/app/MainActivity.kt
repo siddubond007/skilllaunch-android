@@ -152,6 +152,7 @@ private fun SkillLaunchRoot(
             showOnboarding = false
             onboardingResolvedForUser = false
         } else {
+            darkThemeState.value = systemDarkTheme
             onboardingResolvedForUser = false
             profileRepository.getProfile(userId)
                 .onSuccess { profile ->
@@ -205,7 +206,10 @@ private fun SkillLaunchRoot(
                     profileRepository = profileRepository,
                     gigRepository = gigRepository,
                     onLogout = authViewModel::logout,
-                    onOpenOnboarding = { showOnboarding = true },
+                    onOpenOnboarding = {
+                        darkThemeState.value = systemDarkTheme
+                        showOnboarding = true
+                    },
                     profileRefreshVersion = profileRefreshVersion,
                     themeState = themeState,
                     onToggleTheme = onToggleTheme
