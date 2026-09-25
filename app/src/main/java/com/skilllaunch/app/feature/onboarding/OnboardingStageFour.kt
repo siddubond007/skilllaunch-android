@@ -62,8 +62,6 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.skilllaunch.app.data.model.auth.AuthUser
-import com.skilllaunch.app.data.repository.profile.ProfileRepository
 import java.util.Locale
 
 private data class ProfileSetupColors(
@@ -104,8 +102,6 @@ private fun profileSetupColors(darkTheme: Boolean): ProfileSetupColors =
 
 @Composable
 internal fun OnboardingStageFour(
-    user: AuthUser,
-    repository: ProfileRepository,
     tagline: String,
     bio: String,
     initialResumeFileName: String,
@@ -130,6 +126,12 @@ internal fun OnboardingStageFour(
         mutableStateOf(initialResumeFileName)
     }
 
+    LaunchedEffect(initialResumeFileName) {
+        if (selectedResumeName.isBlank() && initialResumeFileName.isNotBlank()) {
+            selectedResumeName = initialResumeFileName
+        }
+    }
+
     LaunchedEffect(profileViewModel.uploadedResumeFileName) {
         profileViewModel.uploadedResumeFileName
             .takeIf { it.isNotBlank() }
@@ -141,8 +143,9 @@ internal fun OnboardingStageFour(
     ) { uri ->
         if (uri != null) {
             val fileName = queryDisplayName(context, uri)
+            val mimeType = context.contentResolver.getType(uri)
 
-            if (!fileName.endsWith(".pdf", ignoreCase = true)) {
+            if (mimeType != "application/pdf" && !fileName.endsWith(".pdf", ignoreCase = true)) {
                 return@rememberLauncherForActivityResult
             }
 
@@ -214,7 +217,6 @@ internal fun OnboardingStageFour(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .weight(1f)
                 .verticalScroll(scrollState),
             verticalArrangement = Arrangement.spacedBy(14.dp)
         ) {
@@ -354,7 +356,7 @@ internal fun OnboardingStageFour(
             Spacer(modifier = Modifier.height(8.dp))
         }
 
-        Spacer(modifier = Modifier.weight(1f, fill = false))
+        Spacer(modifier = Modifier.weight(1f))
 
         Button(
             onClick = onContinue,
