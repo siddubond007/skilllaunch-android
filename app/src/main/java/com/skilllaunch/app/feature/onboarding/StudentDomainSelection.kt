@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.size
@@ -49,10 +48,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.layout.ContentScale
-import coil3.compose.AsyncImage
 import com.skilllaunch.app.feature.auth.SkillLaunchBrand
-import com.skilllaunch.app.R
 
 internal data class StudentGigDomain(
     val name: String,
@@ -154,88 +150,6 @@ internal val studentGigDomainSkills = mapOf(
     "Consulting & Professional Advisory" to listOf("Business Consulting", "Technology Consulting", "Creative Consulting", "Strategy", "Operations Advisory", "Solution Assessment"),
     "Personal Development & Hobbies" to listOf("Personal Development", "Creative Hobbies", "Hobby Instruction", "Productivity Coaching", "Creative Mentoring", "Beginner Mentoring")
 )
-
-private val artworkOrder = listOf(
-    "student_domain_web",
-    "student_domain_mobile",
-    "student_domain_ai",
-    "student_domain_design",
-    "student_domain_software_it",
-    "student_domain_marketing",
-    "student_domain_photography_editing",
-    "student_domain_video_audio_animation",
-    "student_domain_social_community",
-    "student_domain_ecommerce_retail",
-    "student_domain_writing_content",
-    "student_domain_translation_transcription",
-    "student_domain_gaming_esports",
-    "student_domain_admin_support",
-    "student_domain_business_finance_hr",
-    "student_domain_legal_compliance",
-    "student_domain_engineering_arch_3d",
-    "student_domain_education_coaching",
-    "student_domain_events_travel_local",
-    "student_domain_telecom_networking",
-    "student_domain_health_wellness",
-    "student_domain_manufacturing_product",
-    "student_domain_product_management",
-    "student_domain_market_research",
-    "student_domain_pr_communications",
-    "student_domain_career_professional",
-    "student_domain_government_nonprofit",
-    "student_domain_real_estate",
-    "student_domain_travel_hospitality",
-    "student_domain_food_culinary",
-    "student_domain_beauty_personal",
-    "student_domain_fashion_jewelry",
-    "student_domain_scientific_research",
-    "student_domain_freight_delivery",
-    "student_domain_agriculture_environment",
-    "student_domain_digital_fabrication",
-    "student_domain_consulting_advisory",
-    "student_domain_personal_hobbies"
-)
-
-private fun artworkResource(index: Int): Int = when (index) {
-    0 -> R.raw.student_domain_web
-    1 -> R.raw.student_domain_mobile
-    2 -> R.raw.student_domain_ai
-    3 -> R.raw.student_domain_design
-    4 -> R.raw.student_domain_software_it
-    5 -> R.raw.student_domain_marketing
-    6 -> R.raw.student_domain_photography_editing
-    7 -> R.raw.student_domain_video_audio_animation
-    8 -> R.raw.student_domain_social_community
-    9 -> R.raw.student_domain_ecommerce_retail
-    10 -> R.raw.student_domain_writing_content
-    11 -> R.raw.student_domain_translation_transcription
-    12 -> R.raw.student_domain_gaming_esports
-    13 -> R.raw.student_domain_admin_support
-    14 -> R.raw.student_domain_business_finance_hr
-    15 -> R.raw.student_domain_legal_compliance
-    16 -> R.raw.student_domain_engineering_arch_3d
-    17 -> R.raw.student_domain_education_coaching
-    18 -> R.raw.student_domain_events_travel_local
-    19 -> R.raw.student_domain_telecom_networking
-    20 -> R.raw.student_domain_health_wellness
-    21 -> R.raw.student_domain_manufacturing_product
-    22 -> R.raw.student_domain_product_management
-    23 -> R.raw.student_domain_market_research
-    24 -> R.raw.student_domain_pr_communications
-    25 -> R.raw.student_domain_career_professional
-    26 -> R.raw.student_domain_government_nonprofit
-    27 -> R.raw.student_domain_real_estate
-    28 -> R.raw.student_domain_travel_hospitality
-    29 -> R.raw.student_domain_food_culinary
-    30 -> R.raw.student_domain_beauty_personal
-    31 -> R.raw.student_domain_fashion_jewelry
-    32 -> R.raw.student_domain_scientific_research
-    33 -> R.raw.student_domain_freight_delivery
-    34 -> R.raw.student_domain_agriculture_environment
-    35 -> R.raw.student_domain_digital_fabrication
-    36 -> R.raw.student_domain_consulting_advisory
-    else -> R.raw.student_domain_personal_hobbies
-}
 
 @Composable
 internal fun StudentDomainSelection(
@@ -368,7 +282,7 @@ internal fun StudentDomainSelection(
                             val index = STUDENT_GIG_DOMAIN_CATALOG.indexOfFirst { it.name == domain.name }
                             StudentDomainCard(
                                 domain = domain,
-                                artworkResource = artworkResource(index),
+                                artworkIndex = index,
                                 selected = selectedDomain == domain.name,
                                 darkTheme = darkTheme,
                                 cardBackground = cardBackground,
@@ -585,7 +499,7 @@ private fun DomainSearchField(
 @Composable
 private fun StudentDomainCard(
     domain: StudentGigDomain,
-    artworkResource: Int,
+    artworkIndex: Int,
     selected: Boolean,
     darkTheme: Boolean,
     cardBackground: Color,
@@ -618,11 +532,9 @@ private fun StudentDomainCard(
                 .clip(RoundedCornerShape(17.dp))
                 .background(Color.Transparent)
         ) {
-            AsyncImage(
-                model = artworkResource,
-                contentDescription = domain.name + " abstract illustration",
-                modifier = Modifier.fillMaxSize(),
-                contentScale = ContentScale.Crop
+            DomainArtwork(
+                index = artworkIndex,
+                darkTheme = darkTheme
             )
             if (selected) {
                 Box(
@@ -665,6 +577,407 @@ private fun StudentDomainCard(
             fontWeight = FontWeight.Bold,
             maxLines = 2,
             textAlign = androidx.compose.ui.text.style.TextAlign.Center
+        )
+    }
+}
+
+@Composable
+private fun DomainArtwork(
+    index: Int,
+    darkTheme: Boolean
+) {
+    val backgrounds = listOf(
+        Color(0xFFD9C8FF), Color(0xFFF0E0CF), Color(0xFFF5C7D9), Color(0xFFD8D5FF),
+        Color(0xFFF1CFDE), Color(0xFFE8D8C6), Color(0xFFD9CBFF), Color(0xFFF1D3C5),
+        Color(0xFFD9E0FF), Color(0xFFDDD2FF), Color(0xFFFFD7D7), Color(0xFFD5E1FF)
+    )
+    val accents = listOf(
+        Color(0xFF9A7CE8), Color(0xFFB58AF0), Color(0xFF9C8BE8), Color(0xFF8F84E0),
+        Color(0xFFB684E0), Color(0xFF8F7DCC), Color(0xFFA17AE0), Color(0xFFAA84E7),
+        Color(0xFF8B91E5), Color(0xFFA184E4), Color(0xFFB07EDB), Color(0xFF8C91E0)
+    )
+    val darks = listOf(
+        Color(0xFF29253B), Color(0xFF2B273D), Color(0xFF29263D), Color(0xFF28243C),
+        Color(0xFF2D263C), Color(0xFF2A263A), Color(0xFF2B2740), Color(0xFF30263B),
+        Color(0xFF29273F), Color(0xFF2E283D), Color(0xFF2C273E), Color(0xFF29263E)
+    )
+
+    val bg = backgrounds[index % backgrounds.size]
+    val accent = accents[index % accents.size]
+    val deep = darks[index % darks.size]
+    val soft = if (darkTheme) Color.White.copy(alpha = 0.88f) else Color(0xFFFFFBF4)
+
+    Canvas(
+        modifier = Modifier.fillMaxSize()
+    ) {
+        val w = size.width
+        val h = size.height
+        val cx = w * 0.50f
+        val cy = h * 0.48f
+        val scale = minOf(w, h) / 126f
+
+        fun sx(v: Float) = v * scale
+        fun sy(v: Float) = v * scale
+
+        drawRoundRect(
+            color = bg,
+            topLeft = Offset.Zero,
+            size = size,
+            cornerRadius = androidx.compose.ui.geometry.CornerRadius(sx(17f), sx(17f))
+        )
+
+        // Soft gallery-light glow.
+        drawCircle(
+            color = Color.White.copy(alpha = 0.20f),
+            radius = sx(38f),
+            center = Offset(w * 0.77f, h * 0.23f)
+        )
+        drawCircle(
+            color = accent.copy(alpha = 0.22f),
+            radius = sx(24f),
+            center = Offset(w * 0.19f, h * 0.77f)
+        )
+
+        // Museum-style plinth.
+        drawRoundRect(
+            color = deep.copy(alpha = 0.18f),
+            topLeft = Offset(cx - sx(33f), h * 0.74f),
+            size = androidx.compose.ui.geometry.Size(sx(66f), sx(12f)),
+            cornerRadius = androidx.compose.ui.geometry.CornerRadius(sx(6f), sx(6f))
+        )
+        drawRoundRect(
+            color = soft,
+            topLeft = Offset(cx - sx(35f), h * 0.70f),
+            size = androidx.compose.ui.geometry.Size(sx(70f), sx(13f)),
+            cornerRadius = androidx.compose.ui.geometry.CornerRadius(sx(6.5f), sx(6.5f))
+        )
+
+        val motif = index % 13
+
+        when (motif) {
+            0 -> { // Web / software: stacked interface sculpture.
+                drawRoundRect(
+                    color = deep,
+                    topLeft = Offset(cx - sx(38f), cy - sx(30f)),
+                    size = androidx.compose.ui.geometry.Size(sx(76f), sx(56f)),
+                    cornerRadius = androidx.compose.ui.geometry.CornerRadius(sx(8f), sx(8f))
+                )
+                drawRoundRect(
+                    color = soft.copy(alpha = 0.90f),
+                    topLeft = Offset(cx - sx(29f), cy - sx(20f)),
+                    size = androidx.compose.ui.geometry.Size(sx(58f), sx(34f)),
+                    cornerRadius = androidx.compose.ui.geometry.CornerRadius(sx(5f), sx(5f))
+                )
+                drawRoundRect(
+                    color = accent,
+                    topLeft = Offset(cx - sx(21f), cy - sx(12f)),
+                    size = androidx.compose.ui.geometry.Size(sx(22f), sx(14f)),
+                    cornerRadius = androidx.compose.ui.geometry.CornerRadius(sx(3f), sx(3f))
+                )
+                drawRoundRect(
+                    color = accent.copy(alpha = 0.55f),
+                    topLeft = Offset(cx + sx(5f), cy - sx(12f)),
+                    size = androidx.compose.ui.geometry.Size(sx(17f), sx(6f)),
+                    cornerRadius = androidx.compose.ui.geometry.CornerRadius(sx(3f), sx(3f))
+                )
+                drawRoundRect(
+                    color = accent.copy(alpha = 0.40f),
+                    topLeft = Offset(cx + sx(5f), cy - sx(2f)),
+                    size = androidx.compose.ui.geometry.Size(sx(23f), sx(6f)),
+                    cornerRadius = androidx.compose.ui.geometry.CornerRadius(sx(3f), sx(3f))
+                )
+                drawCircle(accent, sx(5f), Offset(cx - sx(26f), cy + sx(5f)))
+            }
+
+            1 -> { // Code / APIs: command panel + orbit.
+                drawRoundRect(
+                    color = deep,
+                    topLeft = Offset(cx - sx(35f), cy - sx(25f)),
+                    size = androidx.compose.ui.geometry.Size(sx(52f), sx(43f)),
+                    cornerRadius = androidx.compose.ui.geometry.CornerRadius(sx(8f), sx(8f))
+                )
+                val p = Path().apply {
+                    moveTo(cx - sx(22f), cy - sx(4f))
+                    lineTo(cx - sx(13f), cy + sx(2f))
+                    lineTo(cx - sx(22f), cy + sx(8f))
+                }
+                drawPath(p, color = soft, style = Stroke(width = sx(4f), cap = StrokeCap.Round))
+                drawLine(
+                    color = soft,
+                    start = Offset(cx - sx(8f), cy + sx(8f)),
+                    end = Offset(cx + sx(6f), cy + sx(8f)),
+                    strokeWidth = sx(4f),
+                    cap = StrokeCap.Round
+                )
+                drawCircle(accent, sx(18f), Offset(cx + sx(23f), cy + sx(8f)))
+                drawCircle(soft, sx(5f), Offset(cx + sx(23f), cy + sx(8f)))
+                drawCircle(Color.Transparent, sx(23f), Offset(cx + sx(23f), cy + sx(8f)), style = Stroke(width = sx(3f)))
+            }
+
+            2 -> { // Mobile: premium phone + halo.
+                rotate(degrees = -10f, pivot = Offset(cx, cy)) {
+                    drawRoundRect(
+                        color = deep,
+                        topLeft = Offset(cx - sx(20f), cy - sx(38f)),
+                        size = androidx.compose.ui.geometry.Size(sx(40f), sx(76f)),
+                        cornerRadius = androidx.compose.ui.geometry.CornerRadius(sx(9f), sx(9f))
+                    )
+                    drawRoundRect(
+                        color = soft.copy(alpha = 0.19f),
+                        topLeft = Offset(cx - sx(15f), cy - sx(29f)),
+                        size = androidx.compose.ui.geometry.Size(sx(30f), sx(55f)),
+                        cornerRadius = androidx.compose.ui.geometry.CornerRadius(sx(6f), sx(6f))
+                    )
+                    drawCircle(soft, sx(2.6f), Offset(cx, cy + sx(28f)))
+                }
+                drawOval(
+                    color = accent,
+                    topLeft = Offset(cx - sx(49f), cy - sx(17f)),
+                    size = androidx.compose.ui.geometry.Size(sx(98f), sx(34f)),
+                    style = Stroke(width = sx(6f))
+                )
+                drawCircle(soft, sx(6f), Offset(cx + sx(37f), cy - sx(20f)))
+            }
+
+            3 -> { // AI / data: faceted crystal with nodes.
+                val poly = Path().apply {
+                    moveTo(cx, cy - sx(39f))
+                    lineTo(cx + sx(28f), cy - sx(20f))
+                    lineTo(cx + sx(34f), cy + sx(16f))
+                    lineTo(cx, cy + sx(37f))
+                    lineTo(cx - sx(30f), cy + sx(17f))
+                    lineTo(cx - sx(25f), cy - sx(17f))
+                    close()
+                }
+                drawPath(poly, color = soft.copy(alpha = 0.92f))
+                drawLine(accent, Offset(cx, cy - sx(39f)), Offset(cx, cy + sx(37f)), sx(3f))
+                drawLine(accent, Offset(cx - sx(25f), cy - sx(17f)), Offset(cx + sx(28f), cy - sx(20f)), sx(3f))
+                drawLine(accent, Offset(cx - sx(30f), cy + sx(17f)), Offset(cx + sx(34f), cy + sx(16f)), sx(3f))
+                listOf(
+                    Offset(cx - sx(45f), cy - sx(24f)),
+                    Offset(cx + sx(45f), cy - sx(8f)),
+                    Offset(cx - sx(37f), cy + sx(30f))
+                ).forEach { point ->
+                    drawCircle(accent, sx(6f), point)
+                }
+            }
+
+            4 -> { // Design: sculptural ribbon + tool.
+                val ribbon = Path().apply {
+                    moveTo(cx - sx(48f), cy + sx(23f))
+                    cubicTo(cx - sx(28f), cy - sx(15f), cx - sx(2f), cy - sx(21f), cx + sx(19f), cy - sx(5f))
+                    cubicTo(cx + sx(35f), cy + sx(7f), cx + sx(36f), cy + sx(17f), cx + sx(49f), cy + sx(28f))
+                }
+                drawPath(ribbon, color = accent, style = Stroke(width = sx(11f), cap = StrokeCap.Round))
+                drawRoundRect(
+                    color = soft,
+                    topLeft = Offset(cx - sx(13f), cy - sx(30f)),
+                    size = androidx.compose.ui.geometry.Size(sx(26f), sx(57f)),
+                    cornerRadius = androidx.compose.ui.geometry.CornerRadius(sx(6f), sx(6f))
+                )
+                rotate(degrees = -25f, pivot = Offset(cx, cy)) {
+                    drawRoundRect(
+                        color = deep,
+                        topLeft = Offset(cx - sx(5f), cy - sx(30f)),
+                        size = androidx.compose.ui.geometry.Size(sx(10f), sx(47f)),
+                        cornerRadius = androidx.compose.ui.geometry.CornerRadius(sx(4f), sx(4f))
+                    )
+                }
+            }
+
+            5 -> { // Photography: camera sculpture.
+                drawRoundRect(
+                    color = deep,
+                    topLeft = Offset(cx - sx(40f), cy - sx(21f)),
+                    size = androidx.compose.ui.geometry.Size(sx(80f), sx(44f)),
+                    cornerRadius = androidx.compose.ui.geometry.CornerRadius(sx(10f), sx(10f))
+                )
+                drawRoundRect(
+                    color = soft,
+                    topLeft = Offset(cx - sx(13f), cy - sx(29f)),
+                    size = androidx.compose.ui.geometry.Size(sx(26f), sx(11f)),
+                    cornerRadius = androidx.compose.ui.geometry.CornerRadius(sx(5f), sx(5f))
+                )
+                drawCircle(accent, sx(21f), Offset(cx, cy))
+                drawCircle(deep, sx(12f), Offset(cx, cy))
+                drawCircle(soft, sx(5f), Offset(cx + sx(2f), cy - sx(2f)))
+                drawCircle(accent.copy(alpha = 0.55f), sx(6f), Offset(cx + sx(39f), cy - sx(19f)))
+            }
+
+            6 -> { // Video / animation: frame + play.
+                drawRoundRect(
+                    color = deep,
+                    topLeft = Offset(cx - sx(44f), cy - sx(28f)),
+                    size = androidx.compose.ui.geometry.Size(sx(88f), sx(58f)),
+                    cornerRadius = androidx.compose.ui.geometry.CornerRadius(sx(8f), sx(8f))
+                )
+                val tri = Path().apply {
+                    moveTo(cx - sx(8f), cy - sx(14f))
+                    lineTo(cx + sx(15f), cy)
+                    lineTo(cx - sx(8f), cy + sx(14f))
+                    close()
+                }
+                drawPath(tri, color = soft)
+                drawPath(
+                    Path().apply {
+                        moveTo(cx - sx(45f), cy + sx(27f))
+                        cubicTo(cx - sx(24f), cy + sx(8f), cx + sx(3f), cy + sx(8f), cx + sx(22f), cy + sx(23f))
+                        cubicTo(cx + sx(33f), cy + sx(30f), cx + sx(42f), cy + sx(30f), cx + sx(51f), cy + sx(20f))
+                    },
+                    color = accent,
+                    style = Stroke(width = sx(8f), cap = StrokeCap.Round)
+                )
+            }
+
+            7 -> { // Social: chat sculpture.
+                drawRoundRect(
+                    color = deep,
+                    topLeft = Offset(cx - sx(41f), cy - sx(29f)),
+                    size = androidx.compose.ui.geometry.Size(sx(64f), sx(47f)),
+                    cornerRadius = androidx.compose.ui.geometry.CornerRadius(sx(10f), sx(10f))
+                )
+                drawRoundRect(
+                    color = soft,
+                    topLeft = Offset(cx - sx(1f), cy - sx(5f)),
+                    size = androidx.compose.ui.geometry.Size(sx(49f), sx(35f)),
+                    cornerRadius = androidx.compose.ui.geometry.CornerRadius(sx(9f), sx(9f))
+                )
+                drawCircle(accent, sx(4f), Offset(cx + sx(11f), cy + sx(12f)))
+                drawCircle(accent, sx(4f), Offset(cx + sx(23f), cy + sx(12f)))
+                drawCircle(accent, sx(4f), Offset(cx + sx(35f), cy + sx(12f)))
+                drawLine(
+                    color = accent,
+                    start = Offset(cx + sx(10f), cy + sx(20f)),
+                    end = Offset(cx + sx(39f), cy + sx(20f)),
+                    strokeWidth = sx(3f),
+                    cap = StrokeCap.Round
+                )
+            }
+
+            8 -> { // Marketing: megaphone + rising bars.
+                rotate(degrees = -18f, pivot = Offset(cx - sx(12f), cy)) {
+                    drawPath(
+                        Path().apply {
+                            moveTo(cx - sx(37f), cy - sx(9f))
+                            lineTo(cx + sx(8f), cy - sx(27f))
+                            lineTo(cx + sx(8f), cy + sx(27f))
+                            lineTo(cx - sx(37f), cy + sx(9f))
+                            close()
+                        },
+                        color = soft
+                    )
+                    drawRoundRect(
+                        color = deep,
+                        topLeft = Offset(cx - sx(44f), cy - sx(7f)),
+                        size = androidx.compose.ui.geometry.Size(sx(14f), sx(14f)),
+                        cornerRadius = androidx.compose.ui.geometry.CornerRadius(sx(4f), sx(4f))
+                    )
+                }
+                listOf(
+                    Triple(cx + sx(13f), cy + sx(22f), sx(24f)),
+                    Triple(cx + sx(28f), cy + sx(22f), sx(37f)),
+                    Triple(cx + sx(43f), cy + sx(22f), sx(51f))
+                ).forEach { (x, base, top) ->
+                    drawRoundRect(
+                        color = accent,
+                        topLeft = Offset(x - sx(4f), top),
+                        size = androidx.compose.ui.geometry.Size(sx(8f), base - top),
+                        cornerRadius = androidx.compose.ui.geometry.CornerRadius(sx(4f), sx(4f))
+                    )
+                }
+            }
+
+            9 -> { // E-commerce: packages / retail.
+                drawRoundRect(
+                    color = soft,
+                    topLeft = Offset(cx - sx(35f), cy - sx(12f)),
+                    size = androidx.compose.ui.geometry.Size(sx(30f), sx(31f)),
+                    cornerRadius = androidx.compose.ui.geometry.CornerRadius(sx(5f), sx(5f))
+                )
+                drawRoundRect(
+                    color = deep,
+                    topLeft = Offset(cx - sx(2f), cy - sx(23f)),
+                    size = androidx.compose.ui.geometry.Size(sx(37f), sx(43f)),
+                    cornerRadius = androidx.compose.ui.geometry.CornerRadius(sx(6f), sx(6f))
+                )
+                drawLine(accent, Offset(cx + sx(16f), cy - sx(22f)), Offset(cx + sx(16f), cy + sx(19f)), sx(4f))
+                drawLine(accent, Offset(cx - sx(20f), cy - sx(12f)), Offset(cx - sx(20f), cy + sx(19f)), sx(4f))
+                drawCircle(accent, sx(6f), Offset(cx - sx(43f), cy + sx(25f)))
+            }
+
+            10 -> { // Writing / translation: scroll + pen.
+                val scroll = Path().apply {
+                    moveTo(cx - sx(38f), cy - sx(25f))
+                    lineTo(cx + sx(25f), cy - sx(25f))
+                    lineTo(cx + sx(25f), cy + sx(26f))
+                    lineTo(cx - sx(38f), cy + sx(26f))
+                    close()
+                }
+                drawPath(scroll, color = soft)
+                drawLine(accent, Offset(cx - sx(24f), cy - sx(8f)), Offset(cx + sx(10f), cy - sx(8f)), sx(4f), cap = StrokeCap.Round)
+                drawLine(accent.copy(alpha = 0.55f), Offset(cx - sx(24f), cy + sx(3f)), Offset(cx + sx(4f), cy + sx(3f)), sx(4f), cap = StrokeCap.Round)
+                rotate(degrees = -35f, pivot = Offset(cx + sx(16f), cy + sx(10f))) {
+                    drawRoundRect(
+                        color = deep,
+                        topLeft = Offset(cx + sx(8f), cy - sx(6f)),
+                        size = androidx.compose.ui.geometry.Size(sx(9f), sx(43f)),
+                        cornerRadius = androidx.compose.ui.geometry.CornerRadius(sx(4f), sx(4f))
+                    )
+                }
+            }
+
+            11 -> { // Gaming: controller sculpture.
+                val controller = Path().apply {
+                    moveTo(cx - sx(36f), cy - sx(15f))
+                    cubicTo(cx - sx(29f), cy - sx(34f), cx - sx(14f), cy - sx(37f), cx, cy - sx(24f))
+                    cubicTo(cx + sx(14f), cy - sx(37f), cx + sx(29f), cy - sx(34f), cx + sx(36f), cy - sx(15f))
+                    cubicTo(cx + sx(38f), cy + sx(1f), cx + sx(34f), cy + sx(22f), cx + sx(23f), cy + sx(25f))
+                    cubicTo(cx + sx(13f), cy + sx(26f), cx + sx(8f), cy + sx(11f), cx, cy + sx(11f))
+                    cubicTo(cx - sx(8f), cy + sx(11f), cx - sx(13f), cy + sx(26f), cx - sx(23f), cy + sx(25f))
+                    cubicTo(cx - sx(34f), cy + sx(22f), cx - sx(38f), cy + sx(1f), cx - sx(36f), cy - sx(15f))
+                    close()
+                }
+                drawPath(controller, color = soft)
+                drawLine(deep, Offset(cx - sx(20f), cy - sx(3f)), Offset(cx - sx(4f), cy - sx(3f)), sx(5f), cap = StrokeCap.Round)
+                drawLine(deep, Offset(cx - sx(12f), cy - sx(11f)), Offset(cx - sx(12f), cy + sx(5f)), sx(5f), cap = StrokeCap.Round)
+                drawCircle(accent, sx(5f), Offset(cx + sx(16f), cy - sx(4f)))
+                drawCircle(deep, sx(5f), Offset(cx + sx(28f), cy + sx(7f)))
+            }
+
+            12 -> { // Security / legal: shield + lock.
+                val shield = Path().apply {
+                    moveTo(cx, cy - sx(40f))
+                    lineTo(cx + sx(35f), cy - sx(24f))
+                    lineTo(cx + sx(28f), cy + sx(20f))
+                    cubicTo(cx + sx(20f), cy + sx(35f), cx + sx(8f), cy + sx(41f), cx, cy + sx(45f))
+                    cubicTo(cx - sx(8f), cy + sx(41f), cx - sx(20f), cy + sx(35f), cx - sx(28f), cy + sx(20f))
+                    lineTo(cx - sx(35f), cy - sx(24f))
+                    close()
+                }
+                drawPath(shield, color = soft)
+                drawRoundRect(
+                    color = accent,
+                    topLeft = Offset(cx - sx(13f), cy - sx(2f)),
+                    size = androidx.compose.ui.geometry.Size(sx(26f), sx(23f)),
+                    cornerRadius = androidx.compose.ui.geometry.CornerRadius(sx(5f), sx(5f))
+                )
+                drawArc(
+                    color = deep,
+                    startAngle = 180f,
+                    sweepAngle = 180f,
+                    useCenter = false,
+                    topLeft = Offset(cx - sx(9f), cy - sx(14f)),
+                    size = androidx.compose.ui.geometry.Size(sx(18f), sx(20f)),
+                    style = Stroke(width = sx(4f))
+                )
+            }
+        }
+
+        // A small floating sphere gives the gallery/plinth feel from the reference.
+        drawCircle(
+            color = if (index % 2 == 0) accent.copy(alpha = 0.78f) else soft.copy(alpha = 0.84f),
+            radius = sx(6f + (index % 3)),
+            center = Offset(w * (0.17f + (index % 4) * 0.18f), h * (0.18f + (index % 3) * 0.17f))
         )
     }
 }
