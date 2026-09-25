@@ -1,6 +1,9 @@
 package com.skilllaunch.app.feature.onboarding
 
 import android.app.DatePickerDialog
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -122,7 +125,7 @@ internal fun OnboardingStageThree(
             .takeIf { it.isNotBlank() }
             ?: "May"
         "$monthName $year"
-    } ?: "May 2027"
+    } ?: "Select month & year"
 
     Column(
         modifier = Modifier
@@ -171,7 +174,7 @@ internal fun OnboardingStageThree(
         Spacer(modifier = Modifier.height(8.dp))
 
         Text(
-            text = "Help clients understand your current academic standing and when you’re available to work.",
+            text = "Help clients understand your current standing and when you'll be ready for projects.",
             color = colors.textSecondary,
             fontSize = 15.sp,
             lineHeight = 21.sp
@@ -180,7 +183,7 @@ internal fun OnboardingStageThree(
         Spacer(modifier = Modifier.height(20.dp))
 
         StageThreeSectionLabel(
-            text = "ACADEMIC STATUS",
+            text = "CURRENT STATUS",
             color = colors.textSecondary
         )
 
@@ -199,37 +202,50 @@ internal fun OnboardingStageThree(
 
         Spacer(modifier = Modifier.height(18.dp))
 
-        StageThreeSectionLabel(
-            text = "EXPECTED GRADUATION",
-            color = colors.textSecondary
-        )
+        AnimatedVisibility(
+            visible = academicStatus in setOf(
+                "High School",
+                "Undergraduate",
+                "Postgraduate",
+                "Bootcamp / Cert"
+            ),
+            enter = fadeIn(),
+            exit = fadeOut()
+        ) {
+            Column {
+                StageThreeSectionLabel(
+                    text = "EXPECTED GRADUATION",
+                    color = colors.textSecondary
+                )
 
-        Spacer(modifier = Modifier.height(10.dp))
+                Spacer(modifier = Modifier.height(10.dp))
 
-        GraduationInputShell(
-            displayText = displayedGraduation,
-            surface = colors.surface,
-            textPrimary = colors.textPrimary,
-            textSecondary = colors.textSecondary,
-            borderSubtle = colors.borderSubtle,
-            enabled = !saving,
-            onClick = {
-                val initialYear = graduationYear.toIntOrNull() ?: 2027
+                GraduationInputShell(
+                    displayText = displayedGraduation,
+                    surface = colors.surface,
+                    textPrimary = colors.textPrimary,
+                    textSecondary = colors.textSecondary,
+                    borderSubtle = colors.borderSubtle,
+                    enabled = !saving,
+                    onClick = {
+                        val initialYear = graduationYear.toIntOrNull() ?: 2027
 
-                DatePickerDialog(
-                    context,
-                    { _, year, month, _ ->
-                        graduationMonth = month
-                        onGraduationYearChange(year.toString())
-                    },
-                    initialYear,
-                    graduationMonth,
-                    1
-                ).show()
+                        DatePickerDialog(
+                            context,
+                            { _, year, month, _ ->
+                                graduationMonth = month
+                                onGraduationYearChange(year.toString())
+                            },
+                            initialYear,
+                            graduationMonth,
+                            1
+                        ).show()
+                    }
+                )
+
+                Spacer(modifier = Modifier.height(18.dp))
             }
-        )
-
-        Spacer(modifier = Modifier.height(18.dp))
+        }
 
         StageThreeSectionLabel(
             text = "WORK AVAILABILITY",
