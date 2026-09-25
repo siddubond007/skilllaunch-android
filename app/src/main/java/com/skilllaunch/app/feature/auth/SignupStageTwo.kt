@@ -6,6 +6,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -15,9 +16,15 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -29,13 +36,20 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.foundation.text.KeyboardOptions
+
+private val SignupTwoDarkBackground = Color(0xFF1A1A1D)
+private val SignupTwoDarkSurface = Color(0xFF262629)
+private val SignupTwoLavender = Color(0xFFD4C6FF)
+private val SignupTwoSecondary = Color(0xFFA0A0A5)
+private val SignupTwoBorder = Color(0xFF3F3F46)
 
 @Composable
 fun SignupStageTwo(
@@ -50,6 +64,7 @@ fun SignupStageTwo(
     onBackToStageOne: () -> Unit
 ) {
     var localError by rememberSaveable { mutableStateOf("") }
+
     val visibleError = localError.ifBlank { state.errorMessage.orEmpty() }
     val usernameError = visibleError.takeIf {
         it.contains("username", ignoreCase = true) ||
@@ -59,33 +74,64 @@ fun SignupStageTwo(
         .takeIf { it.isNotBlank() }
         ?.takeUnless { usernameError != null }
 
-    AuthBackground(darkTheme = darkTheme) {
+    val background = if (darkTheme) {
+        SignupTwoDarkBackground
+    } else {
+        MaterialTheme.colorScheme.background
+    }
+    val primaryText = if (darkTheme) {
+        Color.White
+    } else {
+        MaterialTheme.colorScheme.onBackground
+    }
+    val secondaryText = if (darkTheme) {
+        SignupTwoSecondary
+    } else {
+        MaterialTheme.colorScheme.onSurfaceVariant
+    }
+    val surface = if (darkTheme) {
+        SignupTwoDarkSurface
+    } else {
+        MaterialTheme.colorScheme.surface
+    }
+    val subtleBorder = if (darkTheme) {
+        SignupTwoBorder
+    } else {
+        MaterialTheme.colorScheme.outline.copy(alpha = 0.38f)
+    }
+    val accent = if (darkTheme) {
+        SignupTwoLavender
+    } else {
+        MaterialTheme.colorScheme.primary
+    }
+
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(background)
+            .safeDrawingPadding()
+    ) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .safeDrawingPadding()
-                .padding(horizontal = 24.dp, vertical = 12.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
+                .padding(horizontal = 24.dp)
+                .widthIn(max = 620.dp)
+                .align(Alignment.CenterHorizontally)
         ) {
+            Spacer(modifier = Modifier.height(16.dp))
+
             Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .widthIn(max = 520.dp),
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                TextButton(
-                    onClick = onBackToStageOne,
-                    contentPadding = androidx.compose.foundation.layout.PaddingValues(0.dp)
-                ) {
-                    Text(
-                        text = "←  Back to Account Details",
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        style = MaterialTheme.typography.bodyMedium,
-                        fontWeight = FontWeight.Medium
-                    )
-                }
-
-                Spacer(modifier = Modifier.weight(1f))
+                Text(
+                    text = "SkillLaunch",
+                    fontSize = 20.sp,
+                    color = primaryText,
+                    fontWeight = FontWeight.Bold,
+                    fontFamily = FontFamily.SansSerif
+                )
 
                 ThemeToggle(
                     darkTheme = darkTheme,
@@ -96,83 +142,145 @@ fun SignupStageTwo(
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .weight(1f),
-                contentAlignment = Alignment.Center
+                    .weight(1f)
             ) {
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .widthIn(max = 520.dp)
                         .verticalScroll(rememberScrollState())
-                        .padding(vertical = 16.dp)
+                        .padding(vertical = 40.dp)
                 ) {
                     Text(
-                        text = "Choose Your Username",
-                        color = MaterialTheme.colorScheme.onSurface,
-                        fontSize = 32.sp,
-                        lineHeight = 36.sp,
-                        fontWeight = FontWeight.ExtraBold
+                        text = "Choose your username",
+                        style = TextStyle(
+                            fontFamily = FontFamily.Serif,
+                            fontWeight = FontWeight.Normal,
+                            fontSize = 32.sp,
+                            color = primaryText,
+                            lineHeight = 40.sp
+                        )
                     )
 
                     Text(
-                        text = "Create the unique profile handle people will know you by.",
-                        modifier = Modifier.padding(top = 5.dp),
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        style = MaterialTheme.typography.bodyMedium
+                        text = "Create the profile name people will know you by.",
+                        modifier = Modifier.padding(top = 8.dp),
+                        style = TextStyle(
+                            fontFamily = FontFamily.SansSerif,
+                            fontSize = 15.sp,
+                            color = secondaryText,
+                            lineHeight = 22.sp
+                        )
                     )
 
-                    Spacer(modifier = Modifier.height(24.dp))
+                    Spacer(modifier = Modifier.height(40.dp))
 
-                    AuthField(
-                        label = "Username",
+                    Text(
+                        text = "USERNAME",
+                        fontSize = 11.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = secondaryText,
+                        letterSpacing = 1.sp
+                    )
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    BasicTextField(
                         value = username,
                         onValueChange = {
                             onUsernameChange(
-                                it.lowercase()
-                                    .filter { char ->
-                                        char.isLetterOrDigit() || char == '_'
-                                    }
+                                it.lowercase().filter { char ->
+                                    char.isLetterOrDigit() || char == '_'
+                                }
                             )
                             localError = ""
                         },
-                        placeholder = "your_username",
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(56.dp)
+                            .background(surface, RoundedCornerShape(12.dp))
+                            .border(1.dp, subtleBorder, RoundedCornerShape(12.dp)),
+                        singleLine = true,
                         keyboardOptions = KeyboardOptions(
                             keyboardType = KeyboardType.Ascii
                         ),
-                        leadingIcon = AuthFieldIcon.User
+                        cursorBrush = SolidColor(accent),
+                        textStyle = TextStyle(
+                            color = primaryText,
+                            fontSize = 16.sp,
+                            fontFamily = FontFamily.SansSerif,
+                            fontWeight = FontWeight.Medium
+                        ),
+                        decorationBox = { innerTextField ->
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .padding(horizontal = 16.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(
+                                    text = "@",
+                                    color = primaryText,
+                                    fontSize = 16.sp,
+                                    fontWeight = FontWeight.Medium
+                                )
+
+                                Spacer(modifier = Modifier.width(4.dp))
+
+                                Box(
+                                    modifier = Modifier.weight(1f),
+                                    contentAlignment = Alignment.CenterStart
+                                ) {
+                                    if (username.isEmpty()) {
+                                        Text(
+                                            text = "your_username",
+                                            color = secondaryText.copy(alpha = 0.58f),
+                                            fontSize = 16.sp
+                                        )
+                                    }
+                                    innerTextField()
+                                }
+
+                                if (username.length >= 3 && username.matches(Regex("[a-z0-9_]+"))) {
+                                    Text(
+                                        text = "✓",
+                                        color = accent,
+                                        fontSize = 18.sp,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                }
+                            }
+                        }
                     )
 
                     Text(
-                        text = "3+ characters • lowercase letters, numbers and underscore",
-                        modifier = Modifier.padding(
-                            top = 6.dp,
-                            start = 3.dp
-                        ),
-                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.72f),
-                        fontSize = 11.sp,
-                        fontWeight = FontWeight.Medium
+                        text = "3+ characters • lowercase, numbers, underscore",
+                        modifier = Modifier.padding(top = 8.dp),
+                        fontSize = 12.sp,
+                        color = secondaryText
                     )
-                    usernameError?.let { message ->
+
+                    usernameError?.let {
                         Text(
-                            text = "⚠ $message",
-                            modifier = Modifier.padding(top = 6.dp, start = 3.dp),
+                            text = "⚠ $it",
+                            modifier = Modifier.padding(top = 6.dp),
                             color = MaterialTheme.colorScheme.error,
                             style = MaterialTheme.typography.bodySmall,
                             fontWeight = FontWeight.SemiBold
                         )
                     }
 
-                    Spacer(modifier = Modifier.height(19.dp))
+                    Spacer(modifier = Modifier.height(32.dp))
 
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            text = "Suggested for you",
-                            color = MaterialTheme.colorScheme.onSurface,
-                            style = MaterialTheme.typography.titleSmall,
-                            fontWeight = FontWeight.Bold
+                            text = "SUGGESTED FOR YOU",
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = secondaryText,
+                            letterSpacing = 1.sp
                         )
 
                         Spacer(modifier = Modifier.weight(1f))
@@ -182,188 +290,154 @@ fun SignupStageTwo(
                                 localError = ""
                                 onRefreshSuggestions()
                             },
-                            contentPadding = androidx.compose.foundation.layout.PaddingValues(
-                                horizontal = 4.dp,
-                                vertical = 0.dp
-                            )
+                            contentPadding = PaddingValues(horizontal = 4.dp, vertical = 0.dp)
                         ) {
                             Text(
-                                text = "↻ Refresh",
-                                color = MaterialTheme.colorScheme.primary,
-                                fontSize = 12.sp,
+                                text = "Refresh",
+                                fontSize = 11.sp,
+                                color = accent,
                                 fontWeight = FontWeight.Bold
                             )
                         }
                     }
 
-                    Spacer(modifier = Modifier.height(8.dp))
+                    Spacer(modifier = Modifier.height(12.dp))
 
                     if (usernameSuggestions.isEmpty()) {
-                        GlassSuggestionCard(
-                            title = "Add your name first",
-                            subtitle = "Suggestions will appear after you enter your details.",
-                            selected = false,
-                            onClick = onRefreshSuggestions
-                        )
-                    } else {
-                        Column(
-                            verticalArrangement = Arrangement.spacedBy(10.dp)
+                        Surface(
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = RoundedCornerShape(12.dp),
+                            color = surface,
+                            border = androidx.compose.foundation.BorderStroke(1.dp, subtleBorder)
                         ) {
-                            usernameSuggestions.chunked(2).forEachIndexed { rowIndex, rowItems ->
-                                Row(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    horizontalArrangement = Arrangement.spacedBy(10.dp)
-                                ) {
-                                    rowItems.forEachIndexed { columnIndex, suggestion ->
-                                        val index = rowIndex * 2 + columnIndex
-                                        GlassSuggestionCard(
-                                            title = "@$suggestion",
-                                            subtitle = if (index < 2) "CLASSIC" else "FANCY",
-                                            selected = username == suggestion,
-                                            onClick = {
-                                                onUsernameChange(suggestion)
-                                                localError = ""
-                                            },
-                                            modifier = Modifier.weight(1f)
-                                        )
-                                    }
+                            Text(
+                                text = "Add your name in Step 1 to generate personalized suggestions.",
+                                modifier = Modifier.padding(16.dp),
+                                fontSize = 13.sp,
+                                color = secondaryText
+                            )
+                        }
+                    } else {
+                        LazyRow(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(12.dp),
+                            contentPadding = PaddingValues(end = 8.dp)
+                        ) {
+                            items(
+                                items = usernameSuggestions.distinct(),
+                                key = { it }
+                            ) { suggestion ->
+                                val selected = username == suggestion
 
-                                    if (rowItems.size == 1) {
-                                        Spacer(modifier = Modifier.weight(1f))
+                                Box(
+                                    modifier = Modifier
+                                        .clip(RoundedCornerShape(24.dp))
+                                        .background(
+                                            if (selected) {
+                                                SignupTwoLavender.copy(alpha = if (darkTheme) 0.10f else 0.20f)
+                                            } else {
+                                                surface
+                                            }
+                                        )
+                                        .border(
+                                            1.dp,
+                                            if (selected) SignupTwoLavender else subtleBorder,
+                                            RoundedCornerShape(24.dp)
+                                        )
+                                        .clickable {
+                                            onUsernameChange(suggestion)
+                                            localError = ""
+                                        }
+                                        .padding(horizontal = 16.dp, vertical = 10.dp)
+                                ) {
+                                    Row(verticalAlignment = Alignment.CenterVertically) {
+                                        Text(
+                                            text = "@$suggestion",
+                                            color = primaryText,
+                                            fontSize = 14.sp,
+                                            fontWeight = FontWeight.Medium
+                                        )
+
+                                        if (selected) {
+                                            Spacer(modifier = Modifier.width(6.dp))
+                                            Text(
+                                                text = "✓",
+                                                color = accent,
+                                                fontSize = 14.sp,
+                                                fontWeight = FontWeight.Bold
+                                            )
+                                        }
                                     }
                                 }
                             }
                         }
                     }
 
-                    generalError?.let { message ->
+                    generalError?.let {
                         Surface(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(top = 14.dp),
-                            shape = RoundedCornerShape(14.dp),
+                            shape = RoundedCornerShape(12.dp),
                             color = MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.90f)
                         ) {
                             Text(
-                                text = message,
-                                modifier = Modifier.padding(
-                                    horizontal = 13.dp,
-                                    vertical = 10.dp
-                                ),
+                                text = it,
+                                modifier = Modifier.padding(horizontal = 13.dp, vertical = 10.dp),
                                 color = MaterialTheme.colorScheme.onErrorContainer,
                                 style = MaterialTheme.typography.bodySmall,
                                 fontWeight = FontWeight.SemiBold
                             )
                         }
                     }
-
-                    Spacer(modifier = Modifier.height(18.dp))
-
-                    AuthPrimaryButton(
-                        text = "Create Account",
-                        enabled = !state.isLoading,
-                        loading = state.isLoading,
-                        onClick = {
-                            localError = when {
-                                username.trim().length < 3 ->
-                                    "Please choose a username of at least 3 characters."
-                                !username.matches(Regex("[a-z0-9_]+")) ->
-                                    "Username can contain only lowercase letters, numbers and underscore."
-                                else -> ""
-                            }
-
-                            if (localError.isBlank()) {
-                                onCreateAccount()
-                            }
-                        }
-                    )
-
-                    Spacer(modifier = Modifier.height(14.dp))
-
-                    Text(
-                        text = "You can change this later from your profile settings.",
-                        modifier = Modifier.fillMaxWidth(),
-                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.70f),
-                        style = MaterialTheme.typography.labelSmall,
-                        fontWeight = FontWeight.Medium
-                    )
                 }
             }
-        }
-    }
-}
 
-@Composable
-private fun GlassSuggestionCard(
-    title: String,
-    subtitle: String,
-    selected: Boolean,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    Box(
-        modifier = modifier
-            .height(74.dp)
-            .clip(RoundedCornerShape(18.dp))
-            .background(
-                if (selected) {
-                    Brush.horizontalGradient(
-                        listOf(
-                            androidx.compose.ui.graphics.Color(0xFF5A46E9),
-                            androidx.compose.ui.graphics.Color(0xFF8337E7)
-                        )
-                    )
-                } else {
-                    Brush.linearGradient(
-                        listOf(
-                            MaterialTheme.colorScheme.surface.copy(alpha = 0.32f),
-                            MaterialTheme.colorScheme.surface.copy(alpha = 0.22f)
-                        )
-                    )
-                }
-            )
-            .border(
-                1.dp,
-                if (selected) {
-                    MaterialTheme.colorScheme.primary.copy(alpha = 0.65f)
-                } else {
-                    MaterialTheme.colorScheme.onSurface.copy(alpha = 0.09f)
-                },
-                RoundedCornerShape(18.dp)
-            )
-            .clickable(onClick = onClick)
-            .padding(horizontal = 13.dp, vertical = 10.dp)
-    ) {
-        Column(
-            modifier = Modifier.fillMaxSize(),
-            verticalArrangement = Arrangement.Center
-        ) {
-            Text(
-                text = title,
-                color = if (selected) {
-                    androidx.compose.ui.graphics.Color.White
-                } else {
-                    MaterialTheme.colorScheme.onSurface
-                },
-                style = MaterialTheme.typography.bodyMedium,
-                fontWeight = FontWeight.Bold,
-                maxLines = 1
-            )
+            Button(
+                onClick = {
+                    localError = when {
+                        username.trim().length < 3 ->
+                            "Please choose a username of at least 3 characters."
+                        !username.matches(Regex("[a-z0-9_]+")) ->
+                            "Username can contain only lowercase letters, numbers and underscore."
+                        else -> ""
+                    }
 
-            Spacer(modifier = Modifier.height(4.dp))
+                    if (localError.isBlank()) {
+                        onCreateAccount()
+                    }
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(56.dp),
+                enabled = !state.isLoading,
+                shape = RoundedCornerShape(16.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = SignupTwoLavender,
+                    contentColor = SignupTwoDarkBackground,
+                    disabledContainerColor = SignupTwoLavender.copy(alpha = 0.45f),
+                    disabledContentColor = SignupTwoDarkBackground.copy(alpha = 0.55f)
+                )
+            ) {
+                Text(
+                    text = "Create Account",
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
 
             Text(
-                text = if (selected) "✓ Selected" else subtitle,
-                color = if (selected) {
-                    androidx.compose.ui.graphics.Color.White.copy(alpha = 0.82f)
-                } else if (subtitle == "FANCY") {
-                    MaterialTheme.colorScheme.primary
-                } else {
-                    MaterialTheme.colorScheme.onSurfaceVariant
-                },
-                fontSize = 10.sp,
-                fontWeight = FontWeight.Bold
+                text = "By continuing, you agree to our Terms and Privacy Policy.",
+                modifier = Modifier.fillMaxWidth(),
+                fontSize = 12.sp,
+                color = secondaryText,
+                fontFamily = FontFamily.SansSerif,
+                textAlign = androidx.compose.ui.text.style.TextAlign.Center
             )
+
+            Spacer(modifier = Modifier.height(24.dp))
         }
     }
 }
