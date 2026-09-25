@@ -25,8 +25,12 @@ import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Icon
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -50,6 +54,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.skilllaunch.app.feature.auth.SkillLaunchBrand
 
 internal data class StudentGigDomain(
     val name: String,
@@ -155,7 +160,15 @@ internal val studentGigDomainSkills = mapOf(
 internal fun StudentDomainSelection(
     selectedDomain: String,
     darkTheme: Boolean,
-    onSelectDomain: (String) -> Unit
+    error: String,
+    saving: Boolean,
+    skipConfirmation: Boolean,
+    onBack: () -> Unit,
+    onSelectDomain: (String) -> Unit,
+    onContinue: () -> Unit,
+    onRequestSkip: () -> Unit,
+    onConfirmSkip: () -> Unit,
+    onDismissSkip: () -> Unit
 ) {
     var query by remember { mutableStateOf("") }
     val normalizedQuery = query.trim().lowercase()
@@ -183,7 +196,7 @@ internal fun StudentDomainSelection(
 
     Column(
         modifier = Modifier
-            .fillMaxWidth()
+            .fillMaxSize()
             .background(pageBackground),
         verticalArrangement = Arrangement.spacedBy(14.dp)
     ) {
@@ -194,7 +207,7 @@ internal fun StudentDomainSelection(
             contentAlignment = Alignment.Center
         ) {
             IconButton(
-                onClick = { onSelectDomain(selectedDomain) },
+                onClick = onBack,
                 modifier = Modifier.align(Alignment.CenterStart)
             ) {
                 Icon(
@@ -204,11 +217,9 @@ internal fun StudentDomainSelection(
                     modifier = Modifier.size(24.dp)
                 )
             }
-            Text(
-                text = "SkillLaunch",
-                color = textPrimary,
-                fontSize = 15.sp,
-                fontWeight = FontWeight.Bold
+            SkillLaunchBrand(
+                darkTheme = darkTheme,
+                compact = true
             )
         }
 
@@ -261,7 +272,7 @@ internal fun StudentDomainSelection(
         LazyColumn(
             modifier = Modifier
                 .fillMaxWidth()
-                .weight(1f, fill = false),
+                .weight(1f),
             contentPadding = PaddingValues(horizontal = 28.dp, vertical = 2.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
@@ -325,6 +336,85 @@ internal fun StudentDomainSelection(
                     fontStyle = androidx.compose.ui.text.font.FontStyle.Italic
                 )
             }
+        }
+
+        if (error.isNotBlank()) {
+            Text(
+                text = error,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 28.dp, vertical = 5.dp),
+                color = Color(0xFFD95C5C),
+                fontSize = 13.sp,
+                fontWeight = FontWeight.SemiBold
+            )
+        }
+
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(1.dp)
+                .background(
+                    if (darkTheme) Color.White.copy(alpha = 0.08f)
+                    else Color.Black.copy(alpha = 0.08f)
+                )
+        )
+
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 20.dp, vertical = 12.dp),
+            horizontalArrangement = Arrangement.End,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Button(
+                onClick = onContinue,
+                enabled = !saving,
+                modifier = Modifier
+                    .fillMaxWidth(0.66f)
+                    .height(52.dp),
+                shape = RoundedCornerShape(28.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = lavender,
+                    contentColor = Color(0xFF17171A),
+                    disabledContainerColor = lavender.copy(alpha = 0.55f),
+                    disabledContentColor = Color(0xFF17171A).copy(alpha = 0.65f)
+                ),
+                contentPadding = PaddingValues(horizontal = 24.dp, vertical = 0.dp)
+            ) {
+                Text(
+                    text = "Continue  →",
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+        }
+
+        if (skipConfirmation) {
+            AlertDialog(
+                onDismissRequest = onDismissSkip,
+                title = {
+                    Text("Skip profile setup?")
+                },
+                text = {
+                    Text(
+                        "Your progress will be saved. You can return to Profile later and finish the setup."
+                    )
+                },
+                confirmButton = {
+                    TextButton(
+                        onClick = onConfirmSkip,
+                        enabled = !saving
+                    ) {
+                        Text("Skip for now")
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = onDismissSkip) {
+                        Text("Keep setting up")
+                    }
+                }
+            )
         }
     }
 }
