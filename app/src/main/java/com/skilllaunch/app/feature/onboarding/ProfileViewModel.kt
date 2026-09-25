@@ -45,9 +45,7 @@ class ProfileViewModel(
              */
             repository.uploadResume(context, uri)
                 .onSuccess { response ->
-                    uploadedResumeFileName = response.fileName
-                        .orEmpty()
-                        .ifBlank { "Resume uploaded" }
+                    uploadedResumeFileName = response.fileName.orEmpty()
                     isResumeUploading = false
                 }
                 .onFailure { exception ->
