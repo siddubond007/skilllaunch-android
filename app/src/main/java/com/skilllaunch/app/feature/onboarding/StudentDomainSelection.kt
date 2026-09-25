@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
@@ -667,49 +668,35 @@ private fun domainEyebrow(domainName: String): String = when {
 private fun DomainArtwork(
     domainName: String
 ) {
-    val resource = domainArtworkResource(domainName)
+    val index = STUDENT_GIG_DOMAIN_CATALOG
+        .firstOrNull { it.name == domainName }
+        ?.artIndex
+        ?: (STUDENT_GIG_DOMAIN_CATALOG.size - 1)
 
-    AsyncImage(
-        model = resource,
-        contentDescription = "$domainName illustration",
-        modifier = Modifier.fillMaxSize(),
-        contentScale = ContentScale.Crop
-    )
-}
+    val columns = 6
+    val rows = 7
+    val tileSize = 126.dp
+    val column = index % columns
+    val row = index / columns
 
-private fun domainArtworkResource(domainName: String): Int = when {
-    domainName.contains("Web", ignoreCase = true) ||
-        domainName.contains("Software", ignoreCase = true) -> R.raw.student_domain_web
-    domainName.contains("Mobile", ignoreCase = true) -> R.raw.student_domain_mobile
-    domainName.contains("AI", ignoreCase = true) ||
-        domainName.contains("Data Science", ignoreCase = true) -> R.raw.student_domain_ai
-    domainName.contains("Design", ignoreCase = true) ||
-        domainName.contains("Creative", ignoreCase = true) ||
-        domainName.contains("Photography", ignoreCase = true) ||
-        domainName.contains("Fashion", ignoreCase = true) ||
-        domainName.contains("Beauty", ignoreCase = true) -> R.raw.student_domain_design
-    domainName.contains("Security", ignoreCase = true) ||
-        domainName.contains("Legal", ignoreCase = true) -> R.raw.student_domain_security
-    domainName.contains("Gaming", ignoreCase = true) -> R.raw.student_domain_gaming
-    domainName.contains("Cloud", ignoreCase = true) ||
-        domainName.contains("Telecommunications", ignoreCase = true) ||
-        domainName.contains("Engineering", ignoreCase = true) ||
-        domainName.contains("3D Printing", ignoreCase = true) -> R.raw.student_domain_cloud
-    domainName.contains("Video", ignoreCase = true) ||
-        domainName.contains("Audio", ignoreCase = true) ||
-        domainName.contains("Animation", ignoreCase = true) ||
-        domainName.contains("Events", ignoreCase = true) -> R.raw.student_domain_video
-    domainName.contains("Writing", ignoreCase = true) ||
-        domainName.contains("Translation", ignoreCase = true) ||
-        domainName.contains("Education", ignoreCase = true) ||
-        domainName.contains("Career", ignoreCase = true) -> R.raw.student_domain_content
-    domainName.contains("Marketing", ignoreCase = true) ||
-        domainName.contains("Social", ignoreCase = true) ||
-        domainName.contains("Public Relations", ignoreCase = true) -> R.raw.student_domain_marketing
-    domainName.contains("Business", ignoreCase = true) ||
-        domainName.contains("Finance", ignoreCase = true) ||
-        domainName.contains("HR", ignoreCase = true) ||
-        domainName.contains("Research", ignoreCase = true) ||
-        domainName.contains("Operations", ignoreCase = true) -> R.raw.student_domain_business
-    else -> R.raw.student_domain_other
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .clip(RoundedCornerShape(17.dp))
+    ) {
+        AsyncImage(
+            model = R.raw.student_domain_sprite,
+            contentDescription = "$domainName abstract 3D illustration",
+            modifier = Modifier
+                .size(
+                    width = tileSize * columns,
+                    height = tileSize * rows
+                )
+                .offset(
+                    x = -(tileSize * column),
+                    y = -(tileSize * row)
+                ),
+            contentScale = ContentScale.FillBounds
+        )
+    }
 }
