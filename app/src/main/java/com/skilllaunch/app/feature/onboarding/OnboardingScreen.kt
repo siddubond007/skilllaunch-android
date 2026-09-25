@@ -717,6 +717,7 @@ fun OnboardingScreen(
                         availability = availability,
                         tagline = tagline,
                         bio = bio,
+                        avatarUrl = avatarUrl,
                         clientType = clientType,
                         hiringCategories = hiringCategories,
                         hiringIntent = hiringIntent,
