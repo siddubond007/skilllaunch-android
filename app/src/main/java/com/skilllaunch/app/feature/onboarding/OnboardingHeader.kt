@@ -16,7 +16,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
@@ -35,7 +34,6 @@ internal fun OnboardingHeader(
     horizontalPadding: Dp = 24.dp
 ) {
     val textPrimary = if (darkTheme) Color.White else Color(0xFF0F172A)
-    val textSecondary = if (darkTheme) Color(0xFFA0A0A5) else Color(0xFF64748B)
     val accent = if (darkTheme) Color(0xFFD4C6FF) else Color(0xFF4338CA)
 
     Row(
