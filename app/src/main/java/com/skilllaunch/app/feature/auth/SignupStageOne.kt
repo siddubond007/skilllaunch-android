@@ -189,7 +189,13 @@ fun SignupStageOne(
                 )
             }
 
-            Spacer(modifier = Modifier.height(32.dp))
+            Spacer(modifier = Modifier.height(24.dp))
+
+            SignupHeroArtwork(
+                darkTheme = darkTheme
+            )
+
+            Spacer(modifier = Modifier.height(30.dp))
 
             Text(
                 text = "Create your account",
@@ -528,19 +534,60 @@ private fun SignupRoleCard(
             .clickable(onClick = onClick)
             .padding(16.dp)
     ) {
-        Column {
-            Text(
-                text = title,
-                color = if (darkTheme) Color.White else MaterialTheme.colorScheme.onSurface,
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Bold
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            SignupRoleArtwork(
+                role = if (title == "Student Freelancer") {
+                    SignupRoleArtwork.Student
+                } else {
+                    SignupRoleArtwork.Client
+                },
+                darkTheme = darkTheme
             )
-            Spacer(modifier = Modifier.height(4.dp))
-            Text(
-                text = subtitle,
-                color = if (darkTheme) SignupTextSecondary else MaterialTheme.colorScheme.onSurfaceVariant,
-                fontSize = 13.sp
-            )
+
+            Spacer(modifier = Modifier.width(14.dp))
+
+            Column(
+                modifier = Modifier.weight(1f)
+            ) {
+                Text(
+                    text = title,
+                    color = if (darkTheme) Color.White else MaterialTheme.colorScheme.onSurface,
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold
+                )
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = subtitle,
+                    color = if (darkTheme) SignupTextSecondary else MaterialTheme.colorScheme.onSurfaceVariant,
+                    fontSize = 13.sp
+                )
+            }
+
+            if (selected) {
+                Box(
+                    modifier = Modifier
+                        .size(34.dp)
+                        .clip(androidx.compose.foundation.shape.CircleShape)
+                        .background(
+                            if (darkTheme) {
+                                SignupLavender.copy(alpha = 0.95f)
+                            } else {
+                                MaterialTheme.colorScheme.primary.copy(alpha = 0.12f)
+                            }
+                        ),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = "✓",
+                        color = if (darkTheme) SignupDarkBackground else MaterialTheme.colorScheme.primary,
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+            }
         }
     }
 }
