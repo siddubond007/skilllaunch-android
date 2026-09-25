@@ -358,7 +358,8 @@ enum class AuthFieldIcon {
     Check,
     User,
     Search,
-    Graduation
+    Graduation,
+    Calendar
 }
 
 @Composable
@@ -375,6 +376,7 @@ private fun AuthFieldIconView(
             AuthFieldIcon.User -> drawUserIcon(color)
             AuthFieldIcon.Search -> drawSearchIcon(color)
             AuthFieldIcon.Graduation -> drawGraduationIcon(color)
+            AuthFieldIcon.Calendar -> drawCalendarIcon(color)
         }
     }
 }
@@ -665,5 +667,65 @@ private fun DrawScope.drawGraduationIcon(color: Color) {
         color = color,
         radius = stroke.width * 0.8f,
         center = androidx.compose.ui.geometry.Offset(w * 0.86f, h * 0.72f)
+    )
+}
+
+
+private fun DrawScope.drawCalendarIcon(color: Color) {
+    val stroke = Stroke(
+        width = size.minDimension * 0.09f,
+        cap = StrokeCap.Round,
+        join = StrokeJoin.Round
+    )
+    val left = size.width * 0.14f
+    val top = size.height * 0.23f
+    val right = size.width * 0.86f
+    val bottom = size.height * 0.82f
+
+    drawRoundRect(
+        color = color,
+        topLeft = androidx.compose.ui.geometry.Offset(left, top),
+        size = androidx.compose.ui.geometry.Size(right - left, bottom - top),
+        cornerRadius = androidx.compose.ui.geometry.CornerRadius(size.minDimension * 0.08f),
+        style = stroke
+    )
+
+    drawLine(
+        color = color,
+        start = androidx.compose.ui.geometry.Offset(left, size.height * 0.40f),
+        end = androidx.compose.ui.geometry.Offset(right, size.height * 0.40f),
+        strokeWidth = stroke.width
+    )
+
+    drawLine(
+        color = color,
+        start = androidx.compose.ui.geometry.Offset(size.width * 0.32f, size.height * 0.11f),
+        end = androidx.compose.ui.geometry.Offset(size.width * 0.32f, size.height * 0.31f),
+        strokeWidth = stroke.width,
+        cap = StrokeCap.Round
+    )
+
+    drawLine(
+        color = color,
+        start = androidx.compose.ui.geometry.Offset(size.width * 0.68f, size.height * 0.11f),
+        end = androidx.compose.ui.geometry.Offset(size.width * 0.68f, size.height * 0.31f),
+        strokeWidth = stroke.width,
+        cap = StrokeCap.Round
+    )
+
+    drawCircle(
+        color = color,
+        radius = stroke.width * 0.75f,
+        center = androidx.compose.ui.geometry.Offset(size.width * 0.33f, size.height * 0.58f)
+    )
+    drawCircle(
+        color = color,
+        radius = stroke.width * 0.75f,
+        center = androidx.compose.ui.geometry.Offset(size.width * 0.52f, size.height * 0.58f)
+    )
+    drawCircle(
+        color = color,
+        radius = stroke.width * 0.75f,
+        center = androidx.compose.ui.geometry.Offset(size.width * 0.71f, size.height * 0.58f)
     )
 }
