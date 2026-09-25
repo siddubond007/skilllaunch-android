@@ -62,6 +62,7 @@ internal fun StudentSkillsSelection(
     skipConfirmation: Boolean,
     error: String,
     onBack: () -> Unit,
+    onSkip: () -> Unit,
     onSkillSearchChange: (String) -> Unit,
     onToggleSkill: (String) -> Unit,
     onGithubChange: (String) -> Unit,
@@ -98,35 +99,13 @@ internal fun StudentSkillsSelection(
             .background(pageBackground)
             .systemBarsPadding()
     ) {
-        // Fixed top chrome. This never participates in the scrollable content.
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(58.dp)
-                .padding(horizontal = 24.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            IconButton(
-                onClick = onBack,
-                modifier = Modifier.size(32.dp)
-            ) {
-                Text(
-                    text = "<",
-                    color = textPrimary,
-                    fontSize = 26.sp,
-                    lineHeight = 26.sp,
-                    fontWeight = FontWeight.Light
-                )
-            }
-
-            Spacer(modifier = Modifier.weight(1f))
-            SkillLaunchBrand(
-                darkTheme = darkTheme,
-                compact = true
-            )
-            Spacer(modifier = Modifier.weight(1f))
-            Spacer(modifier = Modifier.size(32.dp))
-        }
+        // Shared onboarding chrome stays fixed above the scrollable body.
+        OnboardingHeader(
+            darkTheme = darkTheme,
+            onSkip = onSkip,
+            onBack = onBack,
+            enabled = !saving
+        )
 
         Spacer(modifier = Modifier.height(16.dp))
 
