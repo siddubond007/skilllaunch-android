@@ -190,7 +190,7 @@ private fun SkillLaunchRoot(
                 OnboardingScreen(
                     user = state.user!!,
                     repository = profileRepository,
-                    darkTheme = systemDarkTheme,
+                    darkTheme = darkTheme,
                     onToggleTheme = onToggleTheme,
                     onFinished = {
                         showOnboarding = false
