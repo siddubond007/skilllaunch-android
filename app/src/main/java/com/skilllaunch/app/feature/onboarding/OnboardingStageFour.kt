@@ -125,6 +125,9 @@ internal fun OnboardingStageFour(
     var selectedResumeName by rememberSaveable {
         mutableStateOf(initialResumeFileName)
     }
+    var pickerError by rememberSaveable {
+        mutableStateOf("")
+    }
 
     LaunchedEffect(initialResumeFileName) {
         if (selectedResumeName.isBlank() && initialResumeFileName.isNotBlank()) {
@@ -146,9 +149,11 @@ internal fun OnboardingStageFour(
             val mimeType = context.contentResolver.getType(uri)
 
             if (mimeType != "application/pdf" && !fileName.endsWith(".pdf", ignoreCase = true)) {
+                pickerError = "Please select a PDF resume."
                 return@rememberLauncherForActivityResult
             }
 
+            pickerError = ""
             selectedResumeName = fileName
             profileViewModel.clearResumeUploadError()
             profileViewModel.uploadResumeToBackend(uri, context)
@@ -342,6 +347,16 @@ internal fun OnboardingStageFour(
                     pickerLauncher.launch(arrayOf("application/pdf"))
                 }
             )
+
+            pickerError.takeIf { it.isNotBlank() }?.let { message ->
+                Text(
+                    text = message,
+                    color = colors.error,
+                    fontSize = 12.sp,
+                    lineHeight = 17.sp,
+                    fontWeight = FontWeight.SemiBold
+                )
+            }
 
             uploadError?.takeIf { it.isNotBlank() }?.let { message ->
                 Text(
