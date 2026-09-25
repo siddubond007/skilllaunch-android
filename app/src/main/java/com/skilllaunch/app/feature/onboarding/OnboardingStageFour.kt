@@ -452,7 +452,10 @@ internal fun OnboardingStageFour(
     selectedPhotoUri?.let { uri ->
         ProfilePhotoCropper(
             sourceUri = uri,
-            colors = colors,
+            backgroundColor = colors.background,
+            primaryColor = colors.accent,
+            secondaryColor = colors.textSecondary,
+            errorColor = colors.error,
             onDismiss = { selectedPhotoUri = null },
             onCropped = { croppedUri ->
                 selectedPhotoUri = null
