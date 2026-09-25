@@ -20,12 +20,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
 import kotlinx.coroutines.delay
-import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -52,29 +49,17 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             val systemDarkTheme = isSystemInDarkTheme()
-            val darkThemeState = rememberSaveable {
-                mutableStateOf(systemDarkTheme)
-            }
-
-            LaunchedEffect(systemDarkTheme) {
-                darkThemeState.value = systemDarkTheme
-            }
-
-            SkillLaunchTheme(darkTheme = darkThemeState.value) {
+            SkillLaunchTheme(darkTheme = systemDarkTheme) {
                 val view = LocalView.current
                 SideEffect {
                     val window = (view.context as Activity).window
                     val controller = WindowCompat.getInsetsController(window, view)
-                    controller.isAppearanceLightStatusBars = !darkThemeState.value
-                    controller.isAppearanceLightNavigationBars = !darkThemeState.value
+                    controller.isAppearanceLightStatusBars = !systemDarkTheme
+                    controller.isAppearanceLightNavigationBars = !systemDarkTheme
                 }
 
                 SkillLaunchRoot(
-                    themeState = darkThemeState,
-                    systemDarkTheme = systemDarkTheme,
-                    onToggleTheme = {
-                        darkThemeState.value = !darkThemeState.value
-                    }
+                    darkTheme = systemDarkTheme
                 )
             }
         }
@@ -83,9 +68,7 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 private fun SkillLaunchRoot(
-    themeState: State<Boolean>,
-    systemDarkTheme: Boolean,
-    onToggleTheme: () -> Unit
+    darkTheme: Boolean
 ) {
     val context = androidx.compose.ui.platform.LocalContext.current
     val showSignup = remember { mutableStateOf(false) }
@@ -158,7 +141,6 @@ private fun SkillLaunchRoot(
             showOnboarding = false
             onboardingResolvedForUser = false
         } else {
-            themeState.value = systemDarkTheme
             onboardingResolvedForUser = false
             profileRepository.getProfile(userId)
                 .onSuccess { profile ->
@@ -184,7 +166,7 @@ private fun SkillLaunchRoot(
     ) {
         when {
             !splashMinimumElapsed || state.isCheckingSession -> SkillLaunchSplashScreen(
-                darkTheme = themeState.value
+                darkTheme = darkTheme
             )
 
             state.isAuthenticated && state.user != null && !onboardingResolvedForUser -> {
@@ -198,8 +180,7 @@ private fun SkillLaunchRoot(
                     user = state.user!!,
                     repository = profileRepository,
                     darkTheme = themeState.value,
-                    onToggleTheme = onToggleTheme,
-                    onFinished = {
+                                        onFinished = {
                         showOnboarding = false
                         profileRefreshVersion += 1
                     }
@@ -216,8 +197,7 @@ private fun SkillLaunchRoot(
                         showOnboarding = true
                     },
                     profileRefreshVersion = profileRefreshVersion,
-                    themeState = themeState,
-                    onToggleTheme = onToggleTheme
+
                 )
             }
 
