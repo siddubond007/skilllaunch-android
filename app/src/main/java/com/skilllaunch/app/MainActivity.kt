@@ -71,6 +71,7 @@ class MainActivity : ComponentActivity() {
 
                 SkillLaunchRoot(
                     themeState = darkThemeState,
+                    systemDarkTheme = systemDarkTheme,
                     onToggleTheme = {
                         darkThemeState.value = !darkThemeState.value
                     }
@@ -83,6 +84,7 @@ class MainActivity : ComponentActivity() {
 @Composable
 private fun SkillLaunchRoot(
     themeState: State<Boolean>,
+    systemDarkTheme: Boolean,
     onToggleTheme: () -> Unit
 ) {
     val context = androidx.compose.ui.platform.LocalContext.current
@@ -152,7 +154,7 @@ private fun SkillLaunchRoot(
             showOnboarding = false
             onboardingResolvedForUser = false
         } else {
-            darkThemeState.value = systemDarkTheme
+            themeState.value = systemDarkTheme
             onboardingResolvedForUser = false
             profileRepository.getProfile(userId)
                 .onSuccess { profile ->
@@ -207,7 +209,7 @@ private fun SkillLaunchRoot(
                     gigRepository = gigRepository,
                     onLogout = authViewModel::logout,
                     onOpenOnboarding = {
-                        darkThemeState.value = systemDarkTheme
+                        themeState.value = systemDarkTheme
                         showOnboarding = true
                     },
                     profileRefreshVersion = profileRefreshVersion,
