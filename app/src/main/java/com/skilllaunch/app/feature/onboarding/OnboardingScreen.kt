@@ -150,7 +150,13 @@ fun OnboardingScreen(
                         primaryDomain = "Other"
                         customSkill = savedDomain
                     }
-                    selectedSkills = data?.selectedSkills.orEmpty()
+                    val validSkillTitles = STUDENT_ONBOARDING_SKILLS_BY_DOMAIN[savedDomain]
+                        .orEmpty()
+                        .map { it.title }
+                        .toSet()
+                    selectedSkills = data?.selectedSkills.orEmpty().filter { skill ->
+                        savedDomain == "Other" || validSkillTitles.contains(skill)
+                    }
                     githubUrl = data?.githubUrl.orEmpty()
                     youtubeUrl = data?.youtubeUrl.orEmpty()
                     portfolioUrl = data?.portfolioUrl.orEmpty()
