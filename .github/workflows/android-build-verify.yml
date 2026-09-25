@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - android-003-gig-discovery
+      - android-003-onboarding-progress
   pull_request:
     branches:
       - android-003-gig-discovery
