@@ -325,7 +325,7 @@ internal fun StudentDomainSelection(
             enabled = !saving,
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 24.dp, bottom = 24.dp),
+                .padding(24.dp),
             shape = RoundedCornerShape(28.dp),
             colors = ButtonDefaults.buttonColors(
                 containerColor = lavender,
