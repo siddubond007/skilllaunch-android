@@ -5,9 +5,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.core.view.WindowCompat
 import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -19,17 +17,17 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
-import kotlinx.coroutines.delay
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.dp
+import androidx.core.view.WindowCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.skilllaunch.app.core.common.collectAsStateWithLifecycleCompat
 import com.skilllaunch.app.core.navigation.AuthenticatedAppShell
@@ -43,6 +41,7 @@ import com.skilllaunch.app.feature.auth.LoginScreen
 import com.skilllaunch.app.feature.auth.SignupScreen
 import com.skilllaunch.app.feature.onboarding.OnboardingScreen
 import com.skilllaunch.app.ui.theme.SkillLaunchTheme
+import kotlinx.coroutines.delay
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -51,17 +50,24 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             val systemDarkTheme = isSystemInDarkTheme()
-            SkillLaunchTheme(darkTheme = systemDarkTheme) {
+            val darkThemeState = rememberSaveable {
+                mutableStateOf(systemDarkTheme)
+            }
+
+            SkillLaunchTheme(darkTheme = darkThemeState.value) {
                 val view = LocalView.current
                 SideEffect {
                     val window = (view.context as Activity).window
                     val controller = WindowCompat.getInsetsController(window, view)
-                    controller.isAppearanceLightStatusBars = !systemDarkTheme
-                    controller.isAppearanceLightNavigationBars = !systemDarkTheme
+                    controller.isAppearanceLightStatusBars = !darkThemeState.value
+                    controller.isAppearanceLightNavigationBars = !darkThemeState.value
                 }
 
                 SkillLaunchRoot(
-                    darkTheme = systemDarkTheme
+                    darkTheme = darkThemeState.value,
+                    onToggleTheme = {
+                        darkThemeState.value = !darkThemeState.value
+                    }
                 )
             }
         }
@@ -70,7 +76,8 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 private fun SkillLaunchRoot(
-    darkTheme: Boolean
+    darkTheme: Boolean,
+    onToggleTheme: () -> Unit
 ) {
     val context = androidx.compose.ui.platform.LocalContext.current
     val showSignup = remember { mutableStateOf(false) }
@@ -79,7 +86,7 @@ private fun SkillLaunchRoot(
     var showOnboarding by rememberSaveable { mutableStateOf(false) }
     var profileRefreshVersion by rememberSaveable { mutableIntStateOf(0) }
 
-    LaunchedEffect(Unit) {
+    LaunchedEffectCompat {
         delay(1600)
         splashMinimumElapsed = true
     }
@@ -133,7 +140,7 @@ private fun SkillLaunchRoot(
 
     val state by authViewModel.uiState.collectAsStateWithLifecycleCompat()
 
-    LaunchedEffect(state.isAuthenticated, state.user?.id) {
+    LaunchedEffectCompat(state.isAuthenticated, state.user?.id) {
         val userId = state.user?.id
         if (!state.isAuthenticated || userId.isNullOrBlank()) {
             showOnboarding = false
@@ -178,6 +185,7 @@ private fun SkillLaunchRoot(
                     user = state.user!!,
                     repository = profileRepository,
                     darkTheme = darkTheme,
+                    onToggleTheme = onToggleTheme,
                     onFinished = {
                         showOnboarding = false
                         profileRefreshVersion += 1
@@ -194,7 +202,9 @@ private fun SkillLaunchRoot(
                     onOpenOnboarding = {
                         showOnboarding = true
                     },
-                    profileRefreshVersion = profileRefreshVersion
+                    profileRefreshVersion = profileRefreshVersion,
+                    themeState = androidx.compose.runtime.mutableStateOf(darkTheme),
+                    onToggleTheme = onToggleTheme
                 )
             }
 
@@ -202,6 +212,7 @@ private fun SkillLaunchRoot(
                 SignupScreen(
                     state = state,
                     darkTheme = darkTheme,
+                    onToggleTheme = onToggleTheme,
                     onSignup = authViewModel::signup,
                     onClearError = authViewModel::clearError,
                     onBackToLogin = { showSignup.value = false }
@@ -212,10 +223,28 @@ private fun SkillLaunchRoot(
                 LoginScreen(
                     state = state,
                     darkTheme = darkTheme,
+                    onToggleTheme = onToggleTheme,
                     onLogin = authViewModel::login,
                     onCreateAccount = { showSignup.value = true }
                 )
             }
+        }
+    }
+}
+
+@Composable
+private fun LaunchedEffectCompat(
+    key1: Any? = Unit,
+    key2: Any? = null,
+    block: suspend () -> Unit
+) {
+    if (key2 == null) {
+        androidx.compose.runtime.LaunchedEffect(key1) {
+            block()
+        }
+    } else {
+        androidx.compose.runtime.LaunchedEffect(key1, key2) {
+            block()
         }
     }
 }
