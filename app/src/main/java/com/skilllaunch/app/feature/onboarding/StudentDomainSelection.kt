@@ -1,6 +1,5 @@
 package com.skilllaunch.app.feature.onboarding
 
-import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -38,20 +37,17 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Path
-import androidx.compose.ui.graphics.StrokeCap
-import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.layout.ContentScale
+import coil3.compose.AsyncImage
 import com.skilllaunch.app.feature.auth.SkillLaunchBrand
+import com.skilllaunch.app.R
 
 internal data class StudentGigDomain(
     val name: String,
@@ -562,12 +558,12 @@ private fun StudentDomainCard(
     onClick: () -> Unit,
     modifier: Modifier
 ) {
-    val selectedBackground = if (darkTheme) Color(0xFF34343A) else Color(0xFFF7F5FA)
+    val selectedBackground = if (darkTheme) Color(0xFF34343A) else Color(0xFFF8F6FC)
     val borderColor = if (selected) Color(0xFFD4C6FF) else Color.Transparent
 
     Column(
         modifier = modifier
-            .height(205.dp)
+            .height(208.dp)
             .clip(RoundedCornerShape(22.dp))
             .background(if (selected) selectedBackground else cardBackground)
             .border(
@@ -576,18 +572,17 @@ private fun StudentDomainCard(
                 shape = RoundedCornerShape(22.dp)
             )
             .clickable(onClick = onClick)
-            .padding(horizontal = 11.dp, vertical = 11.dp),
+            .padding(horizontal = 10.dp, vertical = 11.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(8.dp)
+        verticalArrangement = Arrangement.spacedBy(7.dp)
     ) {
         Box(
             modifier = Modifier
-                .size(128.dp)
+                .size(126.dp)
                 .clip(RoundedCornerShape(17.dp))
         ) {
             DomainArtwork(
-                index = domain.artIndex,
-                darkTheme = darkTheme
+                domainName = domain.name
             )
             if (selected) {
                 Box(
@@ -595,7 +590,7 @@ private fun StudentDomainCard(
                         .align(Alignment.TopEnd)
                         .padding(6.dp)
                         .size(23.dp)
-                        .shadow(4.dp, CircleShape)
+                        .shadow(5.dp, CircleShape)
                         .clip(CircleShape)
                         .background(if (darkTheme) Color(0xFF1A1A1D) else Color.White)
                         .border(1.dp, Color(0xFFD4C6FF), CircleShape),
@@ -610,131 +605,106 @@ private fun StudentDomainCard(
         }
 
         Text(
-            text = domain.name,
+            text = domainEyebrow(domain.name),
             modifier = Modifier.fillMaxWidth(),
-            color = textPrimary,
-            fontSize = 15.sp,
-            lineHeight = 17.sp,
-            fontWeight = FontWeight.Bold,
-            maxLines = 2,
+            color = textMuted,
+            fontSize = 9.sp,
+            lineHeight = 10.sp,
+            fontWeight = FontWeight.SemiBold,
+            letterSpacing = 0.3.sp,
+            maxLines = 1,
             textAlign = androidx.compose.ui.text.style.TextAlign.Center
         )
 
         Text(
-            text = domain.description,
+            text = domain.name,
             modifier = Modifier.fillMaxWidth(),
-            color = textMuted,
-            fontSize = 9.5.sp,
-            lineHeight = 11.sp,
-            fontWeight = FontWeight.Medium,
+            color = textPrimary,
+            fontSize = 14.5.sp,
+            lineHeight = 17.sp,
+            fontWeight = FontWeight.Bold,
             maxLines = 2,
             textAlign = androidx.compose.ui.text.style.TextAlign.Center
         )
     }
 }
 
+private fun domainEyebrow(domainName: String): String = when {
+    domainName.contains("AI", ignoreCase = true) ||
+        domainName.contains("Data Science", ignoreCase = true) -> "TECHNOLOGY"
+    domainName.contains("Mobile", ignoreCase = true) ||
+        domainName.contains("Web", ignoreCase = true) ||
+        domainName.contains("Software", ignoreCase = true) -> "DEVELOPMENT"
+    domainName.contains("Security", ignoreCase = true) ||
+        domainName.contains("Legal", ignoreCase = true) -> "SECURITY"
+    domainName.contains("Design", ignoreCase = true) ||
+        domainName.contains("Creative", ignoreCase = true) -> "DESIGN"
+    domainName.contains("Marketing", ignoreCase = true) ||
+        domainName.contains("Social", ignoreCase = true) ||
+        domainName.contains("Public Relations", ignoreCase = true) -> "MARKETING"
+    domainName.contains("Business", ignoreCase = true) ||
+        domainName.contains("Finance", ignoreCase = true) ||
+        domainName.contains("HR", ignoreCase = true) -> "BUSINESS"
+    domainName.contains("Cloud", ignoreCase = true) ||
+        domainName.contains("Telecommunications", ignoreCase = true) ||
+        domainName.contains("3D Printing", ignoreCase = true) -> "INFRASTRUCTURE"
+    domainName.contains("Video", ignoreCase = true) ||
+        domainName.contains("Audio", ignoreCase = true) ||
+        domainName.contains("Animation", ignoreCase = true) -> "CREATIVE"
+    domainName.contains("Writing", ignoreCase = true) ||
+        domainName.contains("Translation", ignoreCase = true) ||
+        domainName.contains("Education", ignoreCase = true) -> "CONTENT"
+    domainName.contains("Gaming", ignoreCase = true) -> "GAMING"
+    else -> "SERVICES"
+}
+
 @Composable
-private fun DomainArtwork(index: Int, darkTheme: Boolean) {
-    val palettes = listOf(
-        listOf(Color(0xFFB9C8F7), Color(0xFF7F79E8), Color(0xFF3D2F73)),
-        listOf(Color(0xFFFFB5D8), Color(0xFF9D7AFF), Color(0xFF38325E)),
-        listOf(Color(0xFF9BE7C7), Color(0xFF63A4FF), Color(0xFF5146B7)),
-        listOf(Color(0xFFFFC6A3), Color(0xFFE78BFF), Color(0xFF4C367F)),
-        listOf(Color(0xFFFFE69A), Color(0xFFBB8BFF), Color(0xFF58448C)),
-        listOf(Color(0xFFBEE7F7), Color(0xFFFFB4C9), Color(0xFF4B5A96)),
-        listOf(Color(0xFFBFD4FF), Color(0xFF8C7BFF), Color(0xFFEEB4FF)),
-        listOf(Color(0xFFA4E1D4), Color(0xFF85A7FF), Color(0xFF42386C))
+private fun DomainArtwork(
+    domainName: String
+) {
+    val resource = domainArtworkResource(domainName)
+
+    AsyncImage(
+        model = resource,
+        contentDescription = "$domainName illustration",
+        modifier = Modifier.fillMaxSize(),
+        contentScale = ContentScale.Crop
     )
-    val colors = palettes[index % palettes.size]
-    val surface = if (darkTheme) Color(0xFF25252A) else Color(0xFFF4F2F5)
+}
 
-    Canvas(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(128.dp)
-            .background(
-                Brush.linearGradient(
-                    listOf(
-                        colors[0].copy(alpha = if (darkTheme) 0.95f else 0.84f),
-                        colors[1].copy(alpha = if (darkTheme) 0.88f else 0.76f),
-                        colors[2].copy(alpha = 0.94f)
-                    )
-                )
-            )
-    ) {
-        drawRect(surface.copy(alpha = 0.08f))
-
-        when (index % 8) {
-            0 -> {
-                val path = Path().apply {
-                    moveTo(0f, size.height * 0.72f)
-                    cubicTo(size.width * 0.20f, size.height * 0.20f, size.width * 0.55f, size.height * 1.05f, size.width, size.height * 0.30f)
-                }
-                drawPath(path, color = Color.White.copy(alpha = 0.40f), style = Stroke(width = 18.dp.toPx(), cap = StrokeCap.Round))
-                drawCircle(colors[2].copy(alpha = 0.72f), radius = 24.dp.toPx(), center = Offset(size.width * 0.74f, size.height * 0.27f))
-                drawRoundRect(Color.White.copy(alpha = 0.18f), topLeft = Offset(size.width * 0.10f, size.height * 0.12f), size = Size(size.width * 0.80f, size.height * 0.70f), cornerRadius = androidx.compose.ui.geometry.CornerRadius(26.dp.toPx()))
-            }
-            1 -> {
-                drawRoundRect(Color.White.copy(alpha = 0.24f), topLeft = Offset(size.width * 0.18f, size.height * 0.17f), size = Size(size.width * 0.64f, size.height * 0.64f), cornerRadius = androidx.compose.ui.geometry.CornerRadius(26.dp.toPx()))
-                drawRoundRect(colors[2].copy(alpha = 0.66f), topLeft = Offset(size.width * 0.28f, size.height * 0.26f), size = Size(size.width * 0.46f, size.height * 0.46f), cornerRadius = androidx.compose.ui.geometry.CornerRadius(22.dp.toPx()))
-                drawRoundRect(Color.White.copy(alpha = 0.18f), topLeft = Offset(size.width * 0.38f, size.height * 0.36f), size = Size(size.width * 0.26f, size.height * 0.26f), cornerRadius = androidx.compose.ui.geometry.CornerRadius(17.dp.toPx()))
-            }
-            2 -> {
-                drawCircle(Color.White.copy(alpha = 0.28f), radius = 36.dp.toPx(), center = Offset(size.width * 0.48f, size.height * 0.47f))
-                drawCircle(colors[2].copy(alpha = 0.72f), radius = 24.dp.toPx(), center = Offset(size.width * 0.48f, size.height * 0.47f))
-                drawCircle(colors[0].copy(alpha = 0.45f), radius = 50.dp.toPx(), center = Offset(size.width * 0.52f, size.height * 0.47f), style = Stroke(width = 9.dp.toPx()))
-                drawCircle(Color.White.copy(alpha = 0.35f), radius = 8.dp.toPx(), center = Offset(size.width * 0.39f, size.height * 0.34f))
-            }
-            3 -> {
-                for (row in 0..2) {
-                    for (col in 0..2) {
-                        val left = size.width * (0.12f + col * 0.28f)
-                        val top = size.height * (0.12f + row * 0.27f)
-                        drawRoundRect(
-                            Color.White.copy(alpha = 0.25f + row * 0.04f),
-                            topLeft = Offset(left, top),
-                            size = Size(size.width * 0.20f, size.height * 0.18f),
-                            cornerRadius = androidx.compose.ui.geometry.CornerRadius(9.dp.toPx())
-                        )
-                    }
-                }
-                drawRoundRect(colors[2].copy(alpha = 0.66f), topLeft = Offset(size.width * 0.27f, size.height * 0.31f), size = Size(size.width * 0.46f, size.height * 0.38f), cornerRadius = androidx.compose.ui.geometry.CornerRadius(20.dp.toPx()))
-            }
-            4 -> {
-                val ribbon = Path().apply {
-                    moveTo(size.width * 0.06f, size.height * 0.75f)
-                    cubicTo(size.width * 0.28f, size.height * 0.18f, size.width * 0.52f, size.height * 0.95f, size.width * 0.94f, size.height * 0.22f)
-                }
-                drawPath(ribbon, color = Color.White.copy(alpha = 0.33f), style = Stroke(width = 27.dp.toPx(), cap = StrokeCap.Round))
-                drawPath(ribbon, color = colors[2].copy(alpha = 0.45f), style = Stroke(width = 10.dp.toPx(), cap = StrokeCap.Round))
-                drawCircle(colors[1].copy(alpha = 0.58f), radius = 22.dp.toPx(), center = Offset(size.width * 0.26f, size.height * 0.26f))
-            }
-            5 -> {
-                drawOval(
-                    color = Color.White.copy(alpha = 0.26f),
-                    topLeft = Offset(size.width * 0.16f, size.height * 0.18f),
-                    size = Size(size.width * 0.68f, size.height * 0.54f),
-                    style = Stroke(width = 10.dp.toPx())
-                )
-                drawOval(
-                    color = colors[2].copy(alpha = 0.55f),
-                    topLeft = Offset(size.width * 0.26f, size.height * 0.28f),
-                    size = Size(size.width * 0.48f, size.height * 0.36f),
-                    style = Stroke(width = 14.dp.toPx())
-                )
-                drawCircle(Color.White.copy(alpha = 0.42f), radius = 14.dp.toPx(), center = Offset(size.width * 0.74f, size.height * 0.35f))
-            }
-            6 -> {
-                drawRoundRect(Color.White.copy(alpha = 0.24f), topLeft = Offset(size.width * 0.10f, size.height * 0.16f), size = Size(size.width * 0.62f, size.height * 0.68f), cornerRadius = androidx.compose.ui.geometry.CornerRadius(22.dp.toPx()))
-                drawRoundRect(colors[2].copy(alpha = 0.70f), topLeft = Offset(size.width * 0.26f, size.height * 0.26f), size = Size(size.width * 0.56f, size.height * 0.56f), cornerRadius = androidx.compose.ui.geometry.CornerRadius(20.dp.toPx()))
-                drawCircle(Color.White.copy(alpha = 0.42f), radius = 18.dp.toPx(), center = Offset(size.width * 0.38f, size.height * 0.48f))
-            }
-            else -> {
-                drawCircle(Color.White.copy(alpha = 0.26f), radius = 45.dp.toPx(), center = Offset(size.width * 0.52f, size.height * 0.48f))
-                drawCircle(colors[2].copy(alpha = 0.56f), radius = 31.dp.toPx(), center = Offset(size.width * 0.52f, size.height * 0.48f))
-                drawLine(Color.White.copy(alpha = 0.52f), Offset(size.width * 0.19f, size.height * 0.76f), Offset(size.width * 0.82f, size.height * 0.23f), strokeWidth = 7.dp.toPx(), cap = StrokeCap.Round)
-                drawLine(Color.White.copy(alpha = 0.30f), Offset(size.width * 0.22f, size.height * 0.28f), Offset(size.width * 0.80f, size.height * 0.75f), strokeWidth = 3.dp.toPx(), cap = StrokeCap.Round)
-            }
-        }
-    }
+private fun domainArtworkResource(domainName: String): Int = when {
+    domainName.contains("Web", ignoreCase = true) ||
+        domainName.contains("Software", ignoreCase = true) -> R.raw.student_domain_web
+    domainName.contains("Mobile", ignoreCase = true) -> R.raw.student_domain_mobile
+    domainName.contains("AI", ignoreCase = true) ||
+        domainName.contains("Data Science", ignoreCase = true) -> R.raw.student_domain_ai
+    domainName.contains("Design", ignoreCase = true) ||
+        domainName.contains("Creative", ignoreCase = true) ||
+        domainName.contains("Photography", ignoreCase = true) ||
+        domainName.contains("Fashion", ignoreCase = true) ||
+        domainName.contains("Beauty", ignoreCase = true) -> R.raw.student_domain_design
+    domainName.contains("Security", ignoreCase = true) ||
+        domainName.contains("Legal", ignoreCase = true) -> R.raw.student_domain_security
+    domainName.contains("Gaming", ignoreCase = true) -> R.raw.student_domain_gaming
+    domainName.contains("Cloud", ignoreCase = true) ||
+        domainName.contains("Telecommunications", ignoreCase = true) ||
+        domainName.contains("Engineering", ignoreCase = true) ||
+        domainName.contains("3D Printing", ignoreCase = true) -> R.raw.student_domain_cloud
+    domainName.contains("Video", ignoreCase = true) ||
+        domainName.contains("Audio", ignoreCase = true) ||
+        domainName.contains("Animation", ignoreCase = true) ||
+        domainName.contains("Events", ignoreCase = true) -> R.raw.student_domain_video
+    domainName.contains("Writing", ignoreCase = true) ||
+        domainName.contains("Translation", ignoreCase = true) ||
+        domainName.contains("Education", ignoreCase = true) ||
+        domainName.contains("Career", ignoreCase = true) -> R.raw.student_domain_content
+    domainName.contains("Marketing", ignoreCase = true) ||
+        domainName.contains("Social", ignoreCase = true) ||
+        domainName.contains("Public Relations", ignoreCase = true) -> R.raw.student_domain_marketing
+    domainName.contains("Business", ignoreCase = true) ||
+        domainName.contains("Finance", ignoreCase = true) ||
+        domainName.contains("HR", ignoreCase = true) ||
+        domainName.contains("Research", ignoreCase = true) ||
+        domainName.contains("Operations", ignoreCase = true) -> R.raw.student_domain_business
+    else -> R.raw.student_domain_other
 }
