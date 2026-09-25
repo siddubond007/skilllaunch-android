@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -34,6 +35,7 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.withTransform
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.Dispatchers
@@ -181,8 +183,11 @@ private fun CropPreview(
             .background(Color.Black, RoundedCornerShape(20.dp))
             .pointerInput(bitmap, zoom) {
                 var dragOffset = offset
-
-                detectDragGestures { change, dragAmount ->
+                detectDragGestures(
+                    onDragStart = { dragOffset = offset },
+                    onDragEnd = { onOffsetChange(dragOffset) },
+                    onDragCancel = { onOffsetChange(dragOffset) }
+                ) { change, dragAmount ->
                     change.consume()
 
                     val drawWidth = bitmapWidth * totalScale
@@ -216,8 +221,8 @@ private fun CropPreview(
             }
 
             drawCircle(
-                color = Color.White.copy(alpha = 0.95f),
-                radius = size.minDimension / 2f - 2.dp.toPx(),
+                color = Color.White.copy(alpha = 0.96f),
+                radius = size.minDimension / 2f - 3.dp.toPx(),
                 center = Offset(size.width / 2f, size.height / 2f),
                 style = Stroke(width = 2.dp.toPx())
             )
