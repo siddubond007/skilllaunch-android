@@ -287,12 +287,12 @@ internal fun StudentDomainSelection(
                         row.forEach { domain ->
                             StudentDomainCard(
                                 domain = domain,
-                                selected = selectedDomain == domain.name,
+                                selected = selectedDomain == domain.title,
                                 darkTheme = darkTheme,
                                 cardBackground = cardBackground,
                                 textPrimary = textPrimary,
                                 textMuted = textMuted,
-                                onClick = { onSelectDomain(domain.name) },
+                                onClick = { onSelectDomain(domain.title) },
                                 modifier = Modifier.weight(1f)
                             )
                         }
