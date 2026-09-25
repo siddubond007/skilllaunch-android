@@ -145,7 +145,7 @@ fun OnboardingScreen(
 
                 if (isStudent) {
                     val savedDomain = data?.primaryDomain.orEmpty()
-                    if (savedDomain.isNotBlank() && studentDomains.containsKey(savedDomain)) {
+                    if (savedDomain.isNotBlank() && (studentGigDomainNames.contains(savedDomain) || studentDomains.containsKey(savedDomain))) {
                         primaryDomain = savedDomain
                     } else if (savedDomain.isNotBlank()) {
                         primaryDomain = "Other"
@@ -216,6 +216,39 @@ fun OnboardingScreen(
             }
             else -> showSkipConfirmation = true
         }
+    }
+
+    if (isStudent && step == 1) {
+        StudentDomainSelection(
+            selectedDomain = primaryDomain,
+            darkTheme = darkTheme,
+            error = error,
+            saving = saving,
+            skipConfirmation = showSkipConfirmation,
+            onBack = { showSkipConfirmation = true },
+            onSelectDomain = {
+                primaryDomain = it
+                selectedSkills = emptyList()
+                skillSearch = ""
+                customSkill = ""
+                error = ""
+            },
+            onContinue = {
+                if (primaryDomain.isBlank()) {
+                    error = "Choose your primary domain to continue."
+                } else {
+                    error = ""
+                    step = 2
+                }
+            },
+            onRequestSkip = { showSkipConfirmation = true },
+            onConfirmSkip = {
+                showSkipConfirmation = false
+                finishWithSkip()
+            },
+            onDismissSkip = { showSkipConfirmation = false }
+        )
+        return
     }
 
     AuthBackground(darkTheme = darkTheme) {
@@ -396,7 +429,7 @@ fun OnboardingScreen(
                                 options = (
                                     listOfNotNull(customSkill.trim().takeIf {
                                         primaryDomain == "Other" && it.isNotBlank()
-                                    }) + (studentDomains[primaryDomain] ?: emptyList())
+                                    }) + (studentGigDomainSkills[primaryDomain] ?: studentDomains[primaryDomain] ?: emptyList())
                                 ).distinct().filter {
                                     it.contains(skillSearch.trim(), ignoreCase = true)
                                 },
