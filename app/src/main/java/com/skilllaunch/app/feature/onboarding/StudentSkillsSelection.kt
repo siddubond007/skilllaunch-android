@@ -145,7 +145,7 @@ internal fun StudentSkillsSelection(
             ) {
                 item {
                     Text(
-                        text = "What are you great at?",
+                        text = "Show, don\'t tell.",
                         modifier = Modifier.padding(top = 2.dp),
                         color = textPrimary,
                         style = TextStyle(
@@ -160,7 +160,7 @@ internal fun StudentSkillsSelection(
 
                 item {
                     Text(
-                        text = "Choose up to 6 skills from your selected domain. These are the real SkillLaunch marketplace subcategories used to describe services.",
+                        text = "Choose up to 6 skill areas that best describe what you can actually deliver. Everything here comes from the SkillLaunch marketplace taxonomy.",
                         color = textMuted,
                         fontSize = 16.sp,
                         lineHeight = 21.sp
@@ -444,9 +444,9 @@ private fun StageTwoSkillCard(
     onClick: () -> Unit,
     modifier: Modifier
 ) {
-    Column(
+    Box(
         modifier = modifier
-            .height(92.dp)
+            .height(96.dp)
             .clip(RoundedCornerShape(20.dp))
             .background(if (selected) selectedBackground else cardBackground)
             .border(
@@ -455,48 +455,53 @@ private fun StageTwoSkillCard(
                 shape = RoundedCornerShape(20.dp)
             )
             .clickable(onClick = onClick)
-            .padding(horizontal = 13.dp, vertical = 12.dp),
-        verticalArrangement = Arrangement.Center
+            .padding(horizontal = 12.dp, vertical = 10.dp)
     ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
         ) {
             Text(
-                text = skill.title,
-                modifier = Modifier.weight(1f),
-                color = textPrimary,
-                fontSize = 14.sp,
-                lineHeight = 18.sp,
-                fontWeight = FontWeight.Bold
+                text = "SKILL",
+                color = textMuted,
+                fontSize = 8.sp,
+                fontWeight = FontWeight.SemiBold,
+                letterSpacing = 0.7.sp
             )
-            if (selected) {
-                Box(
-                    modifier = Modifier
-                        .size(24.dp)
-                        .shadow(5.dp, CircleShape)
-                        .clip(CircleShape)
-                        .background(if (darkTheme) Color(0xFF1A1A1D) else Color.White)
-                        .border(1.dp, lavender, CircleShape),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = "✓",
-                        color = if (darkTheme) Color.White else Color(0xFF6F56D9),
-                        fontSize = 13.sp,
-                        fontWeight = FontWeight.Bold
-                    )
-                }
+            Text(
+                text = skill.title,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 4.dp),
+                color = textPrimary,
+                fontSize = 14.5.sp,
+                lineHeight = 17.sp,
+                fontWeight = FontWeight.Bold,
+                maxLines = 2,
+                textAlign = TextAlign.Center
+            )
+        }
+
+        if (selected) {
+            Box(
+                modifier = Modifier
+                    .align(Alignment.TopEnd)
+                    .size(23.dp)
+                    .shadow(5.dp, CircleShape)
+                    .clip(CircleShape)
+                    .background(if (darkTheme) Color(0xFF1A1A1D) else Color.White)
+                    .border(1.dp, lavender, CircleShape),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = "✓",
+                    color = if (darkTheme) Color.White else Color(0xFF6F56D9),
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.Bold
+                )
             }
         }
-        Text(
-            text = "Marketplace skill",
-            modifier = Modifier.fillMaxWidth().padding(top = 4.dp),
-            color = textMuted,
-            fontSize = 9.sp,
-            fontWeight = FontWeight.SemiBold,
-            textAlign = TextAlign.Start
-        )
     }
 }
 
