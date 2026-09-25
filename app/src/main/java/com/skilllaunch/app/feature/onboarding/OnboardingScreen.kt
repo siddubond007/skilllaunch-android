@@ -162,12 +162,12 @@ fun OnboardingScreen(
                     portfolioUrl = data?.portfolioUrl.orEmpty()
                     val savedAcademicStatus = data?.academicStatus.orEmpty()
                     val stageThreeStatuses = setOf(
-                        "Freshman",
-                        "Sophomore",
-                        "Junior",
-                        "Senior",
-                        "Graduated",
-                        "Self-Taught"
+                        "High School",
+                        "Undergraduate",
+                        "Postgraduate",
+                        "Bootcamp / Cert",
+                        "Self-Taught",
+                        "Professional"
                     )
                     academicStatus = savedAcademicStatus.takeIf { it in stageThreeStatuses }.orEmpty()
                     graduationYear = data?.graduationYear?.toString().orEmpty()
@@ -337,7 +337,7 @@ fun OnboardingScreen(
             },
             onAcademicStatusChange = {
                 academicStatus = it
-                if (it == "Graduated" || it == "Self-Taught") {
+                if (it == "Self-Taught" || it == "Professional") {
                     graduationYear = ""
                 }
                 error = ""
