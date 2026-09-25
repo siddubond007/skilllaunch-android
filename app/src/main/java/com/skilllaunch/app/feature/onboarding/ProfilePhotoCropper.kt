@@ -180,20 +180,21 @@ private fun CropPreview(
             .size(viewportSizeDp)
             .background(Color.Black, RoundedCornerShape(20.dp))
             .pointerInput(bitmap, zoom) {
+                var dragOffset = offset
+
                 detectDragGestures { change, dragAmount ->
                     change.consume()
 
-                    var currentOffset = offset
                     val drawWidth = bitmapWidth * totalScale
                     val drawHeight = bitmapHeight * totalScale
                     val maxX = max(0f, (drawWidth - viewportPx) / 2f)
                     val maxY = max(0f, (drawHeight - viewportPx) / 2f)
 
-                    currentOffset = Offset(
-                        x = (currentOffset.x + dragAmount.x).coerceIn(-maxX, maxX),
-                        y = (currentOffset.y + dragAmount.y).coerceIn(-maxY, maxY)
+                    dragOffset = Offset(
+                        x = (dragOffset.x + dragAmount.x).coerceIn(-maxX, maxX),
+                        y = (dragOffset.y + dragAmount.y).coerceIn(-maxY, maxY)
                     )
-                    onOffsetChange(currentOffset)
+                    onOffsetChange(dragOffset)
                 }
             }
     ) {
@@ -214,12 +215,10 @@ private fun CropPreview(
                 drawImage(bitmap)
             }
 
-            drawRoundRect(
-                color = Color.White.copy(alpha = 0.9f),
-                cornerRadius = androidx.compose.ui.geometry.CornerRadius(
-                    20.dp.toPx(),
-                    20.dp.toPx()
-                ),
+            drawCircle(
+                color = Color.White.copy(alpha = 0.95f),
+                radius = size.minDimension / 2f - 2.dp.toPx(),
+                center = Offset(size.width / 2f, size.height / 2f),
                 style = Stroke(width = 2.dp.toPx())
             )
         }
