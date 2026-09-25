@@ -9,7 +9,6 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.drawBehind
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -49,7 +48,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.TextStyle
@@ -527,27 +525,11 @@ private fun ResumeDropzone(
             .height(174.dp)
             .clip(shape)
             .background(accent.copy(alpha = 0.10f))
-            .drawBehind {
-                val inset = 1.dp.toPx()
-                val dash = 11.dp.toPx()
-                val gap = 7.dp.toPx()
-
-                drawRoundRect(
-                    color = accent,
-                    topLeft = Offset(inset, inset),
-                    size = androidx.compose.ui.geometry.Size(
-                        size.width - inset * 2f,
-                        size.height - inset * 2f
-                    ),
-                    cornerRadius = CornerRadius(16.dp.toPx()),
-                    style = Stroke(
-                        width = 1.5.dp.toPx(),
-                        pathEffect = PathEffect.dashPathEffect(
-                            floatArrayOf(dash, gap)
-                        )
-                    )
-                )
-            }
+            .border(
+                width = 1.5.dp,
+                color = accent,
+                shape = shape
+            )
             .clickable(onClick = onClick),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
