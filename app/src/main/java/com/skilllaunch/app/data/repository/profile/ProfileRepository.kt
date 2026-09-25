@@ -89,6 +89,32 @@ class ProfileRepository(
         }
     }
 
+    suspend fun uploadProfileImage(
+        context: Context,
+        uri: Uri
+    ): Result<String> {
+        return runCatching {
+            val resolver = context.contentResolver
+            val fileName = "profile-${System.currentTimeMillis()}.jpg"
+            val bytes = resolver.openInputStream(uri)?.use { it.readBytes() }
+                ?: throw IllegalStateException("Unable to read the cropped profile photo.")
+
+            require(bytes.isNotEmpty()) {
+                "The cropped profile photo is empty."
+            }
+            require(bytes.size <= 10 * 1024 * 1024) {
+                "Profile photo must be 10 MB or smaller."
+            }
+
+            val body = bytes.toRequestBody("image/jpeg".toMediaTypeOrNull())
+            val part = MultipartBody.Part.createFormData("file", fileName, body)
+
+            uploadApi.uploadFile(part).url
+                ?.takeIf { it.isNotBlank() }
+                ?: throw IllegalStateException("The server did not return a profile photo URL.")
+        }
+    }
+
     suspend fun updateProfile(
         request: ProfileUpdateRequest
     ): Result<ProfileUpdateResponse> {
