@@ -26,7 +26,7 @@ fun SignupScreen(
     var firstName by rememberSaveable { mutableStateOf("") }
     var lastName by rememberSaveable { mutableStateOf("") }
     var email by rememberSaveable { mutableStateOf("") }
-    var age by rememberSaveable { mutableStateOf("") }
+    var dob by rememberSaveable { mutableStateOf("") }
     var password by rememberSaveable { mutableStateOf("") }
     var username by rememberSaveable { mutableStateOf("") }
     var role by rememberSaveable { mutableStateOf("STUDENT_FREELANCER") }
@@ -114,7 +114,7 @@ fun SignupScreen(
                     firstName = firstName,
                     lastName = lastName,
                     email = email,
-                    age = age,
+                    dob = dob,
                     password = password,
                     onRoleChange = {
                         role = it
