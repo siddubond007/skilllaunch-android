@@ -56,6 +56,10 @@ class MainActivity : ComponentActivity() {
                 mutableStateOf(systemDarkTheme)
             }
 
+            LaunchedEffect(systemDarkTheme) {
+                darkThemeState.value = systemDarkTheme
+            }
+
             SkillLaunchTheme(darkTheme = darkThemeState.value) {
                 val view = LocalView.current
                 SideEffect {
