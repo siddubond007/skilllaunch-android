@@ -131,10 +131,6 @@ private fun SkillLaunchRoot(
 
     val state by authViewModel.uiState.collectAsStateWithLifecycleCompat()
 
-    LaunchedEffect(systemDarkTheme) {
-        themeState.value = systemDarkTheme
-    }
-
     LaunchedEffect(state.isAuthenticated, state.user?.id) {
         val userId = state.user?.id
         if (!state.isAuthenticated || userId.isNullOrBlank()) {
@@ -171,7 +167,7 @@ private fun SkillLaunchRoot(
 
             state.isAuthenticated && state.user != null && !onboardingResolvedForUser -> {
                 SkillLaunchSplashScreen(
-                    darkTheme = themeState.value
+                    darkTheme = darkTheme
                 )
             }
 
@@ -179,8 +175,8 @@ private fun SkillLaunchRoot(
                 OnboardingScreen(
                     user = state.user!!,
                     repository = profileRepository,
-                    darkTheme = themeState.value,
-                                        onFinished = {
+                    darkTheme = darkTheme,
+                    onFinished = {
                         showOnboarding = false
                         profileRefreshVersion += 1
                     }
@@ -196,16 +192,14 @@ private fun SkillLaunchRoot(
                     onOpenOnboarding = {
                         showOnboarding = true
                     },
-                    profileRefreshVersion = profileRefreshVersion,
-
+                    profileRefreshVersion = profileRefreshVersion
                 )
             }
 
             showSignup.value -> {
                 SignupScreen(
                     state = state,
-                    darkTheme = themeState.value,
-                    onToggleTheme = onToggleTheme,
+                    darkTheme = darkTheme,
                     onSignup = authViewModel::signup,
                     onClearError = authViewModel::clearError,
                     onBackToLogin = { showSignup.value = false }
@@ -215,8 +209,7 @@ private fun SkillLaunchRoot(
             else -> {
                 LoginScreen(
                     state = state,
-                    darkTheme = themeState.value,
-                    onToggleTheme = onToggleTheme,
+                    darkTheme = darkTheme,
                     onLogin = authViewModel::login,
                     onCreateAccount = { showSignup.value = true }
                 )
