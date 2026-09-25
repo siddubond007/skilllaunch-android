@@ -15,6 +15,9 @@ class ProfileViewModel(
     private val repository: ProfileRepository
 ) : ViewModel() {
 
+    var selectedResumeUri by mutableStateOf<Uri?>(null)
+        private set
+
     var isResumeUploading by mutableStateOf(false)
         private set
 
@@ -31,6 +34,7 @@ class ProfileViewModel(
         if (isResumeUploading) return
 
         viewModelScope.launch {
+            selectedResumeUri = uri
             isResumeUploading = true
             resumeUploadError = null
 
