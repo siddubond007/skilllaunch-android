@@ -60,26 +60,25 @@ class ProfileRepository(
             } ?: "resume.pdf"
 
             val extension = fileName.substringAfterLast('.', "").lowercase()
-            require(extension in setOf("pdf", "doc", "docx")) {
-                "Only PDF, DOC, or DOCX resume files are supported."
+            require(extension == "pdf") {
+                "Only PDF resume files are supported."
+            }
+
+            val mimeType = resolver.getType(uri)
+            require(mimeType.isNullOrBlank() || mimeType == "application/pdf") {
+                "Only PDF resume files are supported."
             }
 
             val bytes = resolver.openInputStream(uri)?.use { it.readBytes() }
                 ?: throw IllegalStateException("Unable to read the selected resume.")
 
-            require(bytes.size <= 10 * 1024 * 1024) {
-                "Resume must be 10 MB or smaller."
+            require(bytes.size <= 5 * 1024 * 1024) {
+                "Resume must be 5 MB or smaller."
             }
 
-            val mimeType = resolver.getType(uri)
-                ?: when (extension) {
-                    "pdf" -> "application/pdf"
-                    "doc" -> "application/msword"
-                    "docx" -> "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-                    else -> "application/octet-stream"
-                }
+            val uploadMimeType = mimeType ?: "application/pdf"
 
-            val body = bytes.toRequestBody(mimeType.toMediaTypeOrNull())
+            val body = bytes.toRequestBody(uploadMimeType.toMediaTypeOrNull())
             val part = MultipartBody.Part.createFormData(
                 "file",
                 fileName,
