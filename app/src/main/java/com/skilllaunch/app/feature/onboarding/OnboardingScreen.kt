@@ -241,7 +241,6 @@ fun OnboardingScreen(
                     step = 2
                 }
             },
-            onRequestSkip = { showSkipConfirmation = true },
             onConfirmSkip = {
                 showSkipConfirmation = false
                 finishWithSkip()
