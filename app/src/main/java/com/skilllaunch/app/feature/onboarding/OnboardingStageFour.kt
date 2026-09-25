@@ -48,7 +48,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.drawscope.Stroke
@@ -59,7 +58,6 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import kotlinx.coroutines.withContext
 
 private data class ProfileSetupColors(
     val background: Color,
@@ -606,24 +604,7 @@ private fun ProfilePhotoImage(
 ) {
     val bitmap = remember(imageUrl) { mutableStateOf<android.graphics.Bitmap?>(null) }
 
-    LaunchedEffect(imageUrl) {
-        bitmap.value = withContext(kotlinx.coroutines.Dispatchers.IO) {
-            runCatching {
-                java.net.URL(imageUrl).openStream().use { stream ->
-                    android.graphics.BitmapFactory.decodeStream(stream)
-                }
-            }.getOrNull()
-        }
-    }
-
-    bitmap.value?.let { loaded ->
-        androidx.compose.foundation.Image(
-            bitmap = loaded.asImageBitmap(),
-            contentDescription = "Profile photo",
-            modifier = modifier,
-            contentScale = androidx.compose.ui.layout.ContentScale.Crop
-        )
-    } ?: Box(
+    Box(
         modifier = modifier,
         contentAlignment = Alignment.Center
     ) {
