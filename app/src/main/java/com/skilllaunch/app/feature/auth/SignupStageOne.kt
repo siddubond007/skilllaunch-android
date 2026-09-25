@@ -167,7 +167,6 @@ fun SignupStageOne(
                 .verticalScroll(rememberScrollState())
                 .padding(horizontal = 24.dp)
                 .widthIn(max = 620.dp)
-                .align(Alignment.CenterHorizontally)
         ) {
             Spacer(modifier = Modifier.height(16.dp))
 
