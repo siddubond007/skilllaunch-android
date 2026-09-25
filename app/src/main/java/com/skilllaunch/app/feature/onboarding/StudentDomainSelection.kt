@@ -49,67 +49,74 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.layout.ContentScale
 import com.skilllaunch.app.feature.auth.SkillLaunchBrand
+import coil3.compose.AsyncImage
+import com.skilllaunch.app.R
 
-internal data class StudentGigDomain(
-    val name: String,
-    val description: String,
-    val searchTerms: List<String>
+internal data class DomainOption(
+    val id: String,
+    val category: String,
+    val title: String,
+    val imageRes: Int
 )
 
-private val featuredDomainNames = listOf(
-    "Web Development",
-    "Mobile App Development",
-    "AI, Machine Learning & Data Science",
-    "Design & Creative",
-    "Software & IT Services",
-    "Digital Marketing & SEO"
+private val FEATURED_DOMAIN_IDS = listOf(
+    "web-development",
+    "mobile-app-development",
+    "ai-ml-data-science",
+    "design-creative",
+    "software-it-services",
+    "digital-marketing-seo"
 )
 
-internal val STUDENT_GIG_FEATURED_DOMAINS = featuredDomainNames
-
-internal val STUDENT_GIG_DOMAIN_CATALOG = listOf(
-    StudentGigDomain("Web Development", "Websites, web apps and storefronts", listOf("frontend", "backend", "full stack", "cms", "website", "web app")),
-    StudentGigDomain("Software & IT Services", "Software, APIs, automation and technical systems", listOf("software", "api", "desktop", "automation", "testing", "it")),
-    StudentGigDomain("Mobile App Development", "Android, iOS and cross-platform apps", listOf("android", "ios", "flutter", "react native", "mobile", "app")),
-    StudentGigDomain("AI, Machine Learning & Data Science", "AI, ML, analytics and data systems", listOf("artificial intelligence", "machine learning", "deep learning", "data", "analytics", "llm", "computer vision")),
-    StudentGigDomain("Design & Creative", "UI, UX, branding and visual design", listOf("ui", "ux", "figma", "graphic", "branding", "illustration", "creative")),
-    StudentGigDomain("Photography & Image Editing", "Photography, retouching and image work", listOf("photo", "photography", "retouching", "editing", "image")),
-    StudentGigDomain("Video, Audio & Animation", "Video, audio, motion and animation", listOf("video", "audio", "motion", "animation", "podcast", "voice")),
-    StudentGigDomain("Social Media & Community", "Social content, communities and engagement", listOf("social media", "community", "discord", "telegram", "content")),
-    StudentGigDomain("Digital Marketing & SEO", "SEO, ads, campaigns and growth", listOf("marketing", "seo", "google ads", "meta ads", "ppc", "growth")),
-    StudentGigDomain("E-commerce & Retail", "Online stores, marketplaces and retail support", listOf("ecommerce", "e-commerce", "shopify", "amazon", "retail", "store")),
-    StudentGigDomain("Writing & Content Creation", "Articles, copy, scripts and documentation", listOf("writing", "copywriting", "blog", "content", "script", "documentation")),
-    StudentGigDomain("Translation & Transcription", "Translation, localization, captions and transcripts", listOf("translation", "localization", "transcription", "subtitles", "caption")),
-    StudentGigDomain("Gaming & Esports", "Game development, game art and esports", listOf("game", "gaming", "unity", "unreal", "esports", "streaming")),
-    StudentGigDomain("Admin, Support & Operations", "Virtual assistance, support and operations", listOf("admin", "virtual assistant", "customer support", "data entry", "operations")),
-    StudentGigDomain("Business, Finance & HR", "Business analysis, finance and people operations", listOf("business", "finance", "accounting", "hr", "recruiting", "sales")),
-    StudentGigDomain("Legal & Compliance", "Legal documents, research and compliance support", listOf("legal", "compliance", "contracts", "ip", "privacy")),
-    StudentGigDomain("Engineering, Architecture & 3D", "Engineering design, architecture and 3D work", listOf("engineering", "architecture", "cad", "3d", "mechanical", "civil", "electrical")),
-    StudentGigDomain("Education, Tutoring & Coaching", "Tutoring, exam prep and coaching", listOf("education", "tutoring", "coaching", "exam", "teaching", "career")),
-    StudentGigDomain("Events, Travel & Local Services", "Events, travel planning and local services", listOf("events", "travel", "wedding", "local", "drone")),
-    StudentGigDomain("Telecommunications & Networking", "Networks, VoIP, hosting and communication systems", listOf("network", "networking", "telecom", "voip", "vpn", "hosting")),
-    StudentGigDomain("Health & Wellness", "Fitness, nutrition and wellness services", listOf("health", "wellness", "fitness", "nutrition", "sports", "mindfulness")),
-    StudentGigDomain("Manufacturing & Product Development", "Product design, sourcing and manufacturing support", listOf("manufacturing", "product", "sourcing", "prototype", "packaging")),
-    StudentGigDomain("Product Management & Operations", "Product strategy, delivery and process systems", listOf("product management", "roadmap", "project management", "agile", "process")),
-    StudentGigDomain("Market Research & Consumer Insights", "Market, competitor and customer research", listOf("market research", "consumer", "competitor", "customer research", "insights")),
-    StudentGigDomain("Public Relations & Communications", "PR, corporate messaging and creator relations", listOf("pr", "public relations", "communications", "media", "influencer")),
-    StudentGigDomain("Career & Professional Services", "Resumes, profiles, job search and interview prep", listOf("career", "resume", "cv", "linkedin", "interview", "professional")),
-    StudentGigDomain("Government & Nonprofit Services", "Research, documentation and nonprofit support", listOf("government", "nonprofit", "non-profit", "ngo", "public sector")),
-    StudentGigDomain("Real Estate & Property Services", "Property listings, research and marketing", listOf("real estate", "property", "listing", "realtor")),
-    StudentGigDomain("Travel & Hospitality", "Hospitality, travel and guest experience", listOf("hospitality", "hotel", "tourism", "travel", "guest")),
-    StudentGigDomain("Food & Culinary Services", "Food, recipes, menus and culinary support", listOf("food", "culinary", "recipe", "menu", "cooking", "restaurant")),
-    StudentGigDomain("Beauty & Personal Care", "Beauty, grooming and personal care services", listOf("beauty", "personal care", "makeup", "hair", "grooming", "skincare")),
-    StudentGigDomain("Fashion, Jewelry & Accessories", "Fashion, merchandise, jewelry and accessories", listOf("fashion", "jewelry", "apparel", "clothing", "accessories", "merchandise")),
-    StudentGigDomain("Scientific & Technical Research", "Scientific research, technical analysis and documentation", listOf("scientific", "research", "technical research", "laboratory", "analysis")),
-    StudentGigDomain("Freight, Delivery & Transportation", "Logistics, delivery and transport support", listOf("freight", "delivery", "transportation", "logistics", "shipping")),
-    StudentGigDomain("Agriculture & Environmental Services", "Agriculture, sustainability and environmental work", listOf("agriculture", "farming", "environment", "sustainability", "ecology")),
-    StudentGigDomain("3D Printing & Digital Fabrication", "3D printing, fabrication and production files", listOf("3d printing", "digital fabrication", "cnc", "laser cutting", "stl")),
-    StudentGigDomain("Consulting & Professional Advisory", "Business, technology and creative consulting", listOf("consulting", "advisory", "strategy", "technology consulting")),
-    StudentGigDomain("Personal Development & Hobbies", "Personal growth, hobbies and creative instruction", listOf("personal development", "hobbies", "drawing", "music lessons", "productivity"))
+internal val STUDENT_GIG_DOMAIN_CATALOG: List<DomainOption> = listOf(
+    DomainOption("web-development", "DEVELOPMENT", "Web Development", R.raw.student_domain_web),
+    DomainOption("software-it-services", "DEVELOPMENT", "Software & IT Services", R.raw.student_domain_web),
+    DomainOption("mobile-app-development", "DEVELOPMENT", "Mobile App Development", R.raw.student_domain_mobile),
+    DomainOption("ai-ml-data-science", "TECHNOLOGY", "AI, Machine Learning & Data Science", R.raw.student_domain_ai),
+    DomainOption("design-creative", "DESIGN", "Design & Creative", R.raw.student_domain_design),
+    DomainOption("photography-image-editing", "DESIGN", "Photography & Image Editing", R.raw.student_domain_design),
+    DomainOption("video-audio-animation", "CREATIVE", "Video, Audio & Animation", R.raw.student_domain_video),
+    DomainOption("social-media-community", "MARKETING", "Social Media & Community", R.raw.student_domain_marketing),
+    DomainOption("digital-marketing-seo", "MARKETING", "Digital Marketing & SEO", R.raw.student_domain_marketing),
+    DomainOption("e-commerce-retail", "RETAIL", "E-commerce & Retail", R.raw.student_domain_business),
+    DomainOption("writing-content-creation", "CONTENT", "Writing & Content Creation", R.raw.student_domain_content),
+    DomainOption("translation-transcription", "CONTENT", "Translation & Transcription", R.raw.student_domain_content),
+    DomainOption("gaming-esports", "GAMING", "Gaming & Esports", R.raw.student_domain_gaming),
+    DomainOption("admin-support-operations", "SERVICES", "Admin, Support & Operations", R.raw.student_domain_business),
+    DomainOption("business-finance-hr", "BUSINESS", "Business, Finance & HR", R.raw.student_domain_business),
+    DomainOption("legal-compliance", "SECURITY", "Legal & Compliance", R.raw.student_domain_security),
+    DomainOption("engineering-architecture-3d", "DESIGN", "Engineering, Architecture & 3D", R.raw.student_domain_design),
+    DomainOption("education-tutoring-coaching", "CONTENT", "Education, Tutoring & Coaching", R.raw.student_domain_content),
+    DomainOption("events-travel-local-services", "SERVICES", "Events, Travel & Local Services", R.raw.student_domain_video),
+    DomainOption("telecommunications-networking", "INFRASTRUCTURE", "Telecommunications & Networking", R.raw.student_domain_mobile),
+    DomainOption("health-wellness", "SERVICES", "Health & Wellness", R.raw.student_domain_business),
+    DomainOption("manufacturing-product-development", "BUSINESS", "Manufacturing & Product Development", R.raw.student_domain_business),
+    DomainOption("product-management-operations", "BUSINESS", "Product Management & Operations", R.raw.student_domain_business),
+    DomainOption("market-research-consumer-insights", "RESEARCH", "Market Research & Consumer Insights", R.raw.student_domain_ai),
+    DomainOption("public-relations-communications", "MARKETING", "Public Relations & Communications", R.raw.student_domain_marketing),
+    DomainOption("career-professional-services", "CONTENT", "Career & Professional Services", R.raw.student_domain_content),
+    DomainOption("government-nonprofit-services", "SERVICES", "Government & Nonprofit Services", R.raw.student_domain_business),
+    DomainOption("real-estate-property-services", "BUSINESS", "Real Estate & Property Services", R.raw.student_domain_business),
+    DomainOption("travel-hospitality", "SERVICES", "Travel & Hospitality", R.raw.student_domain_business),
+    DomainOption("food-culinary-services", "SERVICES", "Food & Culinary Services", R.raw.student_domain_business),
+    DomainOption("beauty-personal-care", "DESIGN", "Beauty & Personal Care", R.raw.student_domain_design),
+    DomainOption("fashion-jewelry-accessories", "DESIGN", "Fashion, Jewelry & Accessories", R.raw.student_domain_design),
+    DomainOption("scientific-technical-research", "RESEARCH", "Scientific & Technical Research", R.raw.student_domain_ai),
+    DomainOption("freight-delivery-transportation", "INFRASTRUCTURE", "Freight, Delivery & Transportation", R.raw.student_domain_business),
+    DomainOption("agriculture-environmental-services", "SERVICES", "Agriculture & Environmental Services", R.raw.student_domain_business),
+    DomainOption("3d-printing-digital-fabrication", "INFRASTRUCTURE", "3D Printing & Digital Fabrication", R.raw.student_domain_cloud),
+    DomainOption("consulting-professional-advisory", "BUSINESS", "Consulting & Professional Advisory", R.raw.student_domain_business),
+    DomainOption("personal-development-hobbies", "OTHER", "Personal Development & Hobbies", R.raw.student_domain_other)
 )
 
-internal val studentGigDomainNames = STUDENT_GIG_DOMAIN_CATALOG.map { it.name }.toSet()
+internal val STUDENT_GIG_FEATURED_DOMAINS: List<DomainOption> =
+    FEATURED_DOMAIN_IDS.mapNotNull { id ->
+        STUDENT_GIG_DOMAIN_CATALOG.firstOrNull { it.id == id }
+    }
+
+internal val studentGigDomainNames = STUDENT_GIG_DOMAIN_CATALOG.map { it.title }.toSet()
 
 internal val studentGigDomainSkills = mapOf(
     "Web Development" to listOf("Frontend Development", "Backend Development", "Full Stack Development", "CMS & Website Builders", "Web Management", "Cloud & DevOps"),
@@ -168,16 +175,14 @@ internal fun StudentDomainSelection(
     var query by remember { mutableStateOf("") }
     val normalizedQuery = query.trim().lowercase()
 
-    val matchingDomains = remember(normalizedQuery) {
+    val filteredDomains = remember(normalizedQuery) {
         if (normalizedQuery.isBlank()) {
-            STUDENT_GIG_FEATURED_DOMAINS.mapNotNull { name ->
-                STUDENT_GIG_DOMAIN_CATALOG.firstOrNull { it.name == name }
-            }
+            STUDENT_GIG_FEATURED_DOMAINS
         } else {
             STUDENT_GIG_DOMAIN_CATALOG.filter { domain ->
-                domain.name.contains(normalizedQuery, ignoreCase = true) ||
-                    domain.description.contains(normalizedQuery, ignoreCase = true) ||
-                    domain.searchTerms.any { it.contains(normalizedQuery, ignoreCase = true) }
+                domain.title.contains(normalizedQuery, ignoreCase = true) ||
+                    domain.category.contains(normalizedQuery, ignoreCase = true) ||
+                    domain.id.replace('-', ' ').contains(normalizedQuery, ignoreCase = true)
             }
         }
     }
@@ -273,17 +278,15 @@ internal fun StudentDomainSelection(
             contentPadding = PaddingValues(horizontal = 28.dp, vertical = 2.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            matchingDomains.chunked(2).forEach { row ->
+            filteredDomains.chunked(2).forEach { row ->
                 item(key = row.joinToString("|")) {
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
                         row.forEach { domain ->
-                            val index = STUDENT_GIG_DOMAIN_CATALOG.indexOfFirst { it.name == domain.name }
                             StudentDomainCard(
                                 domain = domain,
-                                artworkIndex = index,
                                 selected = selectedDomain == domain.name,
                                 darkTheme = darkTheme,
                                 cardBackground = cardBackground,
@@ -300,7 +303,7 @@ internal fun StudentDomainSelection(
                 }
             }
 
-            if (matchingDomains.isEmpty()) {
+            if (filteredDomains.isEmpty()) {
                 item {
                     Box(
                         modifier = Modifier
@@ -499,8 +502,7 @@ private fun DomainSearchField(
 
 @Composable
 private fun StudentDomainCard(
-    domain: StudentGigDomain,
-    artworkIndex: Int,
+    domain: DomainOption,
     selected: Boolean,
     darkTheme: Boolean,
     cardBackground: Color,
@@ -533,9 +535,11 @@ private fun StudentDomainCard(
                 .clip(RoundedCornerShape(17.dp))
                 .background(Color.Transparent)
         ) {
-            DomainArtwork(
-                index = artworkIndex,
-                darkTheme = darkTheme
+            AsyncImage(
+                model = domain.imageRes,
+                contentDescription = domain.title + " abstract illustration",
+                modifier = Modifier.fillMaxSize(),
+                contentScale = ContentScale.Crop
             )
             if (selected) {
                 Box(
@@ -558,7 +562,7 @@ private fun StudentDomainCard(
         }
 
         Text(
-            text = domainEyebrow(domain.name),
+            text = domain.category,
             modifier = Modifier.fillMaxWidth(),
             color = textMuted,
             fontSize = 9.sp,
@@ -570,7 +574,7 @@ private fun StudentDomainCard(
         )
 
         Text(
-            text = domain.name,
+            text = domain.title,
             modifier = Modifier.fillMaxWidth(),
             color = textPrimary,
             fontSize = 14.5.sp,
@@ -582,417 +586,5 @@ private fun StudentDomainCard(
     }
 }
 
-@Composable
-private fun DomainArtwork(
-    index: Int,
-    darkTheme: Boolean
-) {
-    val backgrounds = listOf(
-        Color(0xFFD9C8FF), Color(0xFFF0E0CF), Color(0xFFF5C7D9), Color(0xFFD8D5FF),
-        Color(0xFFF1CFDE), Color(0xFFE8D8C6), Color(0xFFD9CBFF), Color(0xFFF1D3C5),
-        Color(0xFFD9E0FF), Color(0xFFDDD2FF), Color(0xFFFFD7D7), Color(0xFFD5E1FF)
-    )
-    val accents = listOf(
-        Color(0xFF9A7CE8), Color(0xFFB58AF0), Color(0xFF9C8BE8), Color(0xFF8F84E0),
-        Color(0xFFB684E0), Color(0xFF8F7DCC), Color(0xFFA17AE0), Color(0xFFAA84E7),
-        Color(0xFF8B91E5), Color(0xFFA184E4), Color(0xFFB07EDB), Color(0xFF8C91E0)
-    )
-    val darks = listOf(
-        Color(0xFF29253B), Color(0xFF2B273D), Color(0xFF29263D), Color(0xFF28243C),
-        Color(0xFF2D263C), Color(0xFF2A263A), Color(0xFF2B2740), Color(0xFF30263B),
-        Color(0xFF29273F), Color(0xFF2E283D), Color(0xFF2C273E), Color(0xFF29263E)
-    )
 
-    val bg = backgrounds[index % backgrounds.size]
-    val accent = accents[index % accents.size]
-    val deep = darks[index % darks.size]
-    val soft = if (darkTheme) Color.White.copy(alpha = 0.88f) else Color(0xFFFFFBF4)
 
-    Canvas(
-        modifier = Modifier.fillMaxSize()
-    ) {
-        val w = size.width
-        val h = size.height
-        val cx = w * 0.50f
-        val cy = h * 0.48f
-        val scale = minOf(w, h) / 126f
-
-        fun sx(v: Float) = v * scale
-        fun sy(v: Float) = v * scale
-
-        drawRoundRect(
-            color = bg,
-            topLeft = Offset.Zero,
-            size = size,
-            cornerRadius = androidx.compose.ui.geometry.CornerRadius(sx(17f), sx(17f))
-        )
-
-        // Soft gallery-light glow.
-        drawCircle(
-            color = Color.White.copy(alpha = 0.20f),
-            radius = sx(38f),
-            center = Offset(w * 0.77f, h * 0.23f)
-        )
-        drawCircle(
-            color = accent.copy(alpha = 0.22f),
-            radius = sx(24f),
-            center = Offset(w * 0.19f, h * 0.77f)
-        )
-
-        // Museum-style plinth.
-        drawRoundRect(
-            color = deep.copy(alpha = 0.18f),
-            topLeft = Offset(cx - sx(33f), h * 0.74f),
-            size = androidx.compose.ui.geometry.Size(sx(66f), sx(12f)),
-            cornerRadius = androidx.compose.ui.geometry.CornerRadius(sx(6f), sx(6f))
-        )
-        drawRoundRect(
-            color = soft,
-            topLeft = Offset(cx - sx(35f), h * 0.70f),
-            size = androidx.compose.ui.geometry.Size(sx(70f), sx(13f)),
-            cornerRadius = androidx.compose.ui.geometry.CornerRadius(sx(6.5f), sx(6.5f))
-        )
-
-        val motif = index % 13
-
-        when (motif) {
-            0 -> { // Web / software: stacked interface sculpture.
-                drawRoundRect(
-                    color = deep,
-                    topLeft = Offset(cx - sx(38f), cy - sx(30f)),
-                    size = androidx.compose.ui.geometry.Size(sx(76f), sx(56f)),
-                    cornerRadius = androidx.compose.ui.geometry.CornerRadius(sx(8f), sx(8f))
-                )
-                drawRoundRect(
-                    color = soft.copy(alpha = 0.90f),
-                    topLeft = Offset(cx - sx(29f), cy - sx(20f)),
-                    size = androidx.compose.ui.geometry.Size(sx(58f), sx(34f)),
-                    cornerRadius = androidx.compose.ui.geometry.CornerRadius(sx(5f), sx(5f))
-                )
-                drawRoundRect(
-                    color = accent,
-                    topLeft = Offset(cx - sx(21f), cy - sx(12f)),
-                    size = androidx.compose.ui.geometry.Size(sx(22f), sx(14f)),
-                    cornerRadius = androidx.compose.ui.geometry.CornerRadius(sx(3f), sx(3f))
-                )
-                drawRoundRect(
-                    color = accent.copy(alpha = 0.55f),
-                    topLeft = Offset(cx + sx(5f), cy - sx(12f)),
-                    size = androidx.compose.ui.geometry.Size(sx(17f), sx(6f)),
-                    cornerRadius = androidx.compose.ui.geometry.CornerRadius(sx(3f), sx(3f))
-                )
-                drawRoundRect(
-                    color = accent.copy(alpha = 0.40f),
-                    topLeft = Offset(cx + sx(5f), cy - sx(2f)),
-                    size = androidx.compose.ui.geometry.Size(sx(23f), sx(6f)),
-                    cornerRadius = androidx.compose.ui.geometry.CornerRadius(sx(3f), sx(3f))
-                )
-                drawCircle(accent, sx(5f), Offset(cx - sx(26f), cy + sx(5f)))
-            }
-
-            1 -> { // Code / APIs: command panel + orbit.
-                drawRoundRect(
-                    color = deep,
-                    topLeft = Offset(cx - sx(35f), cy - sx(25f)),
-                    size = androidx.compose.ui.geometry.Size(sx(52f), sx(43f)),
-                    cornerRadius = androidx.compose.ui.geometry.CornerRadius(sx(8f), sx(8f))
-                )
-                val p = Path().apply {
-                    moveTo(cx - sx(22f), cy - sx(4f))
-                    lineTo(cx - sx(13f), cy + sx(2f))
-                    lineTo(cx - sx(22f), cy + sx(8f))
-                }
-                drawPath(p, color = soft, style = Stroke(width = sx(4f), cap = StrokeCap.Round))
-                drawLine(
-                    color = soft,
-                    start = Offset(cx - sx(8f), cy + sx(8f)),
-                    end = Offset(cx + sx(6f), cy + sx(8f)),
-                    strokeWidth = sx(4f),
-                    cap = StrokeCap.Round
-                )
-                drawCircle(accent, sx(18f), Offset(cx + sx(23f), cy + sx(8f)))
-                drawCircle(soft, sx(5f), Offset(cx + sx(23f), cy + sx(8f)))
-                drawCircle(Color.Transparent, sx(23f), Offset(cx + sx(23f), cy + sx(8f)), style = Stroke(width = sx(3f)))
-            }
-
-            2 -> { // Mobile: premium phone + halo.
-                rotate(degrees = -10f, pivot = Offset(cx, cy)) {
-                    drawRoundRect(
-                        color = deep,
-                        topLeft = Offset(cx - sx(20f), cy - sx(38f)),
-                        size = androidx.compose.ui.geometry.Size(sx(40f), sx(76f)),
-                        cornerRadius = androidx.compose.ui.geometry.CornerRadius(sx(9f), sx(9f))
-                    )
-                    drawRoundRect(
-                        color = soft.copy(alpha = 0.19f),
-                        topLeft = Offset(cx - sx(15f), cy - sx(29f)),
-                        size = androidx.compose.ui.geometry.Size(sx(30f), sx(55f)),
-                        cornerRadius = androidx.compose.ui.geometry.CornerRadius(sx(6f), sx(6f))
-                    )
-                    drawCircle(soft, sx(2.6f), Offset(cx, cy + sx(28f)))
-                }
-                drawOval(
-                    color = accent,
-                    topLeft = Offset(cx - sx(49f), cy - sx(17f)),
-                    size = androidx.compose.ui.geometry.Size(sx(98f), sx(34f)),
-                    style = Stroke(width = sx(6f))
-                )
-                drawCircle(soft, sx(6f), Offset(cx + sx(37f), cy - sx(20f)))
-            }
-
-            3 -> { // AI / data: faceted crystal with nodes.
-                val poly = Path().apply {
-                    moveTo(cx, cy - sx(39f))
-                    lineTo(cx + sx(28f), cy - sx(20f))
-                    lineTo(cx + sx(34f), cy + sx(16f))
-                    lineTo(cx, cy + sx(37f))
-                    lineTo(cx - sx(30f), cy + sx(17f))
-                    lineTo(cx - sx(25f), cy - sx(17f))
-                    close()
-                }
-                drawPath(poly, color = soft.copy(alpha = 0.92f))
-                drawLine(accent, Offset(cx, cy - sx(39f)), Offset(cx, cy + sx(37f)), sx(3f))
-                drawLine(accent, Offset(cx - sx(25f), cy - sx(17f)), Offset(cx + sx(28f), cy - sx(20f)), sx(3f))
-                drawLine(accent, Offset(cx - sx(30f), cy + sx(17f)), Offset(cx + sx(34f), cy + sx(16f)), sx(3f))
-                listOf(
-                    Offset(cx - sx(45f), cy - sx(24f)),
-                    Offset(cx + sx(45f), cy - sx(8f)),
-                    Offset(cx - sx(37f), cy + sx(30f))
-                ).forEach { point ->
-                    drawCircle(accent, sx(6f), point)
-                }
-            }
-
-            4 -> { // Design: sculptural ribbon + tool.
-                val ribbon = Path().apply {
-                    moveTo(cx - sx(48f), cy + sx(23f))
-                    cubicTo(cx - sx(28f), cy - sx(15f), cx - sx(2f), cy - sx(21f), cx + sx(19f), cy - sx(5f))
-                    cubicTo(cx + sx(35f), cy + sx(7f), cx + sx(36f), cy + sx(17f), cx + sx(49f), cy + sx(28f))
-                }
-                drawPath(ribbon, color = accent, style = Stroke(width = sx(11f), cap = StrokeCap.Round))
-                drawRoundRect(
-                    color = soft,
-                    topLeft = Offset(cx - sx(13f), cy - sx(30f)),
-                    size = androidx.compose.ui.geometry.Size(sx(26f), sx(57f)),
-                    cornerRadius = androidx.compose.ui.geometry.CornerRadius(sx(6f), sx(6f))
-                )
-                rotate(degrees = -25f, pivot = Offset(cx, cy)) {
-                    drawRoundRect(
-                        color = deep,
-                        topLeft = Offset(cx - sx(5f), cy - sx(30f)),
-                        size = androidx.compose.ui.geometry.Size(sx(10f), sx(47f)),
-                        cornerRadius = androidx.compose.ui.geometry.CornerRadius(sx(4f), sx(4f))
-                    )
-                }
-            }
-
-            5 -> { // Photography: camera sculpture.
-                drawRoundRect(
-                    color = deep,
-                    topLeft = Offset(cx - sx(40f), cy - sx(21f)),
-                    size = androidx.compose.ui.geometry.Size(sx(80f), sx(44f)),
-                    cornerRadius = androidx.compose.ui.geometry.CornerRadius(sx(10f), sx(10f))
-                )
-                drawRoundRect(
-                    color = soft,
-                    topLeft = Offset(cx - sx(13f), cy - sx(29f)),
-                    size = androidx.compose.ui.geometry.Size(sx(26f), sx(11f)),
-                    cornerRadius = androidx.compose.ui.geometry.CornerRadius(sx(5f), sx(5f))
-                )
-                drawCircle(accent, sx(21f), Offset(cx, cy))
-                drawCircle(deep, sx(12f), Offset(cx, cy))
-                drawCircle(soft, sx(5f), Offset(cx + sx(2f), cy - sx(2f)))
-                drawCircle(accent.copy(alpha = 0.55f), sx(6f), Offset(cx + sx(39f), cy - sx(19f)))
-            }
-
-            6 -> { // Video / animation: frame + play.
-                drawRoundRect(
-                    color = deep,
-                    topLeft = Offset(cx - sx(44f), cy - sx(28f)),
-                    size = androidx.compose.ui.geometry.Size(sx(88f), sx(58f)),
-                    cornerRadius = androidx.compose.ui.geometry.CornerRadius(sx(8f), sx(8f))
-                )
-                val tri = Path().apply {
-                    moveTo(cx - sx(8f), cy - sx(14f))
-                    lineTo(cx + sx(15f), cy)
-                    lineTo(cx - sx(8f), cy + sx(14f))
-                    close()
-                }
-                drawPath(tri, color = soft)
-                drawPath(
-                    Path().apply {
-                        moveTo(cx - sx(45f), cy + sx(27f))
-                        cubicTo(cx - sx(24f), cy + sx(8f), cx + sx(3f), cy + sx(8f), cx + sx(22f), cy + sx(23f))
-                        cubicTo(cx + sx(33f), cy + sx(30f), cx + sx(42f), cy + sx(30f), cx + sx(51f), cy + sx(20f))
-                    },
-                    color = accent,
-                    style = Stroke(width = sx(8f), cap = StrokeCap.Round)
-                )
-            }
-
-            7 -> { // Social: chat sculpture.
-                drawRoundRect(
-                    color = deep,
-                    topLeft = Offset(cx - sx(41f), cy - sx(29f)),
-                    size = androidx.compose.ui.geometry.Size(sx(64f), sx(47f)),
-                    cornerRadius = androidx.compose.ui.geometry.CornerRadius(sx(10f), sx(10f))
-                )
-                drawRoundRect(
-                    color = soft,
-                    topLeft = Offset(cx - sx(1f), cy - sx(5f)),
-                    size = androidx.compose.ui.geometry.Size(sx(49f), sx(35f)),
-                    cornerRadius = androidx.compose.ui.geometry.CornerRadius(sx(9f), sx(9f))
-                )
-                drawCircle(accent, sx(4f), Offset(cx + sx(11f), cy + sx(12f)))
-                drawCircle(accent, sx(4f), Offset(cx + sx(23f), cy + sx(12f)))
-                drawCircle(accent, sx(4f), Offset(cx + sx(35f), cy + sx(12f)))
-                drawLine(
-                    color = accent,
-                    start = Offset(cx + sx(10f), cy + sx(20f)),
-                    end = Offset(cx + sx(39f), cy + sx(20f)),
-                    strokeWidth = sx(3f),
-                    cap = StrokeCap.Round
-                )
-            }
-
-            8 -> { // Marketing: megaphone + rising bars.
-                rotate(degrees = -18f, pivot = Offset(cx - sx(12f), cy)) {
-                    drawPath(
-                        Path().apply {
-                            moveTo(cx - sx(37f), cy - sx(9f))
-                            lineTo(cx + sx(8f), cy - sx(27f))
-                            lineTo(cx + sx(8f), cy + sx(27f))
-                            lineTo(cx - sx(37f), cy + sx(9f))
-                            close()
-                        },
-                        color = soft
-                    )
-                    drawRoundRect(
-                        color = deep,
-                        topLeft = Offset(cx - sx(44f), cy - sx(7f)),
-                        size = androidx.compose.ui.geometry.Size(sx(14f), sx(14f)),
-                        cornerRadius = androidx.compose.ui.geometry.CornerRadius(sx(4f), sx(4f))
-                    )
-                }
-                listOf(
-                    Triple(cx + sx(13f), cy + sx(22f), sx(24f)),
-                    Triple(cx + sx(28f), cy + sx(22f), sx(37f)),
-                    Triple(cx + sx(43f), cy + sx(22f), sx(51f))
-                ).forEach { (x, base, top) ->
-                    drawRoundRect(
-                        color = accent,
-                        topLeft = Offset(x - sx(4f), top),
-                        size = androidx.compose.ui.geometry.Size(sx(8f), base - top),
-                        cornerRadius = androidx.compose.ui.geometry.CornerRadius(sx(4f), sx(4f))
-                    )
-                }
-            }
-
-            9 -> { // E-commerce: packages / retail.
-                drawRoundRect(
-                    color = soft,
-                    topLeft = Offset(cx - sx(35f), cy - sx(12f)),
-                    size = androidx.compose.ui.geometry.Size(sx(30f), sx(31f)),
-                    cornerRadius = androidx.compose.ui.geometry.CornerRadius(sx(5f), sx(5f))
-                )
-                drawRoundRect(
-                    color = deep,
-                    topLeft = Offset(cx - sx(2f), cy - sx(23f)),
-                    size = androidx.compose.ui.geometry.Size(sx(37f), sx(43f)),
-                    cornerRadius = androidx.compose.ui.geometry.CornerRadius(sx(6f), sx(6f))
-                )
-                drawLine(accent, Offset(cx + sx(16f), cy - sx(22f)), Offset(cx + sx(16f), cy + sx(19f)), sx(4f))
-                drawLine(accent, Offset(cx - sx(20f), cy - sx(12f)), Offset(cx - sx(20f), cy + sx(19f)), sx(4f))
-                drawCircle(accent, sx(6f), Offset(cx - sx(43f), cy + sx(25f)))
-            }
-
-            10 -> { // Writing / translation: scroll + pen.
-                val scroll = Path().apply {
-                    moveTo(cx - sx(38f), cy - sx(25f))
-                    lineTo(cx + sx(25f), cy - sx(25f))
-                    lineTo(cx + sx(25f), cy + sx(26f))
-                    lineTo(cx - sx(38f), cy + sx(26f))
-                    close()
-                }
-                drawPath(scroll, color = soft)
-                drawLine(accent, Offset(cx - sx(24f), cy - sx(8f)), Offset(cx + sx(10f), cy - sx(8f)), sx(4f), cap = StrokeCap.Round)
-                drawLine(accent.copy(alpha = 0.55f), Offset(cx - sx(24f), cy + sx(3f)), Offset(cx + sx(4f), cy + sx(3f)), sx(4f), cap = StrokeCap.Round)
-                rotate(degrees = -35f, pivot = Offset(cx + sx(16f), cy + sx(10f))) {
-                    drawRoundRect(
-                        color = deep,
-                        topLeft = Offset(cx + sx(8f), cy - sx(6f)),
-                        size = androidx.compose.ui.geometry.Size(sx(9f), sx(43f)),
-                        cornerRadius = androidx.compose.ui.geometry.CornerRadius(sx(4f), sx(4f))
-                    )
-                }
-            }
-
-            11 -> { // Gaming: controller sculpture.
-                val controller = Path().apply {
-                    moveTo(cx - sx(36f), cy - sx(15f))
-                    cubicTo(cx - sx(29f), cy - sx(34f), cx - sx(14f), cy - sx(37f), cx, cy - sx(24f))
-                    cubicTo(cx + sx(14f), cy - sx(37f), cx + sx(29f), cy - sx(34f), cx + sx(36f), cy - sx(15f))
-                    cubicTo(cx + sx(38f), cy + sx(1f), cx + sx(34f), cy + sx(22f), cx + sx(23f), cy + sx(25f))
-                    cubicTo(cx + sx(13f), cy + sx(26f), cx + sx(8f), cy + sx(11f), cx, cy + sx(11f))
-                    cubicTo(cx - sx(8f), cy + sx(11f), cx - sx(13f), cy + sx(26f), cx - sx(23f), cy + sx(25f))
-                    cubicTo(cx - sx(34f), cy + sx(22f), cx - sx(38f), cy + sx(1f), cx - sx(36f), cy - sx(15f))
-                    close()
-                }
-                drawPath(controller, color = soft)
-                drawLine(deep, Offset(cx - sx(20f), cy - sx(3f)), Offset(cx - sx(4f), cy - sx(3f)), sx(5f), cap = StrokeCap.Round)
-                drawLine(deep, Offset(cx - sx(12f), cy - sx(11f)), Offset(cx - sx(12f), cy + sx(5f)), sx(5f), cap = StrokeCap.Round)
-                drawCircle(accent, sx(5f), Offset(cx + sx(16f), cy - sx(4f)))
-                drawCircle(deep, sx(5f), Offset(cx + sx(28f), cy + sx(7f)))
-            }
-
-            12 -> { // Security / legal: shield + lock.
-                val shield = Path().apply {
-                    moveTo(cx, cy - sx(40f))
-                    lineTo(cx + sx(35f), cy - sx(24f))
-                    lineTo(cx + sx(28f), cy + sx(20f))
-                    cubicTo(cx + sx(20f), cy + sx(35f), cx + sx(8f), cy + sx(41f), cx, cy + sx(45f))
-                    cubicTo(cx - sx(8f), cy + sx(41f), cx - sx(20f), cy + sx(35f), cx - sx(28f), cy + sx(20f))
-                    lineTo(cx - sx(35f), cy - sx(24f))
-                    close()
-                }
-                drawPath(shield, color = soft)
-                drawRoundRect(
-                    color = accent,
-                    topLeft = Offset(cx - sx(13f), cy - sx(2f)),
-                    size = androidx.compose.ui.geometry.Size(sx(26f), sx(23f)),
-                    cornerRadius = androidx.compose.ui.geometry.CornerRadius(sx(5f), sx(5f))
-                )
-                drawArc(
-                    color = deep,
-                    startAngle = 180f,
-                    sweepAngle = 180f,
-                    useCenter = false,
-                    topLeft = Offset(cx - sx(9f), cy - sx(14f)),
-                    size = androidx.compose.ui.geometry.Size(sx(18f), sx(20f)),
-                    style = Stroke(width = sx(4f))
-                )
-            }
-        }
-
-        // A small floating sphere gives the gallery/plinth feel from the reference.
-        drawCircle(
-            color = if (index % 2 == 0) accent.copy(alpha = 0.78f) else soft.copy(alpha = 0.84f),
-            radius = sx(6f + (index % 3)),
-            center = Offset(w * (0.17f + (index % 4) * 0.18f), h * (0.18f + (index % 3) * 0.17f))
-        )
-    }
-}
-
-private fun domainEyebrow(domainName: String): String = when {
-    domainName.contains("AI", ignoreCase = true) || domainName.contains("Data Science", ignoreCase = true) -> "TECHNOLOGY"
-    domainName.contains("Mobile", ignoreCase = true) || domainName.contains("Web", ignoreCase = true) || domainName.contains("Software", ignoreCase = true) -> "DEVELOPMENT"
-    domainName.contains("Security", ignoreCase = true) || domainName.contains("Legal", ignoreCase = true) -> "SECURITY"
-    domainName.contains("Design", ignoreCase = true) || domainName.contains("Creative", ignoreCase = true) -> "DESIGN"
-    domainName.contains("Marketing", ignoreCase = true) || domainName.contains("Social", ignoreCase = true) || domainName.contains("Public Relations", ignoreCase = true) -> "MARKETING"
-    domainName.contains("Business", ignoreCase = true) || domainName.contains("Finance", ignoreCase = true) || domainName.contains("HR", ignoreCase = true) -> "BUSINESS"
-    domainName.contains("Cloud", ignoreCase = true) || domainName.contains("Telecommunications", ignoreCase = true) || domainName.contains("3D Printing", ignoreCase = true) -> "INFRASTRUCTURE"
-    domainName.contains("Video", ignoreCase = true) || domainName.contains("Audio", ignoreCase = true) || domainName.contains("Animation", ignoreCase = true) -> "CREATIVE"
-    domainName.contains("Writing", ignoreCase = true) || domainName.contains("Translation", ignoreCase = true) || domainName.contains("Education", ignoreCase = true) -> "CONTENT"
-    domainName.contains("Gaming", ignoreCase = true) -> "GAMING"
-    else -> "SERVICES"
-}
