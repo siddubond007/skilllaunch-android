@@ -327,9 +327,13 @@ fun OnboardingScreen(
             darkTheme = darkTheme,
             error = error,
             saving = saving,
+            skipConfirmation = showSkipConfirmation,
             onBack = {
                 step = 2
                 error = ""
+            },
+            onSkip = {
+                showSkipConfirmation = true
             },
             onAcademicStatusChange = {
                 academicStatus = it
@@ -345,6 +349,13 @@ fun OnboardingScreen(
             onAvailabilityChange = {
                 availability = it
                 error = ""
+            },
+            onConfirmSkip = {
+                showSkipConfirmation = false
+                finishWithSkip()
+            },
+            onDismissSkip = {
+                showSkipConfirmation = false
             },
             onContinue = {
                 val validationMessage = when {
