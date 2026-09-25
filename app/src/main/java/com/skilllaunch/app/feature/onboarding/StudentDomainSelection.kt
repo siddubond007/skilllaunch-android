@@ -14,7 +14,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.safeDrawingPadding
+import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
@@ -157,39 +157,49 @@ internal fun StudentDomainSelection(
         modifier = Modifier
             .fillMaxSize()
             .background(pageBackground)
-            .safeDrawingPadding(),
-        verticalArrangement = Arrangement.spacedBy(14.dp)
+            .systemBarsPadding(),
     ) {
-        Box(
+        Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(58.dp),
-            contentAlignment = Alignment.Center
+                .height(58.dp)
+                .padding(horizontal = 24.dp),
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            IconButton(
+            androidx.compose.material3.IconButton(
                 onClick = onBack,
-                modifier = Modifier.align(Alignment.CenterStart)
+                modifier = Modifier.size(32.dp)
             ) {
                 Text(
-                    text = "‹",
+                    text = "<",
                     color = textPrimary,
-                    fontSize = 34.sp,
-                    lineHeight = 34.sp,
+                    fontSize = 26.sp,
+                    lineHeight = 26.sp,
                     fontWeight = FontWeight.Light
                 )
             }
+
+            Spacer(modifier = Modifier.weight(1f))
             SkillLaunchBrand(
                 darkTheme = darkTheme,
                 compact = true
             )
+            Spacer(modifier = Modifier.weight(1f))
+
+            Spacer(modifier = Modifier.size(32.dp))
         }
+
+        Spacer(modifier = Modifier.height(16.dp))
 
         Box(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(4.dp)
                 .clip(RoundedCornerShape(8.dp))
-                .background(if (darkTheme) Color(0xFF3A393E) else Color(0xFFD8D7DA))
+                .background(
+                    if (darkTheme) Color(0xFF3A393E)
+                    else Color(0xFFD8D7DA)
+                )
         ) {
             Box(
                 modifier = Modifier
@@ -199,6 +209,8 @@ internal fun StudentDomainSelection(
                     .background(lavender)
             )
         }
+
+        Spacer(modifier = Modifier.height(16.dp))
 
         Column(
             modifier = Modifier.padding(horizontal = 28.dp),
@@ -309,44 +321,26 @@ internal fun StudentDomainSelection(
             )
         }
 
-        Box(
+        Button(
+            onClick = onContinue,
+            enabled = !saving,
             modifier = Modifier
                 .fillMaxWidth()
-                .height(1.dp)
-                .background(
-                    if (darkTheme) Color.White.copy(alpha = 0.08f)
-                    else Color.Black.copy(alpha = 0.08f)
-                )
-        )
-
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 20.dp, vertical = 12.dp),
-            horizontalArrangement = Arrangement.End,
-            verticalAlignment = Alignment.CenterVertically
+                .padding(horizontal = 24.dp, bottom = 24.dp),
+            shape = RoundedCornerShape(28.dp),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = lavender,
+                contentColor = Color(0xFF17171A),
+                disabledContainerColor = lavender.copy(alpha = 0.55f),
+                disabledContentColor = Color(0xFF17171A).copy(alpha = 0.65f)
+            ),
+            contentPadding = PaddingValues(horizontal = 24.dp, vertical = 0.dp)
         ) {
-            Button(
-                onClick = onContinue,
-                enabled = !saving,
-                modifier = Modifier
-                    .fillMaxWidth(0.66f)
-                    .height(52.dp),
-                shape = RoundedCornerShape(28.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = lavender,
-                    contentColor = Color(0xFF17171A),
-                    disabledContainerColor = lavender.copy(alpha = 0.55f),
-                    disabledContentColor = Color(0xFF17171A).copy(alpha = 0.65f)
-                ),
-                contentPadding = PaddingValues(horizontal = 24.dp, vertical = 0.dp)
-            ) {
-                Text(
-                    text = "Continue  →",
-                    fontSize = 14.sp,
-                    fontWeight = FontWeight.Bold
-                )
-            }
+            Text(
+                text = "Continue  →",
+                fontSize = 14.sp,
+                fontWeight = FontWeight.Bold
+            )
         }
 
         if (skipConfirmation) {
