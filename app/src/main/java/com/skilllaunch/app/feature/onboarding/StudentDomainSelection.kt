@@ -21,11 +21,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.Search
-import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Icon
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -212,11 +207,12 @@ internal fun StudentDomainSelection(
                 onClick = onBack,
                 modifier = Modifier.align(Alignment.CenterStart)
             ) {
-                Icon(
-                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                    contentDescription = "Back",
-                    tint = textPrimary,
-                    modifier = Modifier.size(24.dp)
+                Text(
+                    text = "‹",
+                    color = textPrimary,
+                    fontSize = 34.sp,
+                    lineHeight = 34.sp,
+                    fontWeight = FontWeight.Light
                 )
             }
             SkillLaunchBrand(
@@ -422,6 +418,78 @@ internal fun StudentDomainSelection(
 }
 
 @Composable
+private fun SearchGlyph(
+    tint: Color,
+    modifier: Modifier = Modifier
+) {
+    Canvas(modifier) {
+        val stroke = 1.9.dp.toPx()
+        val radius = size.minDimension * 0.31f
+        val center = Offset(
+            size.width * 0.43f,
+            size.height * 0.43f
+        )
+        drawCircle(
+            color = tint,
+            radius = radius,
+            center = center,
+            style = Stroke(width = stroke)
+        )
+        drawLine(
+            color = tint,
+            start = Offset(size.width * 0.68f, size.height * 0.68f),
+            end = Offset(size.width * 0.90f, size.height * 0.90f),
+            strokeWidth = stroke,
+            cap = StrokeCap.Round
+        )
+    }
+}
+
+@Composable
+private fun CloseGlyph(
+    tint: Color,
+    modifier: Modifier = Modifier
+) {
+    Canvas(modifier) {
+        val stroke = 1.8.dp.toPx()
+        drawLine(
+            color = tint,
+            start = Offset(size.width * 0.26f, size.height * 0.26f),
+            end = Offset(size.width * 0.74f, size.height * 0.74f),
+            strokeWidth = stroke,
+            cap = StrokeCap.Round
+        )
+        drawLine(
+            color = tint,
+            start = Offset(size.width * 0.74f, size.height * 0.26f),
+            end = Offset(size.width * 0.26f, size.height * 0.74f),
+            strokeWidth = stroke,
+            cap = StrokeCap.Round
+        )
+    }
+}
+
+@Composable
+private fun CheckGlyph(
+    tint: Color,
+    modifier: Modifier = Modifier
+) {
+    Canvas(modifier) {
+        val stroke = 1.9.dp.toPx()
+        val path = Path().apply {
+            moveTo(size.width * 0.16f, size.height * 0.52f)
+            lineTo(size.width * 0.40f, size.height * 0.76f)
+            lineTo(size.width * 0.84f, size.height * 0.25f)
+        }
+        drawPath(
+            path = path,
+            color = tint,
+            style = Stroke(width = stroke, cap = StrokeCap.Round)
+        )
+    }
+}
+
+@Composable
 private fun DomainSearchField(
     value: String,
     darkTheme: Boolean,
@@ -442,9 +510,7 @@ private fun DomainSearchField(
             .padding(horizontal = 17.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Icon(
-            imageVector = Icons.Default.Search,
-            contentDescription = "Search domains",
+        SearchGlyph(
             tint = textMuted,
             modifier = Modifier.size(21.dp)
         )
@@ -476,9 +542,7 @@ private fun DomainSearchField(
                 onClick = onClear,
                 modifier = Modifier.size(32.dp)
             ) {
-                Icon(
-                    imageVector = Icons.Default.Close,
-                    contentDescription = "Clear search",
+                CloseGlyph(
                     tint = textMuted,
                     modifier = Modifier.size(17.dp)
                 )
@@ -537,9 +601,7 @@ private fun StudentDomainCard(
                         .border(1.dp, Color(0xFFD4C6FF), CircleShape),
                     contentAlignment = Alignment.Center
                 ) {
-                    Icon(
-                        imageVector = Icons.Default.Check,
-                        contentDescription = "Selected",
+                    CheckGlyph(
                         tint = if (darkTheme) Color.White else Color(0xFF6F56D9),
                         modifier = Modifier.size(15.dp)
                     )
