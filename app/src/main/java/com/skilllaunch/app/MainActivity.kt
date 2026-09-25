@@ -148,6 +148,10 @@ private fun SkillLaunchRoot(
 
     val state by authViewModel.uiState.collectAsStateWithLifecycleCompat()
 
+    LaunchedEffect(systemDarkTheme) {
+        themeState.value = systemDarkTheme
+    }
+
     LaunchedEffect(state.isAuthenticated, state.user?.id) {
         val userId = state.user?.id
         if (!state.isAuthenticated || userId.isNullOrBlank()) {
@@ -209,7 +213,6 @@ private fun SkillLaunchRoot(
                     gigRepository = gigRepository,
                     onLogout = authViewModel::logout,
                     onOpenOnboarding = {
-                        themeState.value = systemDarkTheme
                         showOnboarding = true
                     },
                     profileRefreshVersion = profileRefreshVersion,
