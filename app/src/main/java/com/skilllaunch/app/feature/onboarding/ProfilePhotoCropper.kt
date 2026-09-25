@@ -46,7 +46,10 @@ import kotlin.math.roundToInt
 @Composable
 internal fun ProfilePhotoCropper(
     sourceUri: Uri,
-    colors: ProfileSetupColors,
+    backgroundColor: Color,
+    primaryColor: Color,
+    secondaryColor: Color,
+    errorColor: Color,
     onDismiss: () -> Unit,
     onCropped: (Uri) -> Unit
 ) {
@@ -106,7 +109,7 @@ internal fun ProfilePhotoCropper(
 
                     Text(
                         text = "Square crop • 600 × 600",
-                        color = colors.textSecondary,
+                        color = secondaryColor,
                         fontSize = 12.sp
                     )
                 }
@@ -114,7 +117,7 @@ internal fun ProfilePhotoCropper(
                 if (error.isNotBlank()) {
                     Text(
                         text = error,
-                        color = colors.error,
+                        color = errorColor,
                         fontSize = 12.sp
                     )
                 }
@@ -139,8 +142,8 @@ internal fun ProfilePhotoCropper(
                 },
                 enabled = bitmap != null,
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = colors.accent,
-                    contentColor = colors.accentText
+                    containerColor = primaryColor,
+                    contentColor = backgroundColor
                 )
             ) {
                 Text("Crop & upload")
