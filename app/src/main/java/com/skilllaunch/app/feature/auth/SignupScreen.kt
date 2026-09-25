@@ -141,6 +141,7 @@ fun SignupScreen(
                         localError = ""
                         onClearError()
                     },
+                    onClearError = onClearError,
                     onPasswordChange = {
                         password = it
                         localError = ""
