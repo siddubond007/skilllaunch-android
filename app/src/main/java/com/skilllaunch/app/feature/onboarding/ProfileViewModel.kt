@@ -5,6 +5,9 @@ import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import com.skilllaunch.app.data.repository.profile.ProfileRepository
 import kotlinx.coroutines.launch
 
@@ -12,13 +15,13 @@ class ProfileViewModel(
     private val repository: ProfileRepository
 ) : ViewModel() {
 
-    var isResumeUploading = false
+    var isResumeUploading by mutableStateOf(false)
         private set
 
-    var uploadedResumeFileName: String = ""
+    var uploadedResumeFileName by mutableStateOf("")
         private set
 
-    var resumeUploadError: String? = null
+    var resumeUploadError by mutableStateOf<String?>(null)
         private set
 
     fun uploadResumeToBackend(
