@@ -4,7 +4,6 @@ import android.content.Context
 import android.net.Uri
 import android.provider.OpenableColumns
 import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Canvas
@@ -50,7 +49,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.drawscope.Stroke
@@ -61,8 +59,6 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 
 private data class ProfileSetupColors(
     val background: Color,
@@ -289,7 +285,6 @@ internal fun OnboardingStageFour(
             ProfileAvatarPlaceholder(
                 colors = colors,
                 imageUrl = selectedAvatarUrl,
-                imageUri = croppedAvatarUri,
                 uploading = profileViewModel.isAvatarUploading,
                 modifier = Modifier
                     .fillMaxWidth()
@@ -466,7 +461,6 @@ internal fun OnboardingStageFour(
             onDismiss = { selectedPhotoUri = null },
             onCropped = { croppedUri ->
                 selectedPhotoUri = null
-                croppedAvatarUri = croppedUri
                 profileViewModel.uploadProfileImage(croppedUri, context)
             }
         )
@@ -610,35 +604,12 @@ private fun ProfileAvatarPlaceholder(
 @Composable
 private fun ProfilePhotoImage(
     imageUrl: String,
-    imageUri: Uri?,
     modifier: Modifier
 ) {
-    val context = androidx.compose.ui.platform.LocalContext.current
-    val bitmap = remember(imageUri) { mutableStateOf<Bitmap?>(null) }
-
-    LaunchedEffect(imageUri) {
-        bitmap.value = if (imageUri == null) {
-            null
-        } else {
-            withContext(Dispatchers.IO) {
-                runCatching {
-                    context.contentResolver.openInputStream(imageUri)?.use { stream ->
-                        BitmapFactory.decodeStream(stream)
-                    }
-                }.getOrNull()
-            }
-        }
-    }
-
-    bitmap.value?.let { loaded ->
-        androidx.compose.foundation.Image(
-            bitmap = loaded.asImageBitmap(),
-            contentDescription = "Profile photo",
-            modifier = modifier.clip(CircleShape),
-            contentScale = androidx.compose.ui.layout.ContentScale.Crop
-        )
-    } ?: Box(
-        modifier = modifier,
+    Box(
+        modifier = modifier
+            .clip(CircleShape)
+            .background(Color(0xFF262629)),
         contentAlignment = Alignment.Center
     ) {
         PersonGlyph(
