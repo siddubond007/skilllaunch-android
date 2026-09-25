@@ -13,8 +13,8 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
@@ -22,7 +22,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material3.Icon
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -39,11 +38,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
@@ -58,11 +57,10 @@ import com.skilllaunch.app.R
 internal data class StudentGigDomain(
     val name: String,
     val description: String,
-    val searchTerms: List<String>,
-    val artIndex: Int
+    val searchTerms: List<String>
 )
 
-internal val STUDENT_GIG_FEATURED_DOMAINS = listOf(
+private val featuredDomainNames = listOf(
     "Web Development",
     "Mobile App Development",
     "AI, Machine Learning & Data Science",
@@ -71,45 +69,47 @@ internal val STUDENT_GIG_FEATURED_DOMAINS = listOf(
     "Digital Marketing & SEO"
 )
 
+internal val STUDENT_GIG_FEATURED_DOMAINS = featuredDomainNames
+
 internal val STUDENT_GIG_DOMAIN_CATALOG = listOf(
-    StudentGigDomain("Web Development", "Websites, web apps and storefronts", listOf("frontend", "backend", "full stack", "cms", "website", "web app"), 0),
-    StudentGigDomain("Software & IT Services", "Software, APIs, automation and technical systems", listOf("software", "api", "desktop", "automation", "testing", "it"), 1),
-    StudentGigDomain("Mobile App Development", "Android, iOS and cross-platform apps", listOf("android", "ios", "flutter", "react native", "mobile", "app"), 2),
-    StudentGigDomain("AI, Machine Learning & Data Science", "AI, ML, analytics and data systems", listOf("artificial intelligence", "machine learning", "deep learning", "data", "analytics", "llm", "computer vision"), 3),
-    StudentGigDomain("Design & Creative", "UI, UX, branding and visual design", listOf("ui", "ux", "figma", "graphic", "branding", "illustration", "creative"), 4),
-    StudentGigDomain("Photography & Image Editing", "Photography, retouching and image work", listOf("photo", "photography", "retouching", "editing", "image"), 5),
-    StudentGigDomain("Video, Audio & Animation", "Video, audio, motion and animation", listOf("video", "audio", "motion", "animation", "podcast", "voice"), 6),
-    StudentGigDomain("Social Media & Community", "Social content, communities and engagement", listOf("social media", "community", "discord", "telegram", "content"), 7),
-    StudentGigDomain("Digital Marketing & SEO", "SEO, ads, campaigns and growth", listOf("marketing", "seo", "google ads", "meta ads", "ppc", "growth"), 8),
-    StudentGigDomain("E-commerce & Retail", "Online stores, marketplaces and retail support", listOf("ecommerce", "e-commerce", "shopify", "amazon", "retail", "store"), 9),
-    StudentGigDomain("Writing & Content Creation", "Articles, copy, scripts and documentation", listOf("writing", "copywriting", "blog", "content", "script", "documentation"), 10),
-    StudentGigDomain("Translation & Transcription", "Translation, localization, captions and transcripts", listOf("translation", "localization", "transcription", "subtitles", "caption"), 11),
-    StudentGigDomain("Gaming & Esports", "Game development, game art and esports", listOf("game", "gaming", "unity", "unreal", "esports", "streaming"), 12),
-    StudentGigDomain("Admin, Support & Operations", "Virtual assistance, support and operations", listOf("admin", "virtual assistant", "customer support", "data entry", "operations"), 13),
-    StudentGigDomain("Business, Finance & HR", "Business analysis, finance and people operations", listOf("business", "finance", "accounting", "hr", "recruiting", "sales"), 14),
-    StudentGigDomain("Legal & Compliance", "Legal documents, research and compliance support", listOf("legal", "compliance", "contracts", "ip", "privacy"), 15),
-    StudentGigDomain("Engineering, Architecture & 3D", "Engineering design, architecture and 3D work", listOf("engineering", "architecture", "cad", "3d", "mechanical", "civil", "electrical"), 16),
-    StudentGigDomain("Education, Tutoring & Coaching", "Tutoring, exam prep and coaching", listOf("education", "tutoring", "coaching", "exam", "teaching", "career"), 17),
-    StudentGigDomain("Events, Travel & Local Services", "Events, travel planning and local services", listOf("events", "travel", "wedding", "local", "drone"), 18),
-    StudentGigDomain("Telecommunications & Networking", "Networks, VoIP, hosting and communication systems", listOf("network", "networking", "telecom", "voip", "vpn", "hosting"), 19),
-    StudentGigDomain("Health & Wellness", "Fitness, nutrition and wellness services", listOf("health", "wellness", "fitness", "nutrition", "sports", "mindfulness"), 20),
-    StudentGigDomain("Manufacturing & Product Development", "Product design, sourcing and manufacturing support", listOf("manufacturing", "product", "sourcing", "prototype", "packaging"), 21),
-    StudentGigDomain("Product Management & Operations", "Product strategy, delivery and process systems", listOf("product management", "roadmap", "project management", "agile", "process"), 22),
-    StudentGigDomain("Market Research & Consumer Insights", "Market, competitor and customer research", listOf("market research", "consumer", "competitor", "customer research", "insights"), 23),
-    StudentGigDomain("Public Relations & Communications", "PR, corporate messaging and creator relations", listOf("pr", "public relations", "communications", "media", "influencer"), 24),
-    StudentGigDomain("Career & Professional Services", "Resumes, profiles, job search and interview prep", listOf("career", "resume", "cv", "linkedin", "interview", "professional"), 25),
-    StudentGigDomain("Government & Nonprofit Services", "Research, documentation and nonprofit support", listOf("government", "nonprofit", "non-profit", "ngo", "public sector"), 26),
-    StudentGigDomain("Real Estate & Property Services", "Property listings, research and marketing", listOf("real estate", "property", "listing", "realtor"), 27),
-    StudentGigDomain("Travel & Hospitality", "Hospitality, travel and guest experience", listOf("hospitality", "hotel", "tourism", "travel", "guest"), 28),
-    StudentGigDomain("Food & Culinary Services", "Food, recipes, menus and culinary support", listOf("food", "culinary", "recipe", "menu", "cooking", "restaurant"), 29),
-    StudentGigDomain("Beauty & Personal Care", "Beauty, grooming and personal care services", listOf("beauty", "personal care", "makeup", "hair", "grooming", "skincare"), 30),
-    StudentGigDomain("Fashion, Jewelry & Accessories", "Fashion, merchandise, jewelry and accessories", listOf("fashion", "jewelry", "apparel", "clothing", "accessories", "merchandise"), 31),
-    StudentGigDomain("Scientific & Technical Research", "Scientific research, technical analysis and documentation", listOf("scientific", "research", "technical research", "laboratory", "analysis"), 32),
-    StudentGigDomain("Freight, Delivery & Transportation", "Logistics, delivery and transport support", listOf("freight", "delivery", "transportation", "logistics", "shipping"), 33),
-    StudentGigDomain("Agriculture & Environmental Services", "Agriculture, sustainability and environmental work", listOf("agriculture", "farming", "environment", "sustainability", "ecology"), 34),
-    StudentGigDomain("3D Printing & Digital Fabrication", "3D printing, fabrication and production files", listOf("3d printing", "digital fabrication", "cnc", "laser cutting", "stl"), 35),
-    StudentGigDomain("Consulting & Professional Advisory", "Business, technology and creative consulting", listOf("consulting", "advisory", "strategy", "technology consulting"), 36),
-    StudentGigDomain("Personal Development & Hobbies", "Personal growth, hobbies and creative instruction", listOf("personal development", "hobbies", "drawing", "music lessons", "productivity"), 37)
+    StudentGigDomain("Web Development", "Websites, web apps and storefronts", listOf("frontend", "backend", "full stack", "cms", "website", "web app")),
+    StudentGigDomain("Software & IT Services", "Software, APIs, automation and technical systems", listOf("software", "api", "desktop", "automation", "testing", "it")),
+    StudentGigDomain("Mobile App Development", "Android, iOS and cross-platform apps", listOf("android", "ios", "flutter", "react native", "mobile", "app")),
+    StudentGigDomain("AI, Machine Learning & Data Science", "AI, ML, analytics and data systems", listOf("artificial intelligence", "machine learning", "deep learning", "data", "analytics", "llm", "computer vision")),
+    StudentGigDomain("Design & Creative", "UI, UX, branding and visual design", listOf("ui", "ux", "figma", "graphic", "branding", "illustration", "creative")),
+    StudentGigDomain("Photography & Image Editing", "Photography, retouching and image work", listOf("photo", "photography", "retouching", "editing", "image")),
+    StudentGigDomain("Video, Audio & Animation", "Video, audio, motion and animation", listOf("video", "audio", "motion", "animation", "podcast", "voice")),
+    StudentGigDomain("Social Media & Community", "Social content, communities and engagement", listOf("social media", "community", "discord", "telegram", "content")),
+    StudentGigDomain("Digital Marketing & SEO", "SEO, ads, campaigns and growth", listOf("marketing", "seo", "google ads", "meta ads", "ppc", "growth")),
+    StudentGigDomain("E-commerce & Retail", "Online stores, marketplaces and retail support", listOf("ecommerce", "e-commerce", "shopify", "amazon", "retail", "store")),
+    StudentGigDomain("Writing & Content Creation", "Articles, copy, scripts and documentation", listOf("writing", "copywriting", "blog", "content", "script", "documentation")),
+    StudentGigDomain("Translation & Transcription", "Translation, localization, captions and transcripts", listOf("translation", "localization", "transcription", "subtitles", "caption")),
+    StudentGigDomain("Gaming & Esports", "Game development, game art and esports", listOf("game", "gaming", "unity", "unreal", "esports", "streaming")),
+    StudentGigDomain("Admin, Support & Operations", "Virtual assistance, support and operations", listOf("admin", "virtual assistant", "customer support", "data entry", "operations")),
+    StudentGigDomain("Business, Finance & HR", "Business analysis, finance and people operations", listOf("business", "finance", "accounting", "hr", "recruiting", "sales")),
+    StudentGigDomain("Legal & Compliance", "Legal documents, research and compliance support", listOf("legal", "compliance", "contracts", "ip", "privacy")),
+    StudentGigDomain("Engineering, Architecture & 3D", "Engineering design, architecture and 3D work", listOf("engineering", "architecture", "cad", "3d", "mechanical", "civil", "electrical")),
+    StudentGigDomain("Education, Tutoring & Coaching", "Tutoring, exam prep and coaching", listOf("education", "tutoring", "coaching", "exam", "teaching", "career")),
+    StudentGigDomain("Events, Travel & Local Services", "Events, travel planning and local services", listOf("events", "travel", "wedding", "local", "drone")),
+    StudentGigDomain("Telecommunications & Networking", "Networks, VoIP, hosting and communication systems", listOf("network", "networking", "telecom", "voip", "vpn", "hosting")),
+    StudentGigDomain("Health & Wellness", "Fitness, nutrition and wellness services", listOf("health", "wellness", "fitness", "nutrition", "sports", "mindfulness")),
+    StudentGigDomain("Manufacturing & Product Development", "Product design, sourcing and manufacturing support", listOf("manufacturing", "product", "sourcing", "prototype", "packaging")),
+    StudentGigDomain("Product Management & Operations", "Product strategy, delivery and process systems", listOf("product management", "roadmap", "project management", "agile", "process")),
+    StudentGigDomain("Market Research & Consumer Insights", "Market, competitor and customer research", listOf("market research", "consumer", "competitor", "customer research", "insights")),
+    StudentGigDomain("Public Relations & Communications", "PR, corporate messaging and creator relations", listOf("pr", "public relations", "communications", "media", "influencer")),
+    StudentGigDomain("Career & Professional Services", "Resumes, profiles, job search and interview prep", listOf("career", "resume", "cv", "linkedin", "interview", "professional")),
+    StudentGigDomain("Government & Nonprofit Services", "Research, documentation and nonprofit support", listOf("government", "nonprofit", "non-profit", "ngo", "public sector")),
+    StudentGigDomain("Real Estate & Property Services", "Property listings, research and marketing", listOf("real estate", "property", "listing", "realtor")),
+    StudentGigDomain("Travel & Hospitality", "Hospitality, travel and guest experience", listOf("hospitality", "hotel", "tourism", "travel", "guest")),
+    StudentGigDomain("Food & Culinary Services", "Food, recipes, menus and culinary support", listOf("food", "culinary", "recipe", "menu", "cooking", "restaurant")),
+    StudentGigDomain("Beauty & Personal Care", "Beauty, grooming and personal care services", listOf("beauty", "personal care", "makeup", "hair", "grooming", "skincare")),
+    StudentGigDomain("Fashion, Jewelry & Accessories", "Fashion, merchandise, jewelry and accessories", listOf("fashion", "jewelry", "apparel", "clothing", "accessories", "merchandise")),
+    StudentGigDomain("Scientific & Technical Research", "Scientific research, technical analysis and documentation", listOf("scientific", "research", "technical research", "laboratory", "analysis")),
+    StudentGigDomain("Freight, Delivery & Transportation", "Logistics, delivery and transport support", listOf("freight", "delivery", "transportation", "logistics", "shipping")),
+    StudentGigDomain("Agriculture & Environmental Services", "Agriculture, sustainability and environmental work", listOf("agriculture", "farming", "environment", "sustainability", "ecology")),
+    StudentGigDomain("3D Printing & Digital Fabrication", "3D printing, fabrication and production files", listOf("3d printing", "digital fabrication", "cnc", "laser cutting", "stl")),
+    StudentGigDomain("Consulting & Professional Advisory", "Business, technology and creative consulting", listOf("consulting", "advisory", "strategy", "technology consulting")),
+    StudentGigDomain("Personal Development & Hobbies", "Personal growth, hobbies and creative instruction", listOf("personal development", "hobbies", "drawing", "music lessons", "productivity"))
 )
 
 internal val studentGigDomainNames = STUDENT_GIG_DOMAIN_CATALOG.map { it.name }.toSet()
@@ -154,6 +154,88 @@ internal val studentGigDomainSkills = mapOf(
     "Consulting & Professional Advisory" to listOf("Business Consulting", "Technology Consulting", "Creative Consulting", "Strategy", "Operations Advisory", "Solution Assessment"),
     "Personal Development & Hobbies" to listOf("Personal Development", "Creative Hobbies", "Hobby Instruction", "Productivity Coaching", "Creative Mentoring", "Beginner Mentoring")
 )
+
+private val artworkOrder = listOf(
+    "student_domain_web",
+    "student_domain_mobile",
+    "student_domain_ai",
+    "student_domain_design",
+    "student_domain_software_it",
+    "student_domain_marketing",
+    "student_domain_photography_editing",
+    "student_domain_video_audio_animation",
+    "student_domain_social_community",
+    "student_domain_ecommerce_retail",
+    "student_domain_writing_content",
+    "student_domain_translation_transcription",
+    "student_domain_gaming_esports",
+    "student_domain_admin_support",
+    "student_domain_business_finance_hr",
+    "student_domain_legal_compliance",
+    "student_domain_engineering_arch_3d",
+    "student_domain_education_coaching",
+    "student_domain_events_travel_local",
+    "student_domain_telecom_networking",
+    "student_domain_health_wellness",
+    "student_domain_manufacturing_product",
+    "student_domain_product_management",
+    "student_domain_market_research",
+    "student_domain_pr_communications",
+    "student_domain_career_professional",
+    "student_domain_government_nonprofit",
+    "student_domain_real_estate",
+    "student_domain_travel_hospitality",
+    "student_domain_food_culinary",
+    "student_domain_beauty_personal",
+    "student_domain_fashion_jewelry",
+    "student_domain_scientific_research",
+    "student_domain_freight_delivery",
+    "student_domain_agriculture_environment",
+    "student_domain_digital_fabrication",
+    "student_domain_consulting_advisory",
+    "student_domain_personal_hobbies"
+)
+
+private fun artworkResource(index: Int): Int = when (index) {
+    0 -> R.raw.student_domain_web
+    1 -> R.raw.student_domain_mobile
+    2 -> R.raw.student_domain_ai
+    3 -> R.raw.student_domain_design
+    4 -> R.raw.student_domain_software_it
+    5 -> R.raw.student_domain_marketing
+    6 -> R.raw.student_domain_photography_editing
+    7 -> R.raw.student_domain_video_audio_animation
+    8 -> R.raw.student_domain_social_community
+    9 -> R.raw.student_domain_ecommerce_retail
+    10 -> R.raw.student_domain_writing_content
+    11 -> R.raw.student_domain_translation_transcription
+    12 -> R.raw.student_domain_gaming_esports
+    13 -> R.raw.student_domain_admin_support
+    14 -> R.raw.student_domain_business_finance_hr
+    15 -> R.raw.student_domain_legal_compliance
+    16 -> R.raw.student_domain_engineering_arch_3d
+    17 -> R.raw.student_domain_education_coaching
+    18 -> R.raw.student_domain_events_travel_local
+    19 -> R.raw.student_domain_telecom_networking
+    20 -> R.raw.student_domain_health_wellness
+    21 -> R.raw.student_domain_manufacturing_product
+    22 -> R.raw.student_domain_product_management
+    23 -> R.raw.student_domain_market_research
+    24 -> R.raw.student_domain_pr_communications
+    25 -> R.raw.student_domain_career_professional
+    26 -> R.raw.student_domain_government_nonprofit
+    27 -> R.raw.student_domain_real_estate
+    28 -> R.raw.student_domain_travel_hospitality
+    29 -> R.raw.student_domain_food_culinary
+    30 -> R.raw.student_domain_beauty_personal
+    31 -> R.raw.student_domain_fashion_jewelry
+    32 -> R.raw.student_domain_scientific_research
+    33 -> R.raw.student_domain_freight_delivery
+    34 -> R.raw.student_domain_agriculture_environment
+    35 -> R.raw.student_domain_digital_fabrication
+    36 -> R.raw.student_domain_consulting_advisory
+    else -> R.raw.student_domain_personal_hobbies
+}
 
 @Composable
 internal fun StudentDomainSelection(
@@ -283,16 +365,16 @@ internal fun StudentDomainSelection(
                         horizontalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
                         row.forEach { domain ->
+                            val index = STUDENT_GIG_DOMAIN_CATALOG.indexOfFirst { it.name == domain.name }
                             StudentDomainCard(
                                 domain = domain,
+                                artworkResource = artworkResource(index),
                                 selected = selectedDomain == domain.name,
                                 darkTheme = darkTheme,
                                 cardBackground = cardBackground,
                                 textPrimary = textPrimary,
                                 textMuted = textMuted,
-                                onClick = {
-                                    onSelectDomain(domain.name)
-                                },
+                                onClick = { onSelectDomain(domain.name) },
                                 modifier = Modifier.weight(1f)
                             )
                         }
@@ -393,26 +475,18 @@ internal fun StudentDomainSelection(
         if (skipConfirmation) {
             AlertDialog(
                 onDismissRequest = onDismissSkip,
-                title = {
-                    Text("Skip profile setup?")
-                },
+                title = { Text("Skip profile setup?") },
                 text = {
-                    Text(
-                        "Your progress will be saved. You can return to Profile later and finish the setup."
-                    )
+                    Text("Your progress will be saved. You can return to Profile later and finish the setup.")
                 },
                 confirmButton = {
                     TextButton(
                         onClick = onConfirmSkip,
                         enabled = !saving
-                    ) {
-                        Text("Skip for now")
-                    }
+                    ) { Text("Skip for now") }
                 },
                 dismissButton = {
-                    TextButton(onClick = onDismissSkip) {
-                        Text("Keep setting up")
-                    }
+                    TextButton(onClick = onDismissSkip) { Text("Keep setting up") }
                 }
             )
         }
@@ -420,23 +494,12 @@ internal fun StudentDomainSelection(
 }
 
 @Composable
-private fun SearchGlyph(
-    tint: Color,
-    modifier: Modifier = Modifier
-) {
+private fun SearchGlyph(tint: Color, modifier: Modifier = Modifier) {
     Canvas(modifier) {
         val stroke = 1.9.dp.toPx()
         val radius = size.minDimension * 0.31f
-        val center = Offset(
-            size.width * 0.43f,
-            size.height * 0.43f
-        )
-        drawCircle(
-            color = tint,
-            radius = radius,
-            center = center,
-            style = Stroke(width = stroke)
-        )
+        val center = Offset(size.width * 0.43f, size.height * 0.43f)
+        drawCircle(color = tint, radius = radius, center = center, style = Stroke(width = stroke))
         drawLine(
             color = tint,
             start = Offset(size.width * 0.68f, size.height * 0.68f),
@@ -448,34 +511,16 @@ private fun SearchGlyph(
 }
 
 @Composable
-private fun CloseGlyph(
-    tint: Color,
-    modifier: Modifier = Modifier
-) {
+private fun CloseGlyph(tint: Color, modifier: Modifier = Modifier) {
     Canvas(modifier) {
         val stroke = 1.8.dp.toPx()
-        drawLine(
-            color = tint,
-            start = Offset(size.width * 0.26f, size.height * 0.26f),
-            end = Offset(size.width * 0.74f, size.height * 0.74f),
-            strokeWidth = stroke,
-            cap = StrokeCap.Round
-        )
-        drawLine(
-            color = tint,
-            start = Offset(size.width * 0.74f, size.height * 0.26f),
-            end = Offset(size.width * 0.26f, size.height * 0.74f),
-            strokeWidth = stroke,
-            cap = StrokeCap.Round
-        )
+        drawLine(color = tint, start = Offset(size.width * 0.26f, size.height * 0.26f), end = Offset(size.width * 0.74f, size.height * 0.74f), strokeWidth = stroke, cap = StrokeCap.Round)
+        drawLine(color = tint, start = Offset(size.width * 0.74f, size.height * 0.26f), end = Offset(size.width * 0.26f, size.height * 0.74f), strokeWidth = stroke, cap = StrokeCap.Round)
     }
 }
 
 @Composable
-private fun CheckGlyph(
-    tint: Color,
-    modifier: Modifier = Modifier
-) {
+private fun CheckGlyph(tint: Color, modifier: Modifier = Modifier) {
     Canvas(modifier) {
         val stroke = 1.9.dp.toPx()
         val path = Path().apply {
@@ -483,11 +528,7 @@ private fun CheckGlyph(
             lineTo(size.width * 0.40f, size.height * 0.76f)
             lineTo(size.width * 0.84f, size.height * 0.25f)
         }
-        drawPath(
-            path = path,
-            color = tint,
-            style = Stroke(width = stroke, cap = StrokeCap.Round)
-        )
+        drawPath(path = path, color = tint, style = Stroke(width = stroke, cap = StrokeCap.Round))
     }
 }
 
@@ -512,10 +553,7 @@ private fun DomainSearchField(
             .padding(horizontal = 17.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        SearchGlyph(
-            tint = textMuted,
-            modifier = Modifier.size(21.dp)
-        )
+        SearchGlyph(tint = textMuted, modifier = Modifier.size(21.dp))
         Spacer(modifier = Modifier.size(11.dp))
         BasicTextField(
             value = value,
@@ -523,10 +561,7 @@ private fun DomainSearchField(
             modifier = Modifier.weight(1f),
             singleLine = true,
             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
-            textStyle = TextStyle(
-                color = textPrimary,
-                fontSize = 16.sp
-            ),
+            textStyle = TextStyle(color = textPrimary, fontSize = 16.sp),
             decorationBox = { inner ->
                 if (value.isBlank()) {
                     Text(
@@ -540,14 +575,8 @@ private fun DomainSearchField(
             }
         )
         if (value.isNotBlank()) {
-            IconButton(
-                onClick = onClear,
-                modifier = Modifier.size(32.dp)
-            ) {
-                CloseGlyph(
-                    tint = textMuted,
-                    modifier = Modifier.size(17.dp)
-                )
+            IconButton(onClick = onClear, modifier = Modifier.size(32.dp)) {
+                CloseGlyph(tint = textMuted, modifier = Modifier.size(17.dp))
             }
         }
     }
@@ -556,6 +585,7 @@ private fun DomainSearchField(
 @Composable
 private fun StudentDomainCard(
     domain: StudentGigDomain,
+    artworkResource: Int,
     selected: Boolean,
     darkTheme: Boolean,
     cardBackground: Color,
@@ -586,9 +616,13 @@ private fun StudentDomainCard(
             modifier = Modifier
                 .size(126.dp)
                 .clip(RoundedCornerShape(17.dp))
+                .background(Color.Transparent)
         ) {
-            DomainArtwork(
-                domainName = domain.name
+            AsyncImage(
+                model = artworkResource,
+                contentDescription = domain.name + " abstract illustration",
+                modifier = Modifier.fillMaxSize(),
+                contentScale = ContentScale.Crop
             )
             if (selected) {
                 Box(
@@ -636,67 +670,15 @@ private fun StudentDomainCard(
 }
 
 private fun domainEyebrow(domainName: String): String = when {
-    domainName.contains("AI", ignoreCase = true) ||
-        domainName.contains("Data Science", ignoreCase = true) -> "TECHNOLOGY"
-    domainName.contains("Mobile", ignoreCase = true) ||
-        domainName.contains("Web", ignoreCase = true) ||
-        domainName.contains("Software", ignoreCase = true) -> "DEVELOPMENT"
-    domainName.contains("Security", ignoreCase = true) ||
-        domainName.contains("Legal", ignoreCase = true) -> "SECURITY"
-    domainName.contains("Design", ignoreCase = true) ||
-        domainName.contains("Creative", ignoreCase = true) -> "DESIGN"
-    domainName.contains("Marketing", ignoreCase = true) ||
-        domainName.contains("Social", ignoreCase = true) ||
-        domainName.contains("Public Relations", ignoreCase = true) -> "MARKETING"
-    domainName.contains("Business", ignoreCase = true) ||
-        domainName.contains("Finance", ignoreCase = true) ||
-        domainName.contains("HR", ignoreCase = true) -> "BUSINESS"
-    domainName.contains("Cloud", ignoreCase = true) ||
-        domainName.contains("Telecommunications", ignoreCase = true) ||
-        domainName.contains("3D Printing", ignoreCase = true) -> "INFRASTRUCTURE"
-    domainName.contains("Video", ignoreCase = true) ||
-        domainName.contains("Audio", ignoreCase = true) ||
-        domainName.contains("Animation", ignoreCase = true) -> "CREATIVE"
-    domainName.contains("Writing", ignoreCase = true) ||
-        domainName.contains("Translation", ignoreCase = true) ||
-        domainName.contains("Education", ignoreCase = true) -> "CONTENT"
+    domainName.contains("AI", ignoreCase = true) || domainName.contains("Data Science", ignoreCase = true) -> "TECHNOLOGY"
+    domainName.contains("Mobile", ignoreCase = true) || domainName.contains("Web", ignoreCase = true) || domainName.contains("Software", ignoreCase = true) -> "DEVELOPMENT"
+    domainName.contains("Security", ignoreCase = true) || domainName.contains("Legal", ignoreCase = true) -> "SECURITY"
+    domainName.contains("Design", ignoreCase = true) || domainName.contains("Creative", ignoreCase = true) -> "DESIGN"
+    domainName.contains("Marketing", ignoreCase = true) || domainName.contains("Social", ignoreCase = true) || domainName.contains("Public Relations", ignoreCase = true) -> "MARKETING"
+    domainName.contains("Business", ignoreCase = true) || domainName.contains("Finance", ignoreCase = true) || domainName.contains("HR", ignoreCase = true) -> "BUSINESS"
+    domainName.contains("Cloud", ignoreCase = true) || domainName.contains("Telecommunications", ignoreCase = true) || domainName.contains("3D Printing", ignoreCase = true) -> "INFRASTRUCTURE"
+    domainName.contains("Video", ignoreCase = true) || domainName.contains("Audio", ignoreCase = true) || domainName.contains("Animation", ignoreCase = true) -> "CREATIVE"
+    domainName.contains("Writing", ignoreCase = true) || domainName.contains("Translation", ignoreCase = true) || domainName.contains("Education", ignoreCase = true) -> "CONTENT"
     domainName.contains("Gaming", ignoreCase = true) -> "GAMING"
     else -> "SERVICES"
-}
-
-@Composable
-private fun DomainArtwork(
-    domainName: String
-) {
-    val index = STUDENT_GIG_DOMAIN_CATALOG
-        .firstOrNull { it.name == domainName }
-        ?.artIndex
-        ?: (STUDENT_GIG_DOMAIN_CATALOG.size - 1)
-
-    val columns = 6
-    val rows = 7
-    val tileSize = 126.dp
-    val column = index % columns
-    val row = index / columns
-
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .clip(RoundedCornerShape(17.dp))
-    ) {
-        AsyncImage(
-            model = R.raw.student_domain_sprite,
-            contentDescription = "$domainName abstract 3D illustration",
-            modifier = Modifier
-                .size(
-                    width = tileSize * columns,
-                    height = tileSize * rows
-                )
-                .offset(
-                    x = -(tileSize * column),
-                    y = -(tileSize * row)
-                ),
-            contentScale = ContentScale.FillBounds
-        )
-    }
 }
