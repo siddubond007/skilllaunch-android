@@ -614,6 +614,54 @@ private fun AuthFieldIconViewForDob(color: androidx.compose.ui.graphics.Color) {
     }
 }
 
+
+private val dobStorageFormatter: DateTimeFormatter = DateTimeFormatter.ISO_LOCAL_DATE
+
+private val dobDisplayFormatter: DateTimeFormatter =
+    DateTimeFormatter.ofPattern("dd MMM yyyy", Locale.getDefault())
+
+internal fun calculateAgeFromDob(
+    dob: String,
+    today: LocalDate = LocalDate.now()
+): Int? {
+    val date = try {
+        LocalDate.parse(dob, dobStorageFormatter)
+    } catch (_: DateTimeParseException) {
+        return null
+    }
+
+    if (date.isAfter(today)) return null
+
+    var age = today.year - date.year
+    if (
+        today.monthValue < date.monthValue ||
+        (today.monthValue == date.monthValue && today.dayOfMonth < date.dayOfMonth)
+    ) {
+        age--
+    }
+
+    return age.takeIf { it in 1..120 }
+}
+
+private fun formatDobForDisplay(dob: String): String {
+    return try {
+        LocalDate.parse(dob, dobStorageFormatter).format(dobDisplayFormatter)
+    } catch (_: DateTimeParseException) {
+        dob
+    }
+}
+
+private fun dobToPickerMillis(dob: String): Long? {
+    return try {
+        LocalDate.parse(dob, dobStorageFormatter)
+            .atStartOfDay(ZoneOffset.UTC)
+            .toInstant()
+            .toEpochMilli()
+    } catch (_: DateTimeParseException) {
+        null
+    }
+}
+
 @Composable
 private fun PasswordRequirements(password: String) {
     val lengthMet = password.length >= 8
