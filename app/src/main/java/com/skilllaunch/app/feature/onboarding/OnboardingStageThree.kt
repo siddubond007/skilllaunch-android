@@ -135,43 +135,12 @@ internal fun OnboardingStageThree(
             .background(colors.background)
             .systemBarsPadding()
     ) {
-        /*
-         * This chrome intentionally matches StudentSkillsSelection (Stage 2):
-         * same 58dp row, same centered SkillLaunch brand, same back control,
-         * same 24dp horizontal header padding, and the same 16dp rhythm around
-         * the progress track.
-         */
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(58.dp)
-                .padding(horizontal = 24.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            IconButton(
-                onClick = onBack,
-                enabled = !saving,
-                modifier = Modifier.size(32.dp)
-            ) {
-                Text(
-                    text = "<",
-                    color = colors.textPrimary,
-                    fontSize = 26.sp,
-                    lineHeight = 26.sp,
-                    fontWeight = FontWeight.Light
-                )
-            }
-
-            Spacer(modifier = Modifier.weight(1f))
-
-            SkillLaunchBrand(
-                darkTheme = darkTheme,
-                compact = true
-            )
-
-            Spacer(modifier = Modifier.weight(1f))
-            Spacer(modifier = Modifier.size(32.dp))
-        }
+        OnboardingHeader(
+            darkTheme = darkTheme,
+            onSkip = onSkip,
+            onBack = onBack,
+            enabled = !saving
+        )
 
         Spacer(modifier = Modifier.height(16.dp))
 
