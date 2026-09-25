@@ -58,8 +58,6 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.layout.ContentScale
-import coil.compose.AsyncImage
 
 private data class ProfileSetupColors(
     val background: Color,
@@ -558,11 +556,9 @@ private fun ProfileAvatarPlaceholder(
             contentAlignment = Alignment.Center
         ) {
             if (imageUrl.isNotBlank()) {
-                AsyncImage(
-                    model = imageUrl,
-                    contentDescription = "Profile photo",
-                    modifier = Modifier.fillMaxSize(),
-                    contentScale = ContentScale.Crop
+                ProfilePhotoImage(
+                    imageUrl = imageUrl,
+                    modifier = Modifier.fillMaxSize()
                 )
             } else {
                 PersonGlyph(
@@ -598,6 +594,41 @@ private fun ProfileAvatarPlaceholder(
                 fontWeight = FontWeight.SemiBold
             )
         }
+    }
+}
+
+@Composable
+private fun ProfilePhotoImage(
+    imageUrl: String,
+    modifier: Modifier
+) {
+    val bitmap = remember(imageUrl) { mutableStateOf<android.graphics.Bitmap?>(null) }
+
+    LaunchedEffect(imageUrl) {
+        bitmap.value = withContext(kotlinx.coroutines.Dispatchers.IO) {
+            runCatching {
+                java.net.URL(imageUrl).openStream().use { stream ->
+                    android.graphics.BitmapFactory.decodeStream(stream)
+                }
+            }.getOrNull()
+        }
+    }
+
+    bitmap.value?.let { loaded ->
+        androidx.compose.foundation.Image(
+            bitmap = loaded.asImageBitmap(),
+            contentDescription = "Profile photo",
+            modifier = modifier,
+            contentScale = androidx.compose.ui.layout.ContentScale.Crop
+        )
+    } ?: Box(
+        modifier = modifier,
+        contentAlignment = Alignment.Center
+    ) {
+        PersonGlyph(
+            tint = Color(0xFF8B8B93),
+            modifier = Modifier.size(50.dp)
+        )
     }
 }
 
