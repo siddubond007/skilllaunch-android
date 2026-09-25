@@ -51,6 +51,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.PathEffect
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
@@ -59,6 +60,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import kotlinx.coroutines.withContext
 
 private data class ProfileSetupColors(
     val background: Color,
@@ -559,17 +561,10 @@ private fun ProfileAvatarPlaceholder(
                 .clickable(enabled = !uploading, onClick = onPick),
             contentAlignment = Alignment.Center
         ) {
-            if (imageUrl.isNotBlank()) {
-                ProfilePhotoImage(
-                    imageUrl = imageUrl,
-                    modifier = Modifier.fillMaxSize()
-                )
-            } else {
-                PersonGlyph(
-                    tint = colors.textSecondary,
-                    modifier = Modifier.size(58.dp)
-                )
-            }
+            ProfilePhotoImage(
+                imageUrl = imageUrl,
+                modifier = Modifier.fillMaxSize()
+            )
         }
 
         Box(
@@ -606,16 +601,42 @@ private fun ProfilePhotoImage(
     imageUrl: String,
     modifier: Modifier
 ) {
-    Box(
-        modifier = modifier
-            .clip(CircleShape)
-            .background(Color(0xFF262629)),
-        contentAlignment = Alignment.Center
-    ) {
-        PersonGlyph(
-            tint = Color(0xFF8B8B93),
-            modifier = Modifier.size(50.dp)
+    val context = androidx.compose.ui.platform.LocalContext.current
+    var bitmap by remember(imageUrl) { mutableStateOf<android.graphics.Bitmap?>(null) }
+
+    LaunchedEffect(imageUrl) {
+        bitmap = if (imageUrl.isBlank()) {
+            null
+        } else {
+            withContext(kotlinx.coroutines.Dispatchers.IO) {
+                runCatching {
+                    java.net.URL(imageUrl).openStream().use { stream ->
+                        android.graphics.BitmapFactory.decodeStream(stream)
+                    }
+                }.getOrNull()
+            }
+        }
+    }
+
+    if (bitmap != null) {
+        androidx.compose.foundation.Image(
+            bitmap = bitmap!!.asImageBitmap(),
+            contentDescription = "Profile photo",
+            modifier = modifier.clip(CircleShape),
+            contentScale = androidx.compose.ui.layout.ContentScale.Crop
         )
+    } else {
+        Box(
+            modifier = modifier
+                .clip(CircleShape)
+                .background(Color(0xFF262629)),
+            contentAlignment = Alignment.Center
+        ) {
+            PersonGlyph(
+                tint = Color(0xFF8B8B93),
+                modifier = Modifier.size(50.dp)
+            )
+        }
     }
 }
 
