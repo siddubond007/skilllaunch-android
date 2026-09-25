@@ -20,7 +20,7 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.unit.dp
 
-enum class SignupRoleArtworkType {
+enum class SignupRoleChoice {
     Student,
     Client
 }
@@ -198,14 +198,14 @@ fun SignupHeroArtwork(
 
 @androidx.compose.runtime.Composable
 fun SignupRoleArtwork(
-    role: SignupRoleArtworkType,
+    role: SignupRoleChoice,
     darkTheme: Boolean,
     modifier: Modifier = Modifier
 ) {
     val background = when (role) {
-        SignupRoleArtworkType.Student ->
+        SignupRoleChoice.Student ->
             if (darkTheme) Color(0xFF101014) else Color(0xFFF1F3F7)
-        SignupRoleArtworkType.Client ->
+        SignupRoleChoice.Client ->
             Color(0xFF18275B)
     }
 
@@ -221,7 +221,7 @@ fun SignupRoleArtwork(
             val h = size.height
 
             when (role) {
-                SignupRoleArtwork.Student -> {
+                SignupRoleChoice.Student -> {
                     val cap = Path().apply {
                         moveTo(w * 0.12f, h * 0.39f)
                         lineTo(w * 0.50f, h * 0.18f)
@@ -255,7 +255,7 @@ fun SignupRoleArtwork(
                     )
                 }
 
-                SignupRoleArtwork.Client -> {
+                SignupRoleChoice.Client -> {
                     val top = Path().apply {
                         moveTo(w * 0.50f, h * 0.16f)
                         lineTo(w * 0.82f, h * 0.35f)
