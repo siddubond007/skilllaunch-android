@@ -62,6 +62,7 @@ fun SignupStageOne(
     onEmailChange: (String) -> Unit,
     onDobChange: (String) -> Unit,
     onPasswordChange: (String) -> Unit,
+    onClearError: () -> Unit,
     onContinue: (String) -> Unit,
     onBackToLogin: () -> Unit
 ) {
