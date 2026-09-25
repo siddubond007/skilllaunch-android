@@ -69,7 +69,6 @@ import com.skilllaunch.app.feature.auth.AuthField
 import com.skilllaunch.app.feature.auth.AuthFieldIcon
 import com.skilllaunch.app.feature.auth.AuthPrimaryButton
 import com.skilllaunch.app.feature.auth.SkillLaunchBrand
-import com.skilllaunch.app.feature.auth.ThemeToggle
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -265,10 +264,6 @@ fun OnboardingScreen(
             ) {
                 SkillLaunchBrand(darkTheme = darkTheme, compact = true)
                 Spacer(modifier = Modifier.weight(1f))
-                ThemeToggle(
-                    darkTheme = darkTheme,
-                    onToggleTheme = onToggleTheme
-                )
             }
 
             Spacer(modifier = Modifier.height(14.dp))
