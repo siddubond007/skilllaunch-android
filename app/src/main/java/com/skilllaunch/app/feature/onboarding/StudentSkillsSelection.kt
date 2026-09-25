@@ -179,21 +179,9 @@ internal fun StudentSkillsSelection(
                 }
 
                 item {
-                    Text(
-                        text = primaryDomain.uppercase(),
-                        modifier = Modifier.padding(top = 2.dp),
-                        color = textMuted,
-                        fontSize = 10.sp,
-                        lineHeight = 12.sp,
-                        fontWeight = FontWeight.SemiBold,
-                        letterSpacing = 0.7.sp
-                    )
-                }
-
-                item {
                     StageTwoSearchField(
                         value = skillSearch,
-                        placeholder = "Search skills (e.g. Android Development)...",
+                        placeholder = "Search " + primaryDomain + " skills...",
                         darkTheme = darkTheme,
                         background = searchBackground,
                         textPrimary = textPrimary,
@@ -256,7 +244,6 @@ internal fun StudentSkillsSelection(
 
                 item {
                     StageTwoLinkField(
-                        label = "GitHub",
                         value = githubUrl,
                         placeholder = "https://github.com/yourname",
                         darkTheme = darkTheme,
@@ -270,7 +257,6 @@ internal fun StudentSkillsSelection(
 
                 item {
                     StageTwoLinkField(
-                        label = "YouTube / Vimeo",
                         value = youtubeUrl,
                         placeholder = "https://youtube.com/@yourname",
                         darkTheme = darkTheme,
@@ -284,7 +270,6 @@ internal fun StudentSkillsSelection(
 
                 item {
                     StageTwoLinkField(
-                        label = "Portfolio / Drive",
                         value = portfolioUrl,
                         placeholder = "https://your-portfolio-link",
                         darkTheme = darkTheme,
@@ -467,7 +452,6 @@ private enum class LinkKind {
 
 @Composable
 private fun StageTwoLinkField(
-    label: String,
     value: String,
     placeholder: String,
     darkTheme: Boolean,
@@ -477,51 +461,46 @@ private fun StageTwoLinkField(
     onValueChange: (String) -> Unit,
     kind: LinkKind
 ) {
-    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-        Text(
-            text = label,
-            color = textMuted,
-            fontSize = 12.sp,
-            fontWeight = FontWeight.Bold
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(56.dp)
+            .clip(RoundedCornerShape(30.dp))
+            .background(background)
+            .padding(horizontal = 16.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        LinkGlyph(
+            kind = kind,
+            tint = textMuted,
+            modifier = Modifier.size(21.dp)
         )
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(56.dp)
-                .clip(RoundedCornerShape(30.dp))
-                .background(background)
-                .padding(horizontal = 16.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            LinkGlyph(
-                kind = kind,
-                tint = textMuted,
-                modifier = Modifier.size(21.dp)
-            )
-            Spacer(modifier = Modifier.size(10.dp))
-            BasicTextField(
-                value = value,
-                onValueChange = onValueChange,
-                modifier = Modifier.weight(1f),
-                singleLine = true,
-                keyboardOptions = KeyboardOptions(
-                    keyboardType = KeyboardType.Uri,
-                    imeAction = ImeAction.Next
-                ),
-                textStyle = TextStyle(color = textPrimary, fontSize = 15.sp),
-                decorationBox = { innerTextField ->
-                    if (value.isBlank()) {
-                        Text(
-                            text = placeholder,
-                            color = textMuted,
-                            fontSize = 15.sp,
-                            maxLines = 1
-                        )
-                    }
-                    innerTextField()
+        Spacer(modifier = Modifier.size(10.dp))
+        BasicTextField(
+            value = value,
+            onValueChange = onValueChange,
+            modifier = Modifier.weight(1f),
+            singleLine = true,
+            keyboardOptions = KeyboardOptions(
+                keyboardType = KeyboardType.Uri,
+                imeAction = ImeAction.Next
+            ),
+            textStyle = TextStyle(
+                color = textPrimary,
+                fontSize = 15.sp
+            ),
+            decorationBox = { innerTextField ->
+                if (value.isBlank()) {
+                    Text(
+                        text = placeholder,
+                        color = textMuted,
+                        fontSize = 15.sp,
+                        maxLines = 1
+                    )
                 }
-            )
-        }
+                innerTextField()
+            }
+        )
     }
 }
 
