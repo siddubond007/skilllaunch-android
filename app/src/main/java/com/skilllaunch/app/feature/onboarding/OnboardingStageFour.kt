@@ -205,7 +205,9 @@ internal fun OnboardingStageFour(
         OnboardingHeader(
             darkTheme = darkTheme,
             onSkip = onSkip,
-            enabled = !saving && !profileViewModel.isResumeUploading,
+            enabled = !saving &&
+                !profileViewModel.isResumeUploading &&
+                !profileViewModel.isAvatarUploading,
             horizontalPadding = 0.dp
         )
 
