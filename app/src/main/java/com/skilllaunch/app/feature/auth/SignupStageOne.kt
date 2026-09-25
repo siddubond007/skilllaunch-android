@@ -578,87 +578,39 @@ private fun DobField(
 @Composable
 private fun AuthFieldIconViewForDob(color: androidx.compose.ui.graphics.Color) {
     androidx.compose.foundation.Canvas(modifier = Modifier.size(18.dp)) {
-        val stroke = androidx.compose.ui.graphics.drawscope.Stroke(
-            width = size.minDimension * 0.09f,
-            cap = androidx.compose.ui.graphics.StrokeCap.Round,
-            join = androidx.compose.ui.graphics.StrokeJoin.Round
-        )
+        val strokeWidth = size.minDimension * 0.09f
         val left = size.width * 0.14f
         val top = size.height * 0.23f
         val right = size.width * 0.86f
         val bottom = size.height * 0.82f
+
         drawRoundRect(
             color = color,
             topLeft = androidx.compose.ui.geometry.Offset(left, top),
             size = androidx.compose.ui.geometry.Size(right - left, bottom - top),
             cornerRadius = androidx.compose.ui.geometry.CornerRadius(size.minDimension * 0.08f),
-            style = stroke
+            style = androidx.compose.ui.graphics.drawscope.Stroke(width = strokeWidth)
         )
         drawLine(
             color = color,
             start = androidx.compose.ui.geometry.Offset(left, size.height * 0.40f),
             end = androidx.compose.ui.geometry.Offset(right, size.height * 0.40f),
-            strokeWidth = stroke.width
+            strokeWidth = strokeWidth
         )
         drawLine(
             color = color,
             start = androidx.compose.ui.geometry.Offset(size.width * 0.32f, size.height * 0.11f),
             end = androidx.compose.ui.geometry.Offset(size.width * 0.32f, size.height * 0.31f),
-            strokeWidth = stroke.width
+            strokeWidth = strokeWidth,
+            cap = androidx.compose.ui.graphics.StrokeCap.Round
         )
         drawLine(
             color = color,
             start = androidx.compose.ui.geometry.Offset(size.width * 0.68f, size.height * 0.11f),
             end = androidx.compose.ui.geometry.Offset(size.width * 0.68f, size.height * 0.31f),
-            strokeWidth = stroke.width
+            strokeWidth = strokeWidth,
+            cap = androidx.compose.ui.graphics.StrokeCap.Round
         )
-    }
-}
-
-
-private val dobStorageFormatter: DateTimeFormatter = DateTimeFormatter.ISO_LOCAL_DATE
-private val dobDisplayFormatter: DateTimeFormatter =
-    DateTimeFormatter.ofPattern("dd MMM yyyy", Locale.getDefault())
-
-internal fun calculateAgeFromDob(
-    dob: String,
-    today: LocalDate = LocalDate.now()
-): Int? {
-    val date = try {
-        LocalDate.parse(dob, dobStorageFormatter)
-    } catch (_: DateTimeParseException) {
-        return null
-    }
-
-    if (date.isAfter(today)) return null
-
-    var age = today.year - date.year
-    if (
-        today.monthValue < date.monthValue ||
-        (today.monthValue == date.monthValue && today.dayOfMonth < date.dayOfMonth)
-    ) {
-        age--
-    }
-
-    return age.takeIf { it in 1..120 }
-}
-
-private fun formatDobForDisplay(dob: String): String {
-    return try {
-        LocalDate.parse(dob, dobStorageFormatter).format(dobDisplayFormatter)
-    } catch (_: DateTimeParseException) {
-        dob
-    }
-}
-
-private fun dobToPickerMillis(dob: String): Long? {
-    return try {
-        LocalDate.parse(dob, dobStorageFormatter)
-            .atStartOfDay(ZoneOffset.UTC)
-            .toInstant()
-            .toEpochMilli()
-    } catch (_: DateTimeParseException) {
-        null
     }
 }
 
