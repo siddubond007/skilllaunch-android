@@ -157,7 +157,7 @@ internal fun StudentDomainSelection(
         modifier = Modifier
             .fillMaxSize()
             .background(pageBackground)
-            .systemBarsPadding(),
+            .systemBarsPadding()
     ) {
         Row(
             modifier = Modifier
@@ -166,7 +166,7 @@ internal fun StudentDomainSelection(
                 .padding(horizontal = 24.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            androidx.compose.material3.IconButton(
+            IconButton(
                 onClick = onBack,
                 modifier = Modifier.size(32.dp)
             ) {
@@ -185,7 +185,6 @@ internal fun StudentDomainSelection(
                 compact = true
             )
             Spacer(modifier = Modifier.weight(1f))
-
             Spacer(modifier = Modifier.size(32.dp))
         }
 
