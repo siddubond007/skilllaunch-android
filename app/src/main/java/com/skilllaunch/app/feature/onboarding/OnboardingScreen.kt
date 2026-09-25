@@ -249,6 +249,61 @@ fun OnboardingScreen(
         return
     }
 
+    if (isStudent && step == 2) {
+        StudentSkillsSelection(
+            primaryDomain = primaryDomain,
+            selectedSkills = selectedSkills,
+            skillSearch = skillSearch,
+            githubUrl = githubUrl,
+            youtubeUrl = youtubeUrl,
+            portfolioUrl = portfolioUrl,
+            darkTheme = darkTheme,
+            saving = saving,
+            skipConfirmation = showSkipConfirmation,
+            error = error,
+            onBack = {
+                step = 1
+                error = ""
+            },
+            onSkillSearchChange = {
+                skillSearch = it
+                error = ""
+            },
+            onToggleSkill = { skill ->
+                selectedSkills = toggleMulti(selectedSkills, skill, 6)
+                error = ""
+            },
+            onGithubChange = {
+                githubUrl = it.take(250)
+                error = ""
+            },
+            onYoutubeChange = {
+                youtubeUrl = it.take(250)
+                error = ""
+            },
+            onPortfolioChange = {
+                portfolioUrl = it.take(250)
+                error = ""
+            },
+            onContinue = {
+                if (selectedSkills.isEmpty()) {
+                    error = "Choose at least one primary skill to continue."
+                } else {
+                    error = ""
+                    step = 3
+                }
+            },
+            onConfirmSkip = {
+                showSkipConfirmation = false
+                finishWithSkip()
+            },
+            onDismissSkip = {
+                showSkipConfirmation = false
+            }
+        )
+        return
+    }
+
     AuthBackground(darkTheme = darkTheme) {
         Column(
             modifier = Modifier
