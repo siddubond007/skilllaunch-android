@@ -49,6 +49,7 @@ import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
@@ -57,6 +58,8 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.layout.ContentScale
+import coil.compose.AsyncImage
 
 private data class ProfileSetupColors(
     val background: Color,
@@ -99,6 +102,7 @@ internal fun OnboardingStageFour(
     tagline: String,
     bio: String,
     initialResumeFileName: String,
+    initialAvatarUrl: String,
     darkTheme: Boolean,
     saving: Boolean,
     skipConfirmation: Boolean,
@@ -106,6 +110,7 @@ internal fun OnboardingStageFour(
     error: String,
     onTaglineChange: (String) -> Unit,
     onBioChange: (String) -> Unit,
+    onAvatarUploaded: (String) -> Unit,
     onBack: () -> Unit,
     onSkip: () -> Unit,
     onConfirmSkip: () -> Unit,
@@ -122,6 +127,12 @@ internal fun OnboardingStageFour(
     var pickerError by rememberSaveable {
         mutableStateOf("")
     }
+    var selectedAvatarUrl by rememberSaveable {
+        mutableStateOf(initialAvatarUrl)
+    }
+    var selectedPhotoUri by remember {
+        mutableStateOf<Uri?>(null)
+    }
 
     LaunchedEffect(initialResumeFileName) {
         if (selectedResumeName.isBlank() && initialResumeFileName.isNotBlank()) {
@@ -129,10 +140,33 @@ internal fun OnboardingStageFour(
         }
     }
 
+    LaunchedEffect(initialAvatarUrl) {
+        if (selectedAvatarUrl.isBlank() && initialAvatarUrl.isNotBlank()) {
+            selectedAvatarUrl = initialAvatarUrl
+        }
+    }
+
+    LaunchedEffect(profileViewModel.uploadedAvatarUrl) {
+        profileViewModel.uploadedAvatarUrl
+            .takeIf { it.isNotBlank() }
+            ?.let {
+                selectedAvatarUrl = it
+                onAvatarUploaded(it)
+            }
+    }
+
     LaunchedEffect(profileViewModel.uploadedResumeFileName) {
         profileViewModel.uploadedResumeFileName
             .takeIf { it.isNotBlank() }
             ?.let { selectedResumeName = it }
+    }
+
+    val avatarPickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) { uri ->
+        if (uri != null) {
+            selectedPhotoUri = uri
+        }
     }
 
     val pickerLauncher = rememberLauncherForActivityResult(
@@ -155,7 +189,10 @@ internal fun OnboardingStageFour(
     }
 
     val uploadError = profileViewModel.resumeUploadError
-    val canLaunch = !saving && !profileViewModel.isResumeUploading
+    val avatarUploadError = profileViewModel.avatarUploadError
+    val canLaunch = !saving &&
+        !profileViewModel.isResumeUploading &&
+        !profileViewModel.isAvatarUploading
 
     Column(
         modifier = Modifier
@@ -216,6 +253,7 @@ internal fun OnboardingStageFour(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
+                .weight(1f)
                 .verticalScroll(scrollState),
             verticalArrangement = Arrangement.spacedBy(14.dp)
         ) {
@@ -242,9 +280,18 @@ internal fun OnboardingStageFour(
 
             ProfileAvatarPlaceholder(
                 colors = colors,
+                imageUrl = selectedAvatarUrl,
+                uploading = profileViewModel.isAvatarUploading,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(top = 2.dp)
+                    .padding(top = 2.dp),
+                onPick = {
+                    if (!profileViewModel.isAvatarUploading) {
+                        profileViewModel.clearAvatarUploadError()
+                        selectedPhotoUri = null
+                        avatarPickerLauncher.launch("image/*")
+                    }
+                }
             )
 
             ProfileFieldLabel(
@@ -362,10 +409,18 @@ internal fun OnboardingStageFour(
                 )
             }
 
+            avatarUploadError?.takeIf { it.isNotBlank() }?.let { message ->
+                Text(
+                    text = message,
+                    color = colors.error,
+                    fontSize = 12.sp,
+                    lineHeight = 17.sp,
+                    fontWeight = FontWeight.SemiBold
+                )
+            }
+
             Spacer(modifier = Modifier.height(8.dp))
         }
-
-        Spacer(modifier = Modifier.weight(1f))
 
         Button(
             onClick = onContinue,
@@ -390,6 +445,18 @@ internal fun OnboardingStageFour(
         }
 
         Spacer(modifier = Modifier.height(8.dp))
+    }
+
+    selectedPhotoUri?.let { uri ->
+        ProfilePhotoCropper(
+            sourceUri = uri,
+            colors = colors,
+            onDismiss = { selectedPhotoUri = null },
+            onCropped = { croppedUri ->
+                selectedPhotoUri = null
+                profileViewModel.uploadProfileImage(croppedUri, context)
+            }
+        )
     }
 
     if (skipConfirmation) {
@@ -463,10 +530,13 @@ private fun ProfileFieldLabel(
 @Composable
 private fun ProfileAvatarPlaceholder(
     colors: ProfileSetupColors,
-    modifier: Modifier
+    imageUrl: String,
+    uploading: Boolean,
+    modifier: Modifier,
+    onPick: () -> Unit
 ) {
     Box(
-        modifier = modifier.height(152.dp),
+        modifier = modifier.height(168.dp),
         contentAlignment = Alignment.Center
     ) {
         Box(
@@ -478,13 +548,23 @@ private fun ProfileAvatarPlaceholder(
                     width = 2.dp,
                     color = colors.accent.copy(alpha = 0.72f),
                     shape = CircleShape
-                ),
+                )
+                .clickable(enabled = !uploading, onClick = onPick),
             contentAlignment = Alignment.Center
         ) {
-            PersonGlyph(
-                tint = colors.textSecondary,
-                modifier = Modifier.size(58.dp)
-            )
+            if (imageUrl.isNotBlank()) {
+                AsyncImage(
+                    model = imageUrl,
+                    contentDescription = "Profile photo",
+                    modifier = Modifier.fillMaxSize(),
+                    contentScale = ContentScale.Crop
+                )
+            } else {
+                PersonGlyph(
+                    tint = colors.textSecondary,
+                    modifier = Modifier.size(58.dp)
+                )
+            }
         }
 
         Box(
@@ -495,12 +575,22 @@ private fun ProfileAvatarPlaceholder(
                 .clip(CircleShape)
                 .background(colors.accent)
                 .border(2.dp, colors.background, CircleShape)
-                .clickable { },
+                .clickable(enabled = !uploading, onClick = onPick),
             contentAlignment = Alignment.Center
         ) {
             CameraGlyph(
                 tint = colors.accentText,
                 modifier = Modifier.size(18.dp)
+            )
+        }
+
+        if (uploading) {
+            Text(
+                text = "Uploading photo…",
+                modifier = Modifier.align(Alignment.BottomCenter),
+                color = colors.textSecondary,
+                fontSize = 11.sp,
+                fontWeight = FontWeight.SemiBold
             )
         }
     }
@@ -519,49 +609,61 @@ private fun ResumeDropzone(
 ) {
     val shape = RoundedCornerShape(16.dp)
 
-    Column(
+    Box(
         modifier = Modifier
             .fillMaxWidth()
             .height(174.dp)
             .clip(shape)
             .background(accent.copy(alpha = 0.10f))
-            .border(
-                width = 1.5.dp,
-                color = accent,
-                shape = shape
-            )
-            .clickable(onClick = onClick),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
+            .clickable(onClick = onClick)
     ) {
-        CloudUploadGlyph(
-            tint = accent,
-            modifier = Modifier.size(34.dp)
-        )
+        Canvas(modifier = Modifier.fillMaxSize()) {
+            drawRoundRect(
+                color = accent,
+                cornerRadius = CornerRadius(16.dp.toPx(), 16.dp.toPx()),
+                style = Stroke(
+                    width = 1.5.dp.toPx(),
+                    pathEffect = PathEffect.dashPathEffect(
+                        floatArrayOf(12.dp.toPx(), 8.dp.toPx())
+                    )
+                )
+            )
+        }
 
-        Spacer(modifier = Modifier.height(10.dp))
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            CloudUploadGlyph(
+                tint = accent,
+                modifier = Modifier.size(34.dp)
+            )
 
-        Text(
-            text = when {
-                uploading -> "Uploading…"
-                fileName.isNotBlank() -> fileName
-                else -> "Tap to upload PDF"
-            },
-            color = if (fileName.isNotBlank() && !uploading) textPrimary else accent,
-            fontSize = 15.sp,
-            fontWeight = FontWeight.Bold,
-            maxLines = 2,
-            textAlign = TextAlign.Center
-        )
+            Spacer(modifier = Modifier.height(10.dp))
 
-        Spacer(modifier = Modifier.height(4.dp))
+            Text(
+                text = when {
+                    uploading -> "Uploading…"
+                    fileName.isNotBlank() -> fileName
+                    else -> "Tap to upload PDF"
+                },
+                color = if (fileName.isNotBlank() && !uploading) textPrimary else accent,
+                fontSize = 15.sp,
+                fontWeight = FontWeight.Bold,
+                maxLines = 2,
+                textAlign = TextAlign.Center
+            )
 
-        Text(
-            text = "Max file size 5MB",
-            color = textSecondary,
-            fontSize = 12.sp,
-            fontWeight = FontWeight.SemiBold
-        )
+            Spacer(modifier = Modifier.height(4.dp))
+
+            Text(
+                text = "Max file size 5MB",
+                color = textSecondary,
+                fontSize = 12.sp,
+                fontWeight = FontWeight.SemiBold
+            )
+        }
     }
 }
 
