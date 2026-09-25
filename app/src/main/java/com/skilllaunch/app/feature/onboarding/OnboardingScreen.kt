@@ -394,10 +394,14 @@ fun OnboardingScreen(
                 showSkipConfirmation = false
             },
             onContinue = {
-                if (profileViewModel.isResumeUploading) {
-                    error = "Please wait for the resume upload to finish."
-                } else {
-                    validateAndSave(
+                when {
+                    profileViewModel.isResumeUploading -> {
+                        error = "Please wait for the resume upload to finish."
+                    }
+                    profileViewModel.isAvatarUploading -> {
+                        error = "Please wait for the profile photo upload to finish."
+                    }
+                    else -> validateAndSave(
                         scope = scope,
                         repository = repository,
                         user = user,
