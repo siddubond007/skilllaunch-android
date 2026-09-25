@@ -80,7 +80,7 @@ internal fun ProfilePhotoCropper(
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 Text(
                     text = "Drag the photo to position it, then adjust the zoom.",
-                    color = colors.textSecondary,
+                    color = secondaryColor,
                     fontSize = 13.sp
                 )
 
@@ -97,7 +97,7 @@ internal fun ProfilePhotoCropper(
 
                     Text(
                         text = "Zoom",
-                        color = colors.textSecondary,
+                        color = secondaryColor,
                         fontSize = 12.sp
                     )
 
