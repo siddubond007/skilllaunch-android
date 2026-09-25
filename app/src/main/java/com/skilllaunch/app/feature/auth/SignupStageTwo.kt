@@ -139,6 +139,11 @@ fun SignupStageTwo(
                 )
             }
 
+            SignupHeroArtwork(
+                darkTheme = darkTheme,
+                modifier = Modifier.padding(top = 24.dp)
+            )
+
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
