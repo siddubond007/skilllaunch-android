@@ -1,8 +1,6 @@
 package com.skilllaunch.app.feature.onboarding
 
 import androidx.activity.compose.BackHandler
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -59,7 +57,6 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.platform.LocalContext
 import com.skilllaunch.app.data.model.auth.AuthUser
 import com.skilllaunch.app.data.model.profile.OnboardingData
 import com.skilllaunch.app.data.model.profile.ProfileUpdateRequest
@@ -83,6 +80,10 @@ fun OnboardingScreen(
 ) {
     val scope = rememberCoroutineScope()
 
+    val profileViewModel: ProfileViewModel = viewModel(
+        factory = ProfileViewModel.factory(repository)
+    )
+
     var step by rememberSaveable { mutableIntStateOf(1) }
     var primaryDomain by rememberSaveable { mutableStateOf("") }
     var customSkill by rememberSaveable { mutableStateOf("") }
@@ -97,8 +98,6 @@ fun OnboardingScreen(
     var tagline by rememberSaveable { mutableStateOf("") }
     var bio by rememberSaveable { mutableStateOf("") }
     var resumeFileName by rememberSaveable { mutableStateOf("") }
-    var resumeUploaded by rememberSaveable { mutableStateOf(false) }
-    var resumeUploading by rememberSaveable { mutableStateOf(false) }
 
     var clientType by rememberSaveable { mutableStateOf("") }
     var hiringCategories by rememberSaveable { mutableStateOf(emptyList<String>()) }
@@ -110,29 +109,6 @@ fun OnboardingScreen(
     var loadingInitialProfile by remember { mutableStateOf(true) }
     var showSkipConfirmation by remember { mutableStateOf(false) }
     var error by remember { mutableStateOf("") }
-
-    val context = LocalContext.current
-    val resumePickerLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.OpenDocument()
-    ) { uri ->
-        if (uri != null) {
-            resumeUploading = true
-            error = ""
-            scope.launch {
-                repository.uploadResume(context, uri)
-                    .onSuccess { response ->
-                        resumeFileName = response.fileName.orEmpty().ifBlank { "Resume uploaded" }
-                        resumeUploaded = true
-                        resumeUploading = false
-                    }
-                    .onFailure { exception ->
-                        resumeUploading = false
-                        resumeUploaded = false
-                        error = exception.message ?: "Unable to upload your resume."
-                    }
-            }
-        }
-    }
 
     val isStudent = user.role == "STUDENT_FREELANCER"
 
@@ -223,7 +199,6 @@ fun OnboardingScreen(
         when {
             showSkipConfirmation -> showSkipConfirmation = false
             loadingInitialProfile -> error = "Please wait while your profile setup is loading."
-            resumeUploading -> error = "Please wait for the resume upload to finish."
             step > 1 -> {
                 step -= 1
                 error = ""
@@ -279,6 +254,9 @@ fun OnboardingScreen(
             onBack = {
                 step = 1
                 error = ""
+            },
+            onSkip = {
+                showSkipConfirmation = true
             },
             onSkillSearchChange = {
                 skillSearch = it
@@ -377,6 +355,73 @@ fun OnboardingScreen(
         return
     }
 
+    if (isStudent && step == 4) {
+        OnboardingStageFour(
+            darkTheme = darkTheme,
+            tagline = tagline,
+            bio = bio,
+            initialResumeFileName = resumeFileName,
+            saving = saving,
+            skipConfirmation = showSkipConfirmation,
+            profileViewModel = profileViewModel,
+            error = error,
+            onTaglineChange = {
+                tagline = it
+                error = ""
+            },
+            onBioChange = {
+                bio = it
+                error = ""
+            },
+            onBack = {
+                step = 3
+                error = ""
+            },
+            onSkip = {
+                showSkipConfirmation = true
+            },
+            onConfirmSkip = {
+                showSkipConfirmation = false
+                finishWithSkip()
+            },
+            onDismissSkip = {
+                showSkipConfirmation = false
+            },
+            onContinue = {
+                if (profileViewModel.isResumeUploading) {
+                    error = "Please wait for the resume upload to finish."
+                } else {
+                    validateAndSave(
+                        scope = scope,
+                        repository = repository,
+                        user = user,
+                        primaryDomain = primaryDomain,
+                        customSkill = customSkill,
+                        selectedSkills = selectedSkills,
+                        githubUrl = githubUrl,
+                        youtubeUrl = youtubeUrl,
+                        portfolioUrl = portfolioUrl,
+                        academicStatus = academicStatus,
+                        graduationYear = graduationYear,
+                        availability = availability,
+                        tagline = tagline,
+                        bio = bio,
+                        clientType = clientType,
+                        hiringCategories = hiringCategories,
+                        hiringIntent = hiringIntent,
+                        projectScope = projectScope,
+                        companyOrProjectName = companyOrProjectName,
+                        setSaving = { saving = it },
+                        setError = { error = it },
+                        onFinished = onFinished,
+                        isStudent = true
+                    )
+                }
+            }
+        )
+        return
+    }
+
     AuthBackground(darkTheme = darkTheme) {
         Column(
             modifier = Modifier
@@ -386,37 +431,14 @@ fun OnboardingScreen(
                 .navigationBarsPadding()
                 .padding(horizontal = 20.dp)
         ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                SkillLaunchBrand(darkTheme = darkTheme, compact = true)
-                Spacer(modifier = Modifier.weight(1f))
-            }
+            OnboardingHeader(
+                darkTheme = darkTheme,
+                onSkip = { showSkipConfirmation = true },
+                enabled = !saving && !loadingInitialProfile,
+                horizontalPadding = 0.dp
+            )
 
-            Spacer(modifier = Modifier.height(14.dp))
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = "Profile setup",
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    style = MaterialTheme.typography.labelLarge,
-                    fontWeight = FontWeight.Bold
-                )
-                Spacer(modifier = Modifier.weight(1f))
-                TextButton(
-                    onClick = { showSkipConfirmation = true },
-                    enabled = !saving && !resumeUploading && !loadingInitialProfile
-                ) {
-                    Text("Skip for now")
-                }
-            }
-
-            Spacer(modifier = Modifier.height(8.dp))
-
+            Spacer(modifier = Modifier.height(16.dp))
             OnboardingProgress(
                 current = step,
                 total = if (isStudent) 4 else 3
@@ -518,59 +540,6 @@ fun OnboardingScreen(
                                     )
                                 }
                             }
-                        }
-
-                        isStudent && step == 4 -> item {
-                            SectionHeader(
-                                emoji = "✨",
-                                title = "Make your profile yours.",
-                                subtitle = "Add a strong headline, a short intro, and optionally attach your resume."
-                            )
-                            AuthField(
-                                label = "Headline",
-                                value = tagline,
-                                onValueChange = { value ->
-                                    tagline = value.take(70)
-                                    error = ""
-                                },
-                                placeholder = "AI & ML student building useful products",
-                                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
-                                leadingIcon = AuthFieldIcon.User
-                            )
-                            OnboardingTextArea(
-                                label = "Micro-bio",
-                                value = bio,
-                                onValueChange = { value ->
-                                    bio = value.take(150)
-                                    error = ""
-                                },
-                                placeholder = "CS student who loves turning ideas into working apps."
-                            )
-                            Text(
-                                text = "${bio.length}/150",
-                                modifier = Modifier.fillMaxWidth(),
-                                textAlign = androidx.compose.ui.text.style.TextAlign.End,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                style = MaterialTheme.typography.bodySmall
-                            )
-
-                            Spacer(modifier = Modifier.height(6.dp))
-
-                            ResumeUploadCard(
-                                fileName = resumeFileName,
-                                uploaded = resumeUploaded,
-                                uploading = resumeUploading,
-                                onUpload = {
-                                    error = ""
-                                    resumePickerLauncher.launch(
-                                        arrayOf(
-                                            "application/pdf",
-                                            "application/msword",
-                                            "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-                                        )
-                                    )
-                                }
-                            )
                         }
 
                         !isStudent && step == 1 -> item {
@@ -697,7 +666,7 @@ fun OnboardingScreen(
                                 showSkipConfirmation = false
                                 finishWithSkip()
                             },
-                            enabled = !saving && !loadingInitialProfile && !resumeUploading
+                            enabled = !saving && !loadingInitialProfile
                         ) {
                             Text("Skip for now")
                         }
