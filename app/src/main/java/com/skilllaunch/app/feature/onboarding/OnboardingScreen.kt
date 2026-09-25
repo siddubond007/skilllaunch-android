@@ -99,6 +99,7 @@ fun OnboardingScreen(
     var tagline by rememberSaveable { mutableStateOf("") }
     var bio by rememberSaveable { mutableStateOf("") }
     var resumeFileName by rememberSaveable { mutableStateOf("") }
+    var avatarUrl by rememberSaveable { mutableStateOf("") }
 
     var clientType by rememberSaveable { mutableStateOf("") }
     var hiringCategories by rememberSaveable { mutableStateOf(emptyList<String>()) }
@@ -161,6 +162,7 @@ fun OnboardingScreen(
                 }
 
                 resumeFileName = profile?.resumeFileName.orEmpty()
+                avatarUrl = profile?.avatarUrl.orEmpty()
                 loadingInitialProfile = false
             }
             .onFailure {
@@ -361,6 +363,7 @@ fun OnboardingScreen(
             tagline = tagline,
             bio = bio,
             initialResumeFileName = resumeFileName,
+            initialAvatarUrl = avatarUrl,
             saving = saving,
             skipConfirmation = showSkipConfirmation,
             profileViewModel = profileViewModel,
@@ -372,6 +375,9 @@ fun OnboardingScreen(
             onBioChange = {
                 bio = it
                 error = ""
+            },
+            onAvatarUploaded = {
+                avatarUrl = it
             },
             onBack = {
                 step = 3
@@ -406,6 +412,7 @@ fun OnboardingScreen(
                         availability = availability,
                         tagline = tagline,
                         bio = bio,
+                        avatarUrl = avatarUrl,
                         clientType = clientType,
                         hiringCategories = hiringCategories,
                         hiringIntent = hiringIntent,
@@ -1026,6 +1033,7 @@ private fun validateAndSave(
     availability: String,
     tagline: String,
     bio: String,
+    avatarUrl: String,
     clientType: String,
     hiringCategories: List<String>,
     hiringIntent: String,
@@ -1094,6 +1102,7 @@ private fun validateAndSave(
             hiringCategories.firstOrNull()
         },
         skills = if (isStudent) selectedSkills else null,
+        avatarUrl = avatarUrl.trim().ifBlank { null },
         responseTimeExpectation = if (isStudent) availability else projectScope,
         githubUrl = githubUrl.trim().ifBlank { null },
         youtubeUrl = youtubeUrl.trim().ifBlank { null },
