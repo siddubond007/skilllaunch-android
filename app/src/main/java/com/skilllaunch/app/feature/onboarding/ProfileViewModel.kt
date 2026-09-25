@@ -9,6 +9,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import com.skilllaunch.app.data.repository.profile.ProfileRepository
+import com.skilllaunch.app.data.model.profile.ProfileUpdateRequest
 import kotlinx.coroutines.launch
 
 class ProfileViewModel(
@@ -26,6 +27,51 @@ class ProfileViewModel(
 
     var resumeUploadError by mutableStateOf<String?>(null)
         private set
+
+    var isAvatarUploading by mutableStateOf(false)
+        private set
+
+    var uploadedAvatarUrl by mutableStateOf("")
+        private set
+
+    var avatarUploadError by mutableStateOf<String?>(null)
+        private set
+
+    fun uploadProfileImage(
+        uri: Uri,
+        context: Context
+    ) {
+        if (isAvatarUploading) return
+
+        viewModelScope.launch {
+            isAvatarUploading = true
+            avatarUploadError = null
+
+            repository.uploadProfileImage(context, uri)
+                .onSuccess { url ->
+                    uploadedAvatarUrl = url
+
+                    repository.updateProfile(ProfileUpdateRequest(avatarUrl = url))
+                        .onSuccess {
+                            isAvatarUploading = false
+                        }
+                        .onFailure { exception ->
+                            isAvatarUploading = false
+                            avatarUploadError = exception.message
+                                ?: "Photo uploaded, but the profile could not be updated."
+                        }
+                }
+                .onFailure { exception ->
+                    isAvatarUploading = false
+                    avatarUploadError = exception.message
+                        ?: "Unable to upload your profile photo."
+                }
+        }
+    }
+
+    fun clearAvatarUploadError() {
+        avatarUploadError = null
+    }
 
     fun uploadResumeToBackend(
         uri: Uri,
