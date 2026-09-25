@@ -135,9 +135,11 @@ internal fun OnboardingStageThree(
             .padding(horizontal = 24.dp)
     ) {
         /*
-         * Stage 2 onboarding scaffolding:
-         * Profile setup | Skip for now
-         * 4-segment progress indicator
+         * Shared onboarding scaffold:
+         * Row 1: Profile setup | Skip for now
+         * Row 2: segmented progress
+         * Row 3: step metadata
+         * Row 4: back action
          */
         StageThreeTopBar(
             textPrimary = colors.textPrimary,
@@ -146,19 +148,24 @@ internal fun OnboardingStageThree(
             onSkip = onSkip
         )
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(24.dp))
 
         StageThreeProgress(
             activeColor = colors.primaryAccent,
             inactiveColor = colors.borderSubtle
         )
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(24.dp))
 
-        /*
-         * Body intentionally remains non-scrollable so the footer can use the
-         * same weight-based pinning pattern as the onboarding scaffolding.
-         */
+        StageThreeStepMeta(
+            primaryAccent = colors.primaryAccent,
+            textSecondary = colors.textSecondary,
+            saving = saving,
+            onBack = onBack
+        )
+
+        Spacer(modifier = Modifier.height(32.dp))
+
         Text(
             text = "What stage are you at?",
             color = colors.textPrimary,
@@ -276,25 +283,13 @@ internal fun OnboardingStageThree(
 
         Spacer(modifier = Modifier.weight(1f))
 
-        /*
-         * Stage 3 footer:
-         * Step metadata + text back action, immediately above the CTA.
-         */
-        StageThreeBottomRow(
-            textSecondary = colors.textSecondary,
-            saving = saving,
-            onBack = onBack
-        )
-
-        Spacer(modifier = Modifier.height(12.dp))
-
         Button(
             onClick = onContinue,
             enabled = !saving,
             modifier = Modifier
                 .fillMaxWidth()
-                .height(48.dp)
-                .padding(bottom = 0.dp),
+                .height(56.dp)
+                .padding(bottom = 24.dp),
             shape = RoundedCornerShape(16.dp),
             colors = ButtonDefaults.buttonColors(
                 containerColor = colors.primaryAccent,
@@ -305,7 +300,7 @@ internal fun OnboardingStageThree(
             contentPadding = PaddingValues(horizontal = 24.dp, vertical = 0.dp)
         ) {
             Text(
-                text = "Continue  →",
+                text = "Continue",
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Bold
             )
@@ -631,14 +626,14 @@ private fun AvailabilityCard(
 }
 
 @Composable
-private fun StageThreeBottomRow(
+private fun StageThreeStepMeta(
+    primaryAccent: Color,
     textSecondary: Color,
     saving: Boolean,
     onBack: () -> Unit
 ) {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        verticalAlignment = Alignment.CenterVertically
+    Column(
+        modifier = Modifier.fillMaxWidth()
     ) {
         Text(
             text = "Step 3 of 4 • Journey",
@@ -647,7 +642,7 @@ private fun StageThreeBottomRow(
             fontWeight = FontWeight.SemiBold
         )
 
-        Spacer(modifier = Modifier.weight(1f))
+        Spacer(modifier = Modifier.height(4.dp))
 
         TextButton(
             onClick = onBack,
@@ -656,13 +651,14 @@ private fun StageThreeBottomRow(
         ) {
             Text(
                 text = "← Back to previous step",
-                color = textSecondary,
+                color = primaryAccent,
                 fontSize = 13.sp,
                 fontWeight = FontWeight.Medium
             )
         }
     }
 }
+
 
 @Composable
 private fun CalendarGlyph(
