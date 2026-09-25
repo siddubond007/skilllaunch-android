@@ -257,7 +257,7 @@ internal fun OnboardingStageThree(
                 }
 
                 item {
-                    AnimatedVisibility(
+                    androidx.compose.animation.AnimatedVisibility(
                         visible = academicStatus in setOf(
                             "High School",
                             "Undergraduate",
