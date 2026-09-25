@@ -17,7 +17,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.safeDrawingPadding
+import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -96,22 +96,26 @@ internal fun StudentSkillsSelection(
         modifier = Modifier
             .fillMaxSize()
             .background(pageBackground)
-            .safeDrawingPadding()
+            .systemBarsPadding()
     ) {
         // Fixed top chrome. This never participates in the scrollable content.
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(58.dp),
+                .height(58.dp)
+                .padding(horizontal = 24.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             IconButton(
                 onClick = onBack,
-                modifier = Modifier.size(48.dp)
+                modifier = Modifier.size(32.dp)
             ) {
-                BackArrowGlyph(
-                    tint = textPrimary,
-                    modifier = Modifier.size(22.dp)
+                Text(
+                    text = "<",
+                    color = textPrimary,
+                    fontSize = 26.sp,
+                    lineHeight = 26.sp,
+                    fontWeight = FontWeight.Light
                 )
             }
 
@@ -121,8 +125,10 @@ internal fun StudentSkillsSelection(
                 compact = true
             )
             Spacer(modifier = Modifier.weight(1f))
-            Spacer(modifier = Modifier.size(48.dp))
+            Spacer(modifier = Modifier.size(32.dp))
         }
+
+        Spacer(modifier = Modifier.height(16.dp))
 
         Box(
             modifier = Modifier
@@ -130,7 +136,8 @@ internal fun StudentSkillsSelection(
                 .height(4.dp)
                 .clip(RoundedCornerShape(8.dp))
                 .background(
-                    if (darkTheme) Color(0xFF3A393E) else Color(0xFFD8D7DA)
+                    if (darkTheme) Color(0xFF3A393E)
+                    else Color(0xFFD8D7DA)
                 )
         ) {
             Box(
@@ -141,6 +148,8 @@ internal fun StudentSkillsSelection(
                     .background(lavender)
             )
         }
+
+        Spacer(modifier = Modifier.height(16.dp))
 
         Box(
             modifier = Modifier
@@ -294,42 +303,26 @@ internal fun StudentSkillsSelection(
             }
         }
 
-        // Fixed bottom CTA. It stays in exactly the same geometry as Stage 1.
-        Column(modifier = Modifier.navigationBarsPadding()) {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(1.dp)
-                    .background(divider)
+        Button(
+            onClick = onContinue,
+            enabled = !saving,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 24.dp, bottom = 24.dp),
+            shape = RoundedCornerShape(28.dp),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = lavender,
+                contentColor = Color(0xFF17171A),
+                disabledContainerColor = lavender.copy(alpha = 0.55f),
+                disabledContentColor = Color(0xFF17171A).copy(alpha = 0.65f)
+            ),
+            contentPadding = PaddingValues(horizontal = 24.dp, vertical = 0.dp)
+        ) {
+            Text(
+                text = "Continue  →",
+                fontSize = 14.sp,
+                fontWeight = FontWeight.Bold
             )
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 20.dp, vertical = 12.dp),
-                horizontalArrangement = Arrangement.End
-            ) {
-                Button(
-                    onClick = onContinue,
-                    enabled = !saving,
-                    modifier = Modifier
-                        .fillMaxWidth(0.66f)
-                        .height(52.dp),
-                    shape = RoundedCornerShape(28.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = lavender,
-                        contentColor = Color(0xFF17171A),
-                        disabledContainerColor = lavender.copy(alpha = 0.55f),
-                        disabledContentColor = Color(0xFF17171A).copy(alpha = 0.65f)
-                    ),
-                    contentPadding = PaddingValues(horizontal = 24.dp, vertical = 0.dp)
-                ) {
-                    Text(
-                        text = "Continue  →",
-                        fontSize = 14.sp,
-                        fontWeight = FontWeight.Bold
-                    )
-                }
-            }
         }
 
         if (skipConfirmation) {
