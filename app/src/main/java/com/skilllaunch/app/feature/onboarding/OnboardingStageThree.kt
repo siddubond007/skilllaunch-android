@@ -80,6 +80,7 @@ internal fun OnboardingStageThree(
     val textSecondary = if (darkTheme) Color(0xFFA0A0A5) else Color(0xFF64748B)
     val borderSubtle = if (darkTheme) Color(0xFF3F3F46) else Color(0xFFE2E8F0)
     val selectedText = if (darkTheme) Color(0xFF17171A) else Color.White
+    val context = LocalContext.current
 
     var graduationMonth by remember { mutableIntStateOf(Calendar.MAY) }
 
@@ -113,7 +114,7 @@ internal fun OnboardingStageThree(
         Spacer(modifier = Modifier.height(16.dp))
 
         Text(
-            text = "Where are you in your journey?",
+            text = "What stage are you at?",
             color = textPrimary,
             style = TextStyle(
                 fontFamily = FontFamily.Serif,
@@ -127,7 +128,7 @@ internal fun OnboardingStageThree(
         Spacer(modifier = Modifier.height(8.dp))
 
         Text(
-            text = "Help clients understand your current academic standing and when you are available to work.",
+            text = "Help clients understand your current academic standing and when you’re available to work.",
             color = textSecondary,
             fontSize = 15.sp,
             lineHeight = 21.sp
@@ -172,7 +173,7 @@ internal fun OnboardingStageThree(
                 val calendar = Calendar.getInstance()
                 val initialYear = graduationYear.toIntOrNull() ?: 2027
                 DatePickerDialog(
-                    LocalContext.current,
+                    context,
                     { _, year, month, _ ->
                         graduationMonth = month
                         onGraduationYearChange(year.toString())
