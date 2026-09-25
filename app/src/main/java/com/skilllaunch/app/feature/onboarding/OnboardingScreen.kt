@@ -160,7 +160,16 @@ fun OnboardingScreen(
                     githubUrl = data?.githubUrl.orEmpty()
                     youtubeUrl = data?.youtubeUrl.orEmpty()
                     portfolioUrl = data?.portfolioUrl.orEmpty()
-                    academicStatus = data?.academicStatus.orEmpty()
+                    val savedAcademicStatus = data?.academicStatus.orEmpty()
+                    val stageThreeStatuses = setOf(
+                        "Freshman",
+                        "Sophomore",
+                        "Junior",
+                        "Senior",
+                        "Graduated",
+                        "Self-Taught"
+                    )
+                    academicStatus = savedAcademicStatus.takeIf { it in stageThreeStatuses }.orEmpty()
                     graduationYear = data?.graduationYear?.toString().orEmpty()
                     availability = data?.availability.orEmpty()
                     tagline = profile?.tagline.orEmpty()
@@ -310,6 +319,53 @@ fun OnboardingScreen(
         return
     }
 
+    if (isStudent && step == 3) {
+        OnboardingStageThree(
+            academicStatus = academicStatus,
+            graduationYear = graduationYear,
+            availability = availability,
+            darkTheme = darkTheme,
+            error = error,
+            saving = saving,
+            onBack = {
+                step = 2
+                error = ""
+            },
+            onAcademicStatusChange = {
+                academicStatus = it
+                if (it == "Graduated" || it == "Self-Taught") {
+                    graduationYear = ""
+                }
+                error = ""
+            },
+            onGraduationYearChange = {
+                graduationYear = it
+                error = ""
+            },
+            onAvailabilityChange = {
+                availability = it
+                error = ""
+            },
+            onContinue = {
+                val validationMessage = when {
+                    academicStatus.isBlank() ->
+                        "Choose your academic status to continue."
+                    availability.isBlank() ->
+                        "Choose your work availability to continue."
+                    else -> ""
+                }
+
+                if (validationMessage.isNotBlank()) {
+                    error = validationMessage
+                } else {
+                    error = ""
+                    step = 4
+                }
+            }
+        )
+        return
+    }
+
     AuthBackground(darkTheme = darkTheme) {
         Column(
             modifier = Modifier
@@ -451,156 +507,6 @@ fun OnboardingScreen(
                                     )
                                 }
                             }
-                        }
-
-                        isStudent && step == 3 -> item {
-                            SectionHeader(
-                                emoji = "🎓",
-                                title = "What stage are you at?",
-                                subtitle = "Your status helps clients understand your background and helps us tailor your profile."
-                            )
-
-                            Text(
-                                text = "Current status",
-                                color = MaterialTheme.colorScheme.onSurface,
-                                style = MaterialTheme.typography.labelLarge,
-                                fontWeight = FontWeight.Bold
-                            )
-                            Text(
-                                text = if (academicStatus.isBlank()) {
-                                    "Choose one to continue"
-                                } else {
-                                    "Selected: $academicStatus"
-                                },
-                                modifier = Modifier.padding(top = 3.dp),
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                style = MaterialTheme.typography.bodySmall
-                            )
-
-                            Spacer(modifier = Modifier.height(4.dp))
-
-                            SelectionChipGroup(
-                                options = academicStatuses,
-                                selected = if (academicStatus.isBlank()) emptyList() else listOf(academicStatus),
-                                onToggle = { value ->
-                                    academicStatus = value
-                                    if (value == "Self-taught / Career Switcher") {
-                                        graduationYear = ""
-                                    }
-                                    error = ""
-                                },
-                                singleSelect = true
-                            )
-
-                            Spacer(modifier = Modifier.height(6.dp))
-
-                            if (academicStatus.isBlank()) {
-                                Surface(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    shape = RoundedCornerShape(14.dp),
-                                    color = MaterialTheme.colorScheme.surface.copy(alpha = 0.38f)
-                                ) {
-                                    Text(
-                                        text = "Pick the option that best describes you. We won't assume your academic stage.",
-                                        modifier = Modifier.padding(
-                                            horizontal = 14.dp,
-                                            vertical = 11.dp
-                                        ),
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                        style = MaterialTheme.typography.bodySmall
-                                    )
-                                }
-                            }
-
-                            if (academicStatus.isNotBlank() && academicStatus != "Self-taught / Career Switcher") {
-                                Spacer(modifier = Modifier.height(2.dp))
-
-                                Text(
-                                    text = "Academic timeline",
-                                    color = MaterialTheme.colorScheme.onSurface,
-                                    style = MaterialTheme.typography.labelLarge,
-                                    fontWeight = FontWeight.Bold
-                                )
-
-                                Text(
-                                    text = when (academicStatus) {
-                                        "High School Student",
-                                        "Undergraduate Student",
-                                        "Postgraduate Student" ->
-                                            "Still studying? Add your expected completion year."
-                                        "Recently Graduated",
-                                        "Graduate / Early Career" ->
-                                            "Already finished? Add the year you graduated."
-                                        else ->
-                                            "Add an academic year only when it applies to you."
-                                    },
-                                    modifier = Modifier.padding(top = 3.dp),
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                    style = MaterialTheme.typography.bodySmall
-                                )
-
-                                Spacer(modifier = Modifier.height(6.dp))
-
-                                AuthField(
-                                    label = graduationYearLabel(academicStatus),
-                                    value = graduationYear,
-                                    onValueChange = { value ->
-                                        graduationYear = value.filter(Char::isDigit).take(4)
-                                        error = ""
-                                    },
-                                    placeholder = graduationYearPlaceholder(academicStatus),
-                                    keyboardOptions = KeyboardOptions(
-                                        keyboardType = KeyboardType.Number,
-                                        imeAction = ImeAction.Next
-                                    ),
-                                    leadingIcon = AuthFieldIcon.Graduation
-                                )
-                            }
-
-                            if (academicStatus == "Self-taught / Career Switcher") {
-                                Surface(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    shape = RoundedCornerShape(14.dp),
-                                    color = MaterialTheme.colorScheme.surface.copy(alpha = 0.38f)
-                                ) {
-                                    Text(
-                                        text = "No graduation year is required. You can highlight your skills and proof of work instead.",
-                                        modifier = Modifier.padding(
-                                            horizontal = 14.dp,
-                                            vertical = 11.dp
-                                        ),
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                        style = MaterialTheme.typography.bodySmall
-                                    )
-                                }
-                            }
-
-                            Spacer(modifier = Modifier.height(10.dp))
-
-                            Text(
-                                text = "When can you work?",
-                                color = MaterialTheme.colorScheme.onSurface,
-                                style = MaterialTheme.typography.labelLarge,
-                                fontWeight = FontWeight.Bold
-                            )
-                            Text(
-                                text = "Choose the type of work schedule you can realistically take on.",
-                                modifier = Modifier.padding(top = 3.dp),
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                style = MaterialTheme.typography.bodySmall
-                            )
-
-                            Spacer(modifier = Modifier.height(5.dp))
-
-                            SelectionChipGroup(
-                                options = availabilityOptions,
-                                selected = if (availability.isBlank()) emptyList() else listOf(availability),
-                                onToggle = { value ->
-                                    availability = value
-                                    error = ""
-                                },
-                                singleSelect = true
-                            )
                         }
 
                         isStudent && step == 4 -> item {
