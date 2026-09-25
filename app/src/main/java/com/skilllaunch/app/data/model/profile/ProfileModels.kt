@@ -24,6 +24,7 @@ data class ProfileData(
     val avatarUrl: String? = null,
     val coverUrl: String? = null,
     val skills: List<String>? = null,
+    val avatarUrl: String? = null,
     val responseTimeExpectation: String? = null,
     val githubUrl: String? = null,
     val youtubeUrl: String? = null,
