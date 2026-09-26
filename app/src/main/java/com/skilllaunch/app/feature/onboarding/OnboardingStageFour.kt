@@ -134,10 +134,6 @@ internal fun OnboardingStageFour(
     var selectedPhotoUri by remember {
         mutableStateOf<Uri?>(null)
     }
-    var croppedAvatarUri by remember {
-        mutableStateOf<Uri?>(null)
-    }
-
     LaunchedEffect(initialResumeFileName) {
         if (selectedResumeName.isBlank() && initialResumeFileName.isNotBlank()) {
             selectedResumeName = initialResumeFileName
@@ -284,13 +280,16 @@ internal fun OnboardingStageFour(
                 lineHeight = 21.sp
             )
 
+            Spacer(modifier = Modifier.height(4.dp))
+
             ProfileAvatarPlaceholder(
                 colors = colors,
                 imageUrl = selectedAvatarUrl,
                 uploading = profileViewModel.isAvatarUploading,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(top = 2.dp),
+                    .height(152.dp)
+                    .padding(vertical = 2.dp),
                 onPick = {
                     if (!profileViewModel.isAvatarUploading) {
                         profileViewModel.clearAvatarUploadError()
@@ -545,7 +544,7 @@ private fun ProfileAvatarPlaceholder(
     onPick: () -> Unit
 ) {
     Box(
-        modifier = modifier.height(168.dp),
+        modifier = modifier,
         contentAlignment = Alignment.Center
     ) {
         Box(
@@ -570,8 +569,8 @@ private fun ProfileAvatarPlaceholder(
         Box(
             modifier = Modifier
                 .align(Alignment.Center)
-                .padding(start = 78.dp, top = 78.dp)
                 .size(38.dp)
+                .offset(x = 38.dp, y = 38.dp)
                 .clip(CircleShape)
                 .background(colors.accent)
                 .border(2.dp, colors.background, CircleShape)
@@ -587,7 +586,9 @@ private fun ProfileAvatarPlaceholder(
         if (uploading) {
             Text(
                 text = "Uploading photo…",
-                modifier = Modifier.align(Alignment.BottomCenter),
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .padding(bottom = 2.dp),
                 color = colors.textSecondary,
                 fontSize = 11.sp,
                 fontWeight = FontWeight.SemiBold
