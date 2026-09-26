@@ -72,7 +72,7 @@ private const val MAX_USER_SCALE = 5f
 private const val OUTPUT_SIZE = 600
 
 private val CropBackground = Color.Black
-private val CropOverlay = Color.Black.copy(alpha = 0.62f)
+private val CropOverlay = Color.Black.copy(alpha = 0.54f)
 private val CropWhite = Color.White
 private val CropHint = Color(0xFFD0D0D0)
 private val CropButton = Color(0xFFD4C6FF)
@@ -167,7 +167,7 @@ internal fun MoveAndScaleScreen(
 
     val cropDiameterPx = if (containerSize != IntSize.Zero) {
         min(
-            containerSize.width.toFloat() * 0.68f,
+            containerSize.width.toFloat() * 0.66f,
             maxCropDiameterPx
         )
     } else {
@@ -181,8 +181,7 @@ internal fun MoveAndScaleScreen(
             bitmapWidth = currentBitmap.width,
             bitmapHeight = currentBitmap.height,
             viewportWidth = containerSize.width.toFloat(),
-            viewportHeight = containerSize.height.toFloat(),
-            cropDiameter = cropDiameterPx
+            viewportHeight = containerSize.height.toFloat()
         )
     } else {
         1f
@@ -229,6 +228,7 @@ internal fun MoveAndScaleScreen(
                 modifier = Modifier
                     .fillMaxSize()
                     .graphicsLayer {
+                        transformOrigin = androidx.compose.ui.graphics.TransformOrigin.Center
                         scaleX = scale
                         scaleY = scale
                         translationX = offset.x
@@ -385,9 +385,9 @@ internal fun MoveAndScaleScreen(
                 .fillMaxWidth()
                 .statusBarsPadding()
                 .padding(
-                    start = 18.dp,
-                    end = 18.dp,
-                    top = 6.dp
+                    start = 14.dp,
+                    end = 14.dp,
+                    top = 8.dp
                 ),
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -410,7 +410,7 @@ internal fun MoveAndScaleScreen(
                 fontFamily = FontFamily.SansSerif,
                 fontSize = 16.sp,
                 fontWeight = FontWeight.Bold,
-                letterSpacing = 2.3.sp,
+                letterSpacing = 2.15.sp,
                 textAlign = TextAlign.Center
             )
 
@@ -418,7 +418,28 @@ internal fun MoveAndScaleScreen(
 
             IconButton(
                 onClick = {
-                    rotation = normalizeDegrees(rotation + 90f)
+                    val newRotation = normalizeDegrees(rotation + 90f)
+
+                    if (currentBitmap != null && containerSize != IntSize.Zero) {
+                        val rotatedCoverScale = max(
+                            containerSize.width.toFloat() /
+                                currentBitmap.height.toFloat(),
+                            containerSize.height.toFloat() /
+                                currentBitmap.width.toFloat()
+                        )
+
+                        val requiredUserScale = max(
+                            1f,
+                            rotatedCoverScale / baseScale
+                        )
+
+                        scale = max(
+                            scale,
+                            requiredUserScale
+                        )
+                    }
+
+                    rotation = newRotation
 
                     val limits = panLimits(
                         targetScale = scale,
@@ -446,9 +467,9 @@ internal fun MoveAndScaleScreen(
                 .fillMaxWidth()
                 .navigationBarsPadding()
                 .padding(
-                    start = 34.dp,
-                    end = 34.dp,
-                    bottom = 24.dp
+                    start = 40.dp,
+                    end = 40.dp,
+                    bottom = 26.dp
                 ),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
@@ -652,44 +673,18 @@ private fun calculateBaseScale(
     bitmapWidth: Int,
     bitmapHeight: Int,
     viewportWidth: Float,
-    viewportHeight: Float,
-    cropDiameter: Float
+    viewportHeight: Float
 ): Float {
     /*
-     * The initial state is a true 1x presentation:
-     * fit the photo naturally inside the editor instead of
-     * silently zooming it to the full screen.
+     * Initial state = true 1x editor framing.
      *
-     * We still guarantee that the circular crop window is covered,
-     * so the user never starts with empty space inside the guide.
+     * The photo covers the complete editor viewport rather than using
+     * a fit-inside scale. This prevents the black bands that made the
+     * previous version look like a dialog sitting on a black canvas.
      */
-    val fitScale = min(
+    return max(
         viewportWidth / bitmapWidth.toFloat(),
         viewportHeight / bitmapHeight.toFloat()
-    )
-
-    val cropCoverScale = max(
-        cropDiameter / bitmapWidth.toFloat(),
-        cropDiameter / bitmapHeight.toFloat()
-    )
-
-    val initialScale = max(
-        fitScale,
-        cropCoverScale
-    )
-
-    /*
-     * A 90° rotation must also remain fully usable without
-     * revealing empty space inside the circular crop area.
-     */
-    val rotatedCropCoverScale = max(
-        cropDiameter / bitmapHeight.toFloat(),
-        cropDiameter / bitmapWidth.toFloat()
-    )
-
-    return max(
-        initialScale,
-        rotatedCropCoverScale
     )
 }
 
