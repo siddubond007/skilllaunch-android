@@ -48,6 +48,8 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.withTransform
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
@@ -453,7 +455,11 @@ internal fun MoveAndScaleScreen(
             IconButton(
                 onClick = onDismiss,
                 enabled = !processing,
-                modifier = Modifier.size(48.dp)
+                modifier = Modifier
+                    .size(48.dp)
+                    .semantics {
+                        contentDescription = "Back"
+                    }
             ) {
                 BackArrowGlyph(
                     tint = CropWhite,
@@ -470,25 +476,13 @@ internal fun MoveAndScaleScreen(
                 fontSize = 16.sp,
                 fontWeight = FontWeight.Bold,
                 letterSpacing = 2.15.sp,
-                textAlign = TextAlign.Center
+                textAlign = TextAlign.Center,
+                modifier = Modifier.semantics {
+                    contentDescription = "Move and scale profile photo"
+                }
             )
 
             Spacer(modifier = Modifier.weight(1f))
-
-            IconButton(
-                onClick = {
-                    scale = 1f
-                    offset = Offset.Zero
-                    rotation = 0f
-                },
-                enabled = !processing && currentBitmap != null,
-                modifier = Modifier.size(48.dp)
-            ) {
-                ResetGlyph(
-                    tint = CropWhite,
-                    modifier = Modifier.size(25.dp)
-                )
-            }
 
             IconButton(
                 onClick = {
@@ -526,11 +520,15 @@ internal fun MoveAndScaleScreen(
                     )
                 },
                 enabled = !processing && currentBitmap != null,
-                modifier = Modifier.size(48.dp)
+                modifier = Modifier
+                    .size(48.dp)
+                    .semantics {
+                        contentDescription = "Rotate photo 90 degrees"
+                    }
             ) {
                 RotateGlyph(
                     tint = CropWhite,
-                    modifier = Modifier.size(26.dp)
+                    modifier = Modifier.size(25.dp)
                 )
             }
         }
@@ -578,6 +576,9 @@ internal fun MoveAndScaleScreen(
                 TextButton(
                     onClick = onDismiss,
                     enabled = !processing,
+                    modifier = Modifier.semantics {
+                        contentDescription = "Cancel photo crop"
+                    },
                     contentPadding = PaddingValues(
                         horizontal = 0.dp,
                         vertical = 10.dp
@@ -632,7 +633,10 @@ internal fun MoveAndScaleScreen(
                         cropDiameterPx > 0f,
                     modifier = Modifier
                         .width(140.dp)
-                        .height(48.dp),
+                        .height(48.dp)
+                        .semantics {
+                            contentDescription = "Choose cropped profile photo"
+                        },
                     shape = androidx.compose.foundation.shape
                         .RoundedCornerShape(26.dp),
                     colors = ButtonDefaults.buttonColors(
@@ -829,64 +833,7 @@ private fun BackArrowGlyph(
     }
 }
 
-@Composable
-private fun ResetGlyph(
-    tint: Color,
-    modifier: Modifier
-) {
-    Canvas(modifier = modifier) {
-        val stroke = 2.dp.toPx()
-        val radius = size.minDimension * 0.32f
-        val center = Offset(
-            x = size.width / 2f,
-            y = size.height / 2f
-        )
 
-        drawArc(
-            color = tint,
-            startAngle = -70f,
-            sweepAngle = 295f,
-            useCenter = false,
-            topLeft = Offset(
-                x = center.x - radius,
-                y = center.y - radius
-            ),
-            size = androidx.compose.ui.geometry.Size(
-                width = radius * 2f,
-                height = radius * 2f
-            ),
-            style = Stroke(width = stroke)
-        )
-
-        drawLine(
-            color = tint,
-            start = Offset(
-                x = center.x - radius * 0.95f,
-                y = center.y - radius * 0.15f
-            ),
-            end = Offset(
-                x = center.x - radius * 0.93f,
-                y = center.y - radius * 0.58f
-            ),
-            strokeWidth = stroke,
-            cap = androidx.compose.ui.graphics.StrokeCap.Round
-        )
-
-        drawLine(
-            color = tint,
-            start = Offset(
-                x = center.x - radius * 0.95f,
-                y = center.y - radius * 0.15f
-            ),
-            end = Offset(
-                x = center.x - radius * 0.50f,
-                y = center.y - radius * 0.16f
-            ),
-            strokeWidth = stroke,
-            cap = androidx.compose.ui.graphics.StrokeCap.Round
-        )
-    }
-}
 
 @Composable
 private fun RotateGlyph(
@@ -895,16 +842,21 @@ private fun RotateGlyph(
 ) {
     Canvas(modifier = modifier) {
         val stroke = 2.dp.toPx()
-        val radius = size.minDimension * 0.30f
+        val radius = size.minDimension * 0.31f
         val center = Offset(
             x = size.width / 2f,
             y = size.height / 2f
         )
 
+        val startAngle = -48f
+        val sweepAngle = 286f
+        val endAngle = startAngle + sweepAngle
+        val endRadians = Math.toRadians(endAngle.toDouble())
+
         drawArc(
             color = tint,
-            startAngle = -55f,
-            sweepAngle = 290f,
+            startAngle = startAngle,
+            sweepAngle = sweepAngle,
             useCenter = false,
             topLeft = Offset(
                 x = center.x - radius,
@@ -917,30 +869,45 @@ private fun RotateGlyph(
             style = Stroke(width = stroke)
         )
 
+        val tip = Offset(
+            x = center.x + radius * cos(endRadians).toFloat(),
+            y = center.y + radius * sin(endRadians).toFloat()
+        )
+
+        /*
+         * Arrowhead follows the tangent of the circular arrow, so it
+         * stays visually attached to the arc instead of looking offset.
+         */
+        val tangentRadians =
+            endRadians + (PI / 2.0)
+
+        val tangent = Offset(
+            x = cos(tangentRadians).toFloat(),
+            y = sin(tangentRadians).toFloat()
+        )
+
+        val normal = Offset(
+            x = -tangent.y,
+            y = tangent.x
+        )
+
+        val arrowLength = radius * 0.42f
+        val arrowHalfWidth = radius * 0.24f
+
+        val base = tip - tangent * arrowLength
+
         drawLine(
             color = tint,
-            start = Offset(
-                x = center.x + radius * 0.62f,
-                y = center.y - radius * 0.95f
-            ),
-            end = Offset(
-                x = center.x + radius * 0.98f,
-                y = center.y - radius * 0.66f
-            ),
+            start = tip,
+            end = base + normal * arrowHalfWidth,
             strokeWidth = stroke,
             cap = androidx.compose.ui.graphics.StrokeCap.Round
         )
 
         drawLine(
             color = tint,
-            start = Offset(
-                x = center.x + radius * 0.98f,
-                y = center.y - radius * 0.66f
-            ),
-            end = Offset(
-                x = center.x + radius * 0.56f,
-                y = center.y - radius * 0.55f
-            ),
+            start = tip,
+            end = base - normal * arrowHalfWidth,
             strokeWidth = stroke,
             cap = androidx.compose.ui.graphics.StrokeCap.Round
         )
