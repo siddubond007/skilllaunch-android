@@ -33,6 +33,7 @@ import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -153,6 +154,11 @@ internal fun MoveAndScaleScreen(
         currentBitmap?.asImageBitmap()
     }
 
+    // Keep gesture input alive for the entire gesture while still reading
+    // the latest Compose state on every transform event.
+    val currentScale by rememberUpdatedState(scale)
+    val currentOffset by rememberUpdatedState(offset)
+
     val density = androidx.compose.ui.platform.LocalDensity.current
     val maxCropDiameterPx = with(density) {
         340.dp.toPx()
@@ -256,10 +262,7 @@ internal fun MoveAndScaleScreen(
                         currentBitmap,
                         containerSize,
                         cropDiameterPx,
-                        baseScale,
-                        scale,
-                        rotation,
-                        offset
+                        baseScale
                     ) {
                         detectTransformGestures(
                             panZoomLock = false
@@ -289,9 +292,9 @@ internal fun MoveAndScaleScreen(
 
                             // Keep the content under the pinch centroid stable
                             // while also applying the user's one-finger pan.
-                            val focalPoint = centroid - center - offset
+                            val focalPoint = centroid - center - currentOffset
                             val proposedOffset =
-                                offset +
+                                currentOffset +
                                     pan +
                                     focalPoint * (1f - actualScaleRatio)
 
