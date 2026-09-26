@@ -39,6 +39,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.BlendMode
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.CompositingStrategy
 import androidx.compose.ui.graphics.ImageBitmap
@@ -166,7 +167,7 @@ internal fun MoveAndScaleScreen(
 
     val cropDiameterPx = if (containerSize != IntSize.Zero) {
         min(
-            containerSize.width.toFloat() * 0.70f,
+            containerSize.width.toFloat() * 0.68f,
             maxCropDiameterPx
         )
     } else {
@@ -180,7 +181,8 @@ internal fun MoveAndScaleScreen(
             bitmapWidth = currentBitmap.width,
             bitmapHeight = currentBitmap.height,
             viewportWidth = containerSize.width.toFloat(),
-            viewportHeight = containerSize.height.toFloat()
+            viewportHeight = containerSize.height.toFloat(),
+            cropDiameter = cropDiameterPx
         )
     } else {
         1f
@@ -350,6 +352,34 @@ internal fun MoveAndScaleScreen(
             }
         }
 
+        // Subtle editor scrims keep the top and bottom controls readable
+        // without muddying the crop area.
+        Canvas(
+            modifier = Modifier.fillMaxSize()
+        ) {
+            drawRect(
+                brush = Brush.verticalGradient(
+                    colors = listOf(
+                        Color.Black.copy(alpha = 0.72f),
+                        Color.Transparent
+                    ),
+                    startY = 0f,
+                    endY = 220.dp.toPx()
+                )
+            )
+
+            drawRect(
+                brush = Brush.verticalGradient(
+                    colors = listOf(
+                        Color.Transparent,
+                        Color.Black.copy(alpha = 0.78f)
+                    ),
+                    startY = size.height - 250.dp.toPx(),
+                    endY = size.height
+                )
+            )
+        }
+
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -378,9 +408,9 @@ internal fun MoveAndScaleScreen(
                 text = "MOVE AND SCALE",
                 color = CropWhite,
                 fontFamily = FontFamily.SansSerif,
-                fontSize = 17.sp,
+                fontSize = 16.sp,
                 fontWeight = FontWeight.Bold,
-                letterSpacing = 2.0.sp,
+                letterSpacing = 2.3.sp,
                 textAlign = TextAlign.Center
             )
 
@@ -416,9 +446,9 @@ internal fun MoveAndScaleScreen(
                 .fillMaxWidth()
                 .navigationBarsPadding()
                 .padding(
-                    start = 28.dp,
-                    end = 28.dp,
-                    bottom = 20.dp
+                    start = 34.dp,
+                    end = 34.dp,
+                    bottom = 24.dp
                 ),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
@@ -622,19 +652,45 @@ private fun calculateBaseScale(
     bitmapWidth: Int,
     bitmapHeight: Int,
     viewportWidth: Float,
-    viewportHeight: Float
+    viewportHeight: Float,
+    cropDiameter: Float
 ): Float {
-    val normalScale = max(
+    /*
+     * The initial state is a true 1x presentation:
+     * fit the photo naturally inside the editor instead of
+     * silently zooming it to the full screen.
+     *
+     * We still guarantee that the circular crop window is covered,
+     * so the user never starts with empty space inside the guide.
+     */
+    val fitScale = min(
         viewportWidth / bitmapWidth.toFloat(),
         viewportHeight / bitmapHeight.toFloat()
     )
 
-    val rotatedScale = max(
-        viewportWidth / bitmapHeight.toFloat(),
-        viewportHeight / bitmapWidth.toFloat()
+    val cropCoverScale = max(
+        cropDiameter / bitmapWidth.toFloat(),
+        cropDiameter / bitmapHeight.toFloat()
     )
 
-    return max(normalScale, rotatedScale)
+    val initialScale = max(
+        fitScale,
+        cropCoverScale
+    )
+
+    /*
+     * A 90° rotation must also remain fully usable without
+     * revealing empty space inside the circular crop area.
+     */
+    val rotatedCropCoverScale = max(
+        cropDiameter / bitmapHeight.toFloat(),
+        cropDiameter / bitmapWidth.toFloat()
+    )
+
+    return max(
+        initialScale,
+        rotatedCropCoverScale
+    )
 }
 
 private fun rotateOffset(
