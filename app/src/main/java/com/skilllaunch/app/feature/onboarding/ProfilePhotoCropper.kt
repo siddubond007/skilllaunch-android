@@ -226,87 +226,6 @@ internal fun MoveAndScaleScreen(
                         translationY = offset.y
                         rotationZ = rotation
                     }
-                    .pointerInput(currentBitmap, containerSize) {
-                        detectTransformGestures(
-                            panZoomLock = false
-                        ) { centroid, pan, zoomChange, rotationChange ->
-                            if (containerSize == IntSize.Zero) {
-                                return@detectTransformGestures
-                            }
-
-                            val screenCenter = Offset(
-                                x = containerSize.width / 2f,
-                                y = containerSize.height / 2f
-                            )
-
-                            val oldUserScale = scale
-                            val oldRotation = rotation
-
-                            val newUserScale =
-                                (oldUserScale * zoomChange).coerceIn(
-                                    MIN_USER_SCALE,
-                                    MAX_USER_SCALE
-                                )
-
-                            val newRotation = normalizeDegrees(
-                                oldRotation + rotationChange
-                            )
-
-                            val oldDisplayedScale =
-                                baseScale * oldUserScale
-
-                            val centroidVector = Offset(
-                                x = centroid.x - screenCenter.x - offset.x,
-                                y = centroid.y - screenCenter.y - offset.y
-                            )
-
-                            val imageVector = rotateOffset(
-                                value = centroidVector,
-                                degrees = -oldRotation
-                            )
-
-                            val sourceVector = Offset(
-                                x = imageVector.x / oldDisplayedScale,
-                                y = imageVector.y / oldDisplayedScale
-                            )
-
-                            val newDisplayedScale =
-                                baseScale * newUserScale
-
-                            val newScreenVector = rotateOffset(
-                                value = Offset(
-                                    x = sourceVector.x * newDisplayedScale,
-                                    y = sourceVector.y * newDisplayedScale
-                                ),
-                                degrees = newRotation
-                            )
-
-                            val proposedOffset = Offset(
-                                x = centroid.x + pan.x -
-                                    screenCenter.x - newScreenVector.x,
-                                y = centroid.y + pan.y -
-                                    screenCenter.y - newScreenVector.y
-                            )
-
-                            val limits = panLimits(
-                                targetScale = newUserScale,
-                                targetRotation = newRotation
-                            )
-
-                            scale = newUserScale
-                            rotation = newRotation
-                            offset = Offset(
-                                x = proposedOffset.x.coerceIn(
-                                    -limits.x,
-                                    limits.x
-                                ),
-                                y = proposedOffset.y.coerceIn(
-                                    -limits.y,
-                                    limits.y
-                                )
-                            )
-                        }
-                    }
             ) {
                 val drawWidth = currentBitmap.width.toFloat() * baseScale
                 val drawHeight = currentBitmap.height.toFloat() * baseScale
@@ -324,6 +243,76 @@ internal fun MoveAndScaleScreen(
                     drawImage(bitmapImage)
                 }
             }
+        }
+
+        // Dedicated interaction layer. Keeping gestures off the transformed image
+        // makes one-finger panning and two-finger pinch reliable on all devices.
+        if (currentBitmap != null) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .pointerInput(
+                        currentBitmap,
+                        containerSize,
+                        cropDiameterPx,
+                        baseScale,
+                        scale,
+                        rotation,
+                        offset
+                    ) {
+                        detectTransformGestures(
+                            panZoomLock = false
+                        ) { centroid, pan, zoomChange, _ ->
+                            if (containerSize == IntSize.Zero) {
+                                return@detectTransformGestures
+                            }
+
+                            val oldScale = scale
+                            val newScale = (oldScale * zoomChange)
+                                .coerceIn(
+                                    MIN_USER_SCALE,
+                                    MAX_USER_SCALE
+                                )
+
+                            val actualScaleRatio =
+                                if (oldScale == 0f) {
+                                    1f
+                                } else {
+                                    newScale / oldScale
+                                }
+
+                            val center = Offset(
+                                containerSize.width / 2f,
+                                containerSize.height / 2f
+                            )
+
+                            // Keep the content under the pinch centroid stable
+                            // while also applying the user's one-finger pan.
+                            val focalPoint = centroid - center - offset
+                            val proposedOffset =
+                                offset +
+                                    pan +
+                                    focalPoint * (1f - actualScaleRatio)
+
+                            val limits = panLimits(
+                                targetScale = newScale,
+                                targetRotation = rotation
+                            )
+
+                            scale = newScale
+                            offset = Offset(
+                                x = proposedOffset.x.coerceIn(
+                                    -limits.x,
+                                    limits.x
+                                ),
+                                y = proposedOffset.y.coerceIn(
+                                    -limits.y,
+                                    limits.y
+                                )
+                            )
+                        }
+                    }
+            )
         }
 
         if (cropDiameterPx > 0f) {
@@ -385,9 +374,9 @@ internal fun MoveAndScaleScreen(
                 text = "MOVE AND SCALE",
                 color = CropWhite,
                 fontFamily = FontFamily.SansSerif,
-                fontSize = 18.sp,
+                fontSize = 17.sp,
                 fontWeight = FontWeight.Bold,
-                letterSpacing = 2.2.sp,
+                letterSpacing = 2.0.sp,
                 textAlign = TextAlign.Center
             )
 
@@ -423,9 +412,9 @@ internal fun MoveAndScaleScreen(
                 .fillMaxWidth()
                 .navigationBarsPadding()
                 .padding(
-                    start = 52.dp,
-                    end = 52.dp,
-                    bottom = 22.dp
+                    start = 28.dp,
+                    end = 28.dp,
+                    bottom = 20.dp
                 ),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
@@ -512,9 +501,11 @@ internal fun MoveAndScaleScreen(
                     enabled = currentBitmap != null &&
                         !processing &&
                         cropDiameterPx > 0f,
-                    modifier = Modifier.height(50.dp),
+                    modifier = Modifier
+                        .width(140.dp)
+                        .height(48.dp),
                     shape = androidx.compose.foundation.shape
-                        .RoundedCornerShape(28.dp),
+                        .RoundedCornerShape(26.dp),
                     colors = ButtonDefaults.buttonColors(
                         containerColor = CropButton,
                         contentColor = CropButtonText,
