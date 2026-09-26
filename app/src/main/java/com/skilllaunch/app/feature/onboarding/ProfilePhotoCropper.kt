@@ -180,8 +180,7 @@ internal fun MoveAndScaleScreen(
         calculateBaseScale(
             bitmapWidth = currentBitmap.width,
             bitmapHeight = currentBitmap.height,
-            viewportWidth = containerSize.width.toFloat(),
-            viewportHeight = containerSize.height.toFloat()
+            cropDiameter = cropDiameterPx
         )
     } else {
         1f
@@ -224,11 +223,63 @@ internal fun MoveAndScaleScreen(
             .onSizeChanged { containerSize = it }
     ) {
         if (currentBitmap != null && bitmapImage != null) {
+            /*
+             * Soft full-screen backdrop: the whole source remains visible
+             * as context, while the foreground image is sized specifically
+             * for the circular DP crop. This is much easier for tall/wide
+             * photos than silently zooming them to the entire screen.
+             */
+            Canvas(
+                modifier = Modifier.fillMaxSize()
+            ) {
+                val backdropScale = max(
+                    size.width / currentBitmap.width.toFloat(),
+                    size.height / currentBitmap.height.toFloat()
+                )
+
+                val backdropWidth =
+                    currentBitmap.width.toFloat() * backdropScale
+                val backdropHeight =
+                    currentBitmap.height.toFloat() * backdropScale
+
+                val backdropLeft =
+                    (size.width - backdropWidth) / 2f
+                val backdropTop =
+                    (size.height - backdropHeight) / 2f
+
+                drawRect(
+                    color = Color.Black.copy(alpha = 0.35f)
+                )
+
+                withTransform({
+                    translate(
+                        left = backdropLeft,
+                        top = backdropTop
+                    )
+                    scale(
+                        scaleX = backdropScale,
+                        scaleY = backdropScale,
+                        pivot = Offset.Zero
+                    )
+                }) {
+                    drawImage(
+                        bitmapImage,
+                        alpha = 0.28f
+                    )
+                }
+            }
+
+            /*
+             * Foreground crop image. Its initial scale is calculated from
+             * the circle itself, so a 9:16 portrait is NOT opened as an
+             * extreme face close-up.
+             */
             Canvas(
                 modifier = Modifier
                     .fillMaxSize()
                     .graphicsLayer {
-                        transformOrigin = androidx.compose.ui.graphics.TransformOrigin.Center
+                        transformOrigin =
+                            androidx.compose.ui.graphics.TransformOrigin.Center
                         scaleX = scale
                         scaleY = scale
                         translationX = offset.x
@@ -236,13 +287,21 @@ internal fun MoveAndScaleScreen(
                         rotationZ = rotation
                     }
             ) {
-                val drawWidth = currentBitmap.width.toFloat() * baseScale
-                val drawHeight = currentBitmap.height.toFloat() * baseScale
-                val left = (size.width - drawWidth) / 2f
-                val top = (size.height - drawHeight) / 2f
+                val drawWidth =
+                    currentBitmap.width.toFloat() * baseScale
+                val drawHeight =
+                    currentBitmap.height.toFloat() * baseScale
+
+                val left =
+                    (size.width - drawWidth) / 2f
+                val top =
+                    (size.height - drawHeight) / 2f
 
                 withTransform({
-                    translate(left = left, top = top)
+                    translate(
+                        left = left,
+                        top = top
+                    )
                     scale(
                         scaleX = baseScale,
                         scaleY = baseScale,
@@ -418,19 +477,34 @@ internal fun MoveAndScaleScreen(
 
             IconButton(
                 onClick = {
+                    scale = 1f
+                    offset = Offset.Zero
+                    rotation = 0f
+                },
+                enabled = !processing && currentBitmap != null,
+                modifier = Modifier.size(48.dp)
+            ) {
+                ResetGlyph(
+                    tint = CropWhite,
+                    modifier = Modifier.size(25.dp)
+                )
+            }
+
+            IconButton(
+                onClick = {
                     val newRotation = normalizeDegrees(rotation + 90f)
 
-                    if (currentBitmap != null && containerSize != IntSize.Zero) {
-                        val rotatedCoverScale = max(
-                            containerSize.width.toFloat() /
+                    if (currentBitmap != null && cropDiameterPx > 0f) {
+                        val rotatedCropScale = max(
+                            cropDiameterPx /
                                 currentBitmap.height.toFloat(),
-                            containerSize.height.toFloat() /
+                            cropDiameterPx /
                                 currentBitmap.width.toFloat()
                         )
 
                         val requiredUserScale = max(
                             1f,
-                            rotatedCoverScale / baseScale
+                            rotatedCropScale / baseScale
                         )
 
                         scale = max(
@@ -672,19 +746,24 @@ private fun cropBitmapToCache(
 private fun calculateBaseScale(
     bitmapWidth: Int,
     bitmapHeight: Int,
-    viewportWidth: Float,
-    viewportHeight: Float
+    cropDiameter: Float
 ): Float {
     /*
-     * Initial state = true 1x editor framing.
+     * This is the key DP-crop rule:
      *
-     * The photo covers the complete editor viewport rather than using
-     * a fit-inside scale. This prevents the black bands that made the
-     * previous version look like a dialog sitting on a black canvas.
+     * The initial image scale is only required to COVER THE CIRCLE,
+     * not the entire phone screen.
+     *
+     * A tall 9:16 photo therefore opens with much more of the original
+     * image visible and the user can decide the exact framing.
      */
+    if (bitmapWidth <= 0 || bitmapHeight <= 0 || cropDiameter <= 0f) {
+        return 1f
+    }
+
     return max(
-        viewportWidth / bitmapWidth.toFloat(),
-        viewportHeight / bitmapHeight.toFloat()
+        cropDiameter / bitmapWidth.toFloat(),
+        cropDiameter / bitmapHeight.toFloat()
     )
 }
 
@@ -744,6 +823,65 @@ private fun BackArrowGlyph(
             color = tint,
             start = Offset(size.width * 0.28f, size.height * 0.50f),
             end = Offset(size.width * 0.50f, size.height * 0.73f),
+            strokeWidth = stroke,
+            cap = androidx.compose.ui.graphics.StrokeCap.Round
+        )
+    }
+}
+
+@Composable
+private fun ResetGlyph(
+    tint: Color,
+    modifier: Modifier
+) {
+    Canvas(modifier = modifier) {
+        val stroke = 2.dp.toPx()
+        val radius = size.minDimension * 0.32f
+        val center = Offset(
+            x = size.width / 2f,
+            y = size.height / 2f
+        )
+
+        drawArc(
+            color = tint,
+            startAngle = -70f,
+            sweepAngle = 295f,
+            useCenter = false,
+            topLeft = Offset(
+                x = center.x - radius,
+                y = center.y - radius
+            ),
+            size = androidx.compose.ui.geometry.Size(
+                width = radius * 2f,
+                height = radius * 2f
+            ),
+            style = Stroke(width = stroke)
+        )
+
+        drawLine(
+            color = tint,
+            start = Offset(
+                x = center.x - radius * 0.95f,
+                y = center.y - radius * 0.15f
+            ),
+            end = Offset(
+                x = center.x - radius * 0.93f,
+                y = center.y - radius * 0.58f
+            ),
+            strokeWidth = stroke,
+            cap = androidx.compose.ui.graphics.StrokeCap.Round
+        )
+
+        drawLine(
+            color = tint,
+            start = Offset(
+                x = center.x - radius * 0.95f,
+                y = center.y - radius * 0.15f
+            ),
+            end = Offset(
+                x = center.x - radius * 0.50f,
+                y = center.y - radius * 0.16f
+            ),
             strokeWidth = stroke,
             cap = androidx.compose.ui.graphics.StrokeCap.Round
         )
