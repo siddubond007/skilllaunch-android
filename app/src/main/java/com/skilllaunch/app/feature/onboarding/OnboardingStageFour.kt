@@ -53,6 +53,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.graphics.asComposePath
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
@@ -683,7 +684,7 @@ private fun ResumeDropzone(
         ) {
             CloudUploadGlyph(
                 tint = accent,
-                modifier = Modifier.size(34.dp)
+                modifier = Modifier.size(40.dp)
             )
 
             Spacer(modifier = Modifier.height(10.dp))
@@ -801,98 +802,81 @@ private fun CloudUploadGlyph(
     tint: Color,
     modifier: Modifier
 ) {
-    /*
-     * Keep this icon entirely within the Canvas API already used by
-     * OnboardingStageFour. The previous Path-based version introduced
-     * a compile issue on the current Compose setup.
-     */
     Canvas(modifier) {
         val stroke = 2.2.dp.toPx()
         val w = size.width
         val h = size.height
 
-        // Cloud body: three overlapping arcs plus a clean baseline.
-        drawArc(
+        /*
+         * A single continuous cloud outline. Build it with the Android
+         * Path API and convert it to a Compose Path at draw time. This
+         * avoids the previous broken overlapping-arc construction.
+         */
+        val cloudPath = android.graphics.Path().apply {
+            moveTo(w * 0.22f, h * 0.70f)
+
+            cubicTo(
+                w * 0.12f, h * 0.70f,
+                w * 0.08f, h * 0.60f,
+                w * 0.11f, h * 0.51f
+            )
+
+            cubicTo(
+                w * 0.14f, h * 0.42f,
+                w * 0.23f, h * 0.37f,
+                w * 0.32f, h * 0.39f
+            )
+
+            cubicTo(
+                w * 0.34f, h * 0.27f,
+                w * 0.45f, h * 0.20f,
+                w * 0.55f, h * 0.22f
+            )
+
+            cubicTo(
+                w * 0.67f, h * 0.24f,
+                w * 0.73f, h * 0.34f,
+                w * 0.73f, h * 0.43f
+            )
+
+            cubicTo(
+                w * 0.82f, h * 0.42f,
+                w * 0.89f, h * 0.49f,
+                w * 0.89f, h * 0.58f
+            )
+
+            cubicTo(
+                w * 0.89f, h * 0.66f,
+                w * 0.83f, h * 0.70f,
+                w * 0.75f, h * 0.70f
+            )
+
+            lineTo(w * 0.22f, h * 0.70f)
+        }
+
+        drawPath(
+            path = cloudPath.asComposePath(),
             color = tint,
-            startAngle = 200f,
-            sweepAngle = 140f,
-            useCenter = false,
-            topLeft = Offset(
-                x = w * 0.16f,
-                y = h * 0.35f
-            ),
-            size = androidx.compose.ui.geometry.Size(
-                width = w * 0.42f,
-                height = h * 0.38f
-            ),
             style = Stroke(
                 width = stroke,
-                cap = StrokeCap.Round
+                cap = StrokeCap.Round,
+                join = androidx.compose.ui.graphics.StrokeJoin.Round
             )
         )
 
-        drawArc(
-            color = tint,
-            startAngle = 190f,
-            sweepAngle = 155f,
-            useCenter = false,
-            topLeft = Offset(
-                x = w * 0.33f,
-                y = h * 0.18f
-            ),
-            size = androidx.compose.ui.geometry.Size(
-                width = w * 0.42f,
-                height = h * 0.48f
-            ),
-            style = Stroke(
-                width = stroke,
-                cap = StrokeCap.Round
-            )
-        )
-
-        drawArc(
-            color = tint,
-            startAngle = 205f,
-            sweepAngle = 130f,
-            useCenter = false,
-            topLeft = Offset(
-                x = w * 0.53f,
-                y = h * 0.39f
-            ),
-            size = androidx.compose.ui.geometry.Size(
-                width = w * 0.31f,
-                height = h * 0.31f
-            ),
-            style = Stroke(
-                width = stroke,
-                cap = StrokeCap.Round
-            )
-        )
-
-        drawLine(
-            color = tint,
-            start = Offset(
-                x = w * 0.18f,
-                y = h * 0.68f
-            ),
-            end = Offset(
-                x = w * 0.81f,
-                y = h * 0.68f
-            ),
-            strokeWidth = stroke,
-            cap = StrokeCap.Round
-        )
-
-        // Upload arrow is visually centered and stays clear of the cloud outline.
+        /*
+         * Clean centered upload arrow, separated from the cloud outline
+         * so it reads immediately as "upload".
+         */
         drawLine(
             color = tint,
             start = Offset(
                 x = w * 0.50f,
-                y = h * 0.87f
+                y = h * 0.86f
             ),
             end = Offset(
                 x = w * 0.50f,
-                y = h * 0.44f
+                y = h * 0.43f
             ),
             strokeWidth = stroke,
             cap = StrokeCap.Round
@@ -902,11 +886,11 @@ private fun CloudUploadGlyph(
             color = tint,
             start = Offset(
                 x = w * 0.50f,
-                y = h * 0.44f
+                y = h * 0.43f
             ),
             end = Offset(
                 x = w * 0.37f,
-                y = h * 0.57f
+                y = h * 0.56f
             ),
             strokeWidth = stroke,
             cap = StrokeCap.Round
@@ -916,11 +900,11 @@ private fun CloudUploadGlyph(
             color = tint,
             start = Offset(
                 x = w * 0.50f,
-                y = h * 0.44f
+                y = h * 0.43f
             ),
             end = Offset(
                 x = w * 0.63f,
-                y = h * 0.57f
+                y = h * 0.56f
             ),
             strokeWidth = stroke,
             cap = StrokeCap.Round
