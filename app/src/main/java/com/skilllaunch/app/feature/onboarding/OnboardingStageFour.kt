@@ -802,52 +802,101 @@ private fun CloudUploadGlyph(
     modifier: Modifier
 ) {
     Canvas(modifier) {
-        val stroke = 2.dp.toPx()
+        val stroke = 2.2.dp.toPx()
+        val w = size.width
+        val h = size.height
 
-        drawCircle(
+        // Clean cloud outline.
+        val cloud = Path().apply {
+            moveTo(w * 0.20f, h * 0.70f)
+            lineTo(w * 0.78f, h * 0.70f)
+
+            cubicTo(
+                w * 0.87f, h * 0.70f,
+                w * 0.91f, h * 0.62f,
+                w * 0.88f, h * 0.54f
+            )
+
+            cubicTo(
+                w * 0.85f, h * 0.45f,
+                w * 0.77f, h * 0.40f,
+                w * 0.68f, h * 0.42f
+            )
+
+            cubicTo(
+                w * 0.64f, h * 0.30f,
+                w * 0.55f, h * 0.23f,
+                w * 0.45f, h * 0.25f
+            )
+
+            cubicTo(
+                w * 0.35f, h * 0.18f,
+                w * 0.22f, h * 0.23f,
+                w * 0.19f, h * 0.35f
+            )
+
+            cubicTo(
+                w * 0.11f, h * 0.39f,
+                w * 0.09f, h * 0.49f,
+                w * 0.13f, h * 0.58f
+            )
+
+            cubicTo(
+                w * 0.15f, h * 0.65f,
+                w * 0.17f, h * 0.70f,
+                w * 0.20f, h * 0.70f
+            )
+        }
+
+        drawPath(
+            path = cloud,
             color = tint,
-            radius = size.minDimension * 0.18f,
-            center = Offset(size.width * 0.36f, size.height * 0.50f),
-            style = Stroke(width = stroke)
+            style = Stroke(
+                width = stroke,
+                cap = StrokeCap.Round,
+                join = androidx.compose.ui.graphics.StrokeJoin.Round
+            )
         )
-        drawCircle(
-            color = tint,
-            radius = size.minDimension * 0.22f,
-            center = Offset(size.width * 0.58f, size.height * 0.43f),
-            style = Stroke(width = stroke)
-        )
-        drawCircle(
-            color = tint,
-            radius = size.minDimension * 0.15f,
-            center = Offset(size.width * 0.72f, size.height * 0.56f),
-            style = Stroke(width = stroke)
-        )
+
+        // Upload arrow.
         drawLine(
             color = tint,
-            start = Offset(size.width * 0.22f, size.height * 0.67f),
-            end = Offset(size.width * 0.78f, size.height * 0.67f),
+            start = Offset(
+                x = w * 0.50f,
+                y = h * 0.79f
+            ),
+            end = Offset(
+                x = w * 0.50f,
+                y = h * 0.43f
+            ),
             strokeWidth = stroke,
             cap = StrokeCap.Round
         )
 
         drawLine(
             color = tint,
-            start = Offset(size.width * 0.50f, size.height * 0.83f),
-            end = Offset(size.width * 0.50f, size.height * 0.45f),
+            start = Offset(
+                x = w * 0.50f,
+                y = h * 0.43f
+            ),
+            end = Offset(
+                x = w * 0.38f,
+                y = h * 0.55f
+            ),
             strokeWidth = stroke,
             cap = StrokeCap.Round
         )
+
         drawLine(
             color = tint,
-            start = Offset(size.width * 0.50f, size.height * 0.45f),
-            end = Offset(size.width * 0.36f, size.height * 0.59f),
-            strokeWidth = stroke,
-            cap = StrokeCap.Round
-        )
-        drawLine(
-            color = tint,
-            start = Offset(size.width * 0.50f, size.height * 0.45f),
-            end = Offset(size.width * 0.64f, size.height * 0.59f),
+            start = Offset(
+                x = w * 0.50f,
+                y = h * 0.43f
+            ),
+            end = Offset(
+                x = w * 0.62f,
+                y = h * 0.55f
+            ),
             strokeWidth = stroke,
             cap = StrokeCap.Round
         )
