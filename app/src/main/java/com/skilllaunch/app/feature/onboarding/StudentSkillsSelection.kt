@@ -31,6 +31,10 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -73,6 +77,8 @@ internal fun StudentSkillsSelection(
     onConfirmSkip: () -> Unit,
     onDismissSkip: () -> Unit
 ) {
+    var linkValidationAttempted by rememberSaveable { mutableStateOf(false) }
+
     // Stage 2 deliberately reuses the exact Stage 1 layout rhythm:
     // fixed header, fixed progress bar, 28dp content margins, serif heading,
     // pill search, compact selection chips, and the same CTA geometry.
@@ -345,8 +351,12 @@ internal fun StudentSkillsSelection(
                         background = searchBackground,
                         textPrimary = textPrimary,
                         textMuted = textMuted,
-                        onValueChange = onGithubChange,
-                        kind = StudentLinkKind.GITHUB
+                        onValueChange = {
+                            linkValidationAttempted = false
+                            onGithubChange(it)
+                        },
+                        kind = StudentLinkKind.GITHUB,
+                        validationEnabled = linkValidationAttempted
                     )
                 }
 
@@ -358,8 +368,12 @@ internal fun StudentSkillsSelection(
                         background = searchBackground,
                         textPrimary = textPrimary,
                         textMuted = textMuted,
-                        onValueChange = onYoutubeChange,
-                        kind = StudentLinkKind.YOUTUBE
+                        onValueChange = {
+                            linkValidationAttempted = false
+                            onYoutubeChange(it)
+                        },
+                        kind = StudentLinkKind.YOUTUBE,
+                        validationEnabled = linkValidationAttempted
                     )
                 }
 
@@ -371,8 +385,12 @@ internal fun StudentSkillsSelection(
                         background = searchBackground,
                         textPrimary = textPrimary,
                         textMuted = textMuted,
-                        onValueChange = onPortfolioChange,
-                        kind = StudentLinkKind.PORTFOLIO
+                        onValueChange = {
+                            linkValidationAttempted = false
+                            onPortfolioChange(it)
+                        },
+                        kind = StudentLinkKind.PORTFOLIO,
+                        validationEnabled = linkValidationAttempted
                     )
                 }
 
@@ -399,7 +417,10 @@ internal fun StudentSkillsSelection(
                 .padding(top = 6.dp, bottom = 12.dp)
         ) {
             Button(
-                onClick = onContinue,
+                onClick = {
+                    linkValidationAttempted = true
+                    onContinue()
+                },
                 enabled = !saving,
                 modifier = Modifier
                     .fillMaxWidth()
@@ -578,12 +599,10 @@ private fun StageTwoLinkField(
     textPrimary: Color,
     textMuted: Color,
     onValueChange: (String) -> Unit,
-    kind: StudentLinkKind
+    kind: StudentLinkKind,
+    validationEnabled: Boolean
 ) {
-    val linkError = if (
-        value.trim().isNotBlank() &&
-        (value.contains("://") || value.contains("."))
-    ) {
+    val linkError = if (validationEnabled && value.trim().isNotBlank()) {
         validateStudentLink(value, kind)
     } else {
         null
