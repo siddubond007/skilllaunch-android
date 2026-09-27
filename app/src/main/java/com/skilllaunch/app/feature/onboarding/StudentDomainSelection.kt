@@ -543,7 +543,6 @@ private fun DomainSearchField(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 28.dp)
             .height(56.dp)
             .clip(RoundedCornerShape(30.dp))
             .background(searchBackground)
