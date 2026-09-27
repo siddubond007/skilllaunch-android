@@ -999,6 +999,7 @@ private fun validateAndSave(
     youtubeUrl: String,
     portfolioUrl: String,
     academicStatus: String,
+    graduationMonth: Int,
     graduationYear: String,
     availability: String,
     tagline: String,
