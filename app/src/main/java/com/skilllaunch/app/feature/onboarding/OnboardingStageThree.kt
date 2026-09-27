@@ -51,6 +51,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.skilllaunch.app.feature.auth.SkillLaunchBrand
 import java.text.DateFormatSymbols
+import java.util.Calendar
 
 private val stageThreeAcademicStatuses = listOf(
     "High School",
