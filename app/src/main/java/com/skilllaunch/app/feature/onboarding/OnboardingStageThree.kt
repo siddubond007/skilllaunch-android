@@ -1,6 +1,5 @@
 package com.skilllaunch.app.feature.onboarding
 
-import android.app.DatePickerDialog
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -32,6 +31,10 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -120,11 +123,17 @@ internal fun OnboardingStageThree(
     onDismissSkip: () -> Unit
 ) {
     val colors = stageThreeColors(darkTheme)
-    val context = androidx.compose.ui.platform.LocalContext.current
+    var showGraduationPicker by remember { mutableStateOf(false) }
+    var draftGraduationMonth by remember(graduationMonth) {
+        mutableIntStateOf(graduationMonth.coerceIn(1, 12))
+    }
+    var draftGraduationYear by remember(graduationYear) {
+        mutableIntStateOf(graduationYear.toIntOrNull() ?: (Calendar.getInstance().get(Calendar.YEAR) + 1))
+    }
 
     val displayedGraduation = graduationYear.toIntOrNull()?.let { year ->
         val monthIndex = graduationMonth.coerceIn(1, 12) - 1
-        val monthName = DateFormatSymbols().months[monthIndex]
+        val monthName = DateFormatSymbols().shortMonths[monthIndex]
             .takeIf { it.isNotBlank() }
             ?: "May"
         "$monthName $year"
@@ -258,18 +267,10 @@ internal fun OnboardingStageThree(
                                 border = colors.border,
                                 enabled = !saving,
                                 onClick = {
-                                    val initialYear = graduationYear.toIntOrNull() ?: 2027
-
-                                    DatePickerDialog(
-                                        context,
-                                        { _, year, month, _ ->
-                                            onGraduationMonthChange(month + 1)
-                                            onGraduationYearChange(year.toString())
-                                        },
-                                        initialYear,
-                                        graduationMonth.coerceIn(1, 12) - 1,
-                                        1
-                                    ).show()
+                                    draftGraduationMonth = graduationMonth.coerceIn(1, 12)
+                                    draftGraduationYear = graduationYear.toIntOrNull()
+                                        ?: (Calendar.getInstance().get(Calendar.YEAR) + 1)
+                                    showGraduationPicker = true
                                 }
                             )
                         }
@@ -347,6 +348,24 @@ internal fun OnboardingStageThree(
             }
         }
 
+        if (showGraduationPicker) {
+            MonthYearPickerDialog(
+                selectedMonth = draftGraduationMonth,
+                selectedYear = draftGraduationYear,
+                darkTheme = darkTheme,
+                onMonthChange = { draftGraduationMonth = it },
+                onYearChange = { draftGraduationYear = it },
+                onCancel = {
+                    showGraduationPicker = false
+                },
+                onConfirm = {
+                    onGraduationMonthChange(draftGraduationMonth)
+                    onGraduationYearChange(draftGraduationYear.toString())
+                    showGraduationPicker = false
+                }
+            )
+        }
+
         if (skipConfirmation) {
             AlertDialog(
                 onDismissRequest = onDismissSkip,
@@ -374,6 +393,150 @@ internal fun OnboardingStageThree(
             )
         }
     }
+}
+
+@Composable
+private fun MonthYearPickerDialog(
+    selectedMonth: Int,
+    selectedYear: Int,
+    darkTheme: Boolean,
+    onMonthChange: (Int) -> Unit,
+    onYearChange: (Int) -> Unit,
+    onCancel: () -> Unit,
+    onConfirm: () -> Unit
+) {
+    val colors = stageThreeColors(darkTheme)
+    val currentYear = Calendar.getInstance().get(Calendar.YEAR)
+    val months = DateFormatSymbols().shortMonths.take(12)
+
+    AlertDialog(
+        onDismissRequest = onCancel,
+        title = {
+            Text(
+                text = "Expected graduation",
+                fontWeight = FontWeight.ExtraBold
+            )
+        },
+        text = {
+            Column(
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = "Year",
+                        modifier = Modifier.weight(1f),
+                        color = colors.textMuted,
+                        fontSize = 13.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+
+                    TextButton(
+                        onClick = {
+                            if (selectedYear > currentYear) {
+                                onYearChange(selectedYear - 1)
+                            }
+                        }
+                    ) {
+                        Text("−")
+                    }
+
+                    Text(
+                        text = selectedYear.toString(),
+                        color = colors.textPrimary,
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.ExtraBold
+                    )
+
+                    TextButton(
+                        onClick = {
+                            if (selectedYear < currentYear + 10) {
+                                onYearChange(selectedYear + 1)
+                            }
+                        }
+                    ) {
+                        Text("+")
+                    }
+                }
+
+                Text(
+                    text = "Month",
+                    color = colors.textMuted,
+                    fontSize = 13.sp,
+                    fontWeight = FontWeight.Bold
+                )
+
+                months.chunked(3).forEach { row ->
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        row.forEachIndexed { index, month ->
+                            val monthNumber = months.indexOf(month) + 1
+                            Box(
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .height(44.dp)
+                                    .clip(RoundedCornerShape(14.dp))
+                                    .background(
+                                        if (monthNumber == selectedMonth) {
+                                            colors.accent
+                                        } else {
+                                            colors.surface
+                                        }
+                                    )
+                                    .border(
+                                        width = 1.dp,
+                                        color = if (monthNumber == selectedMonth) {
+                                            colors.accent
+                                        } else {
+                                            colors.border
+                                        },
+                                        shape = RoundedCornerShape(14.dp)
+                                    )
+                                    .clickable {
+                                        onMonthChange(monthNumber)
+                                    },
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Text(
+                                    text = month,
+                                    color = if (monthNumber == selectedMonth) {
+                                        colors.accentText
+                                    } else {
+                                        colors.textPrimary
+                                    },
+                                    fontSize = 12.sp,
+                                    fontWeight = if (monthNumber == selectedMonth) {
+                                        FontWeight.Bold
+                                    } else {
+                                        FontWeight.Medium
+                                    },
+                                    textAlign = TextAlign.Center
+                                )
+                            }
+
+                            if (index == row.lastIndex && row.size < 3) {
+                                Spacer(modifier = Modifier.weight((3 - row.size).toFloat()))
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = onConfirm) {
+                Text("Save")
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onCancel) {
+                Text("Cancel")
+            }
+        }
+    )
 }
 
 @Composable
