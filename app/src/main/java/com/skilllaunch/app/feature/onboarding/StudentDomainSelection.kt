@@ -32,6 +32,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -131,18 +132,19 @@ internal fun StudentDomainSelection(
     onConfirmSkip: () -> Unit,
     onDismissSkip: () -> Unit
 ) {
-    var query by remember { mutableStateOf("") }
+    var query by rememberSaveable { mutableStateOf("") }
+    var showAllDomains by rememberSaveable { mutableStateOf(false) }
     val normalizedQuery = query.trim().lowercase()
 
-    val filteredDomains = remember(normalizedQuery) {
-        if (normalizedQuery.isBlank()) {
-            STUDENT_GIG_FEATURED_DOMAINS
-        } else {
-            STUDENT_GIG_DOMAIN_CATALOG.filter { domain ->
+    val filteredDomains = remember(normalizedQuery, showAllDomains) {
+        when {
+            normalizedQuery.isNotBlank() -> STUDENT_GIG_DOMAIN_CATALOG.filter { domain ->
                 domain.title.contains(normalizedQuery, ignoreCase = true) ||
                     domain.category.contains(normalizedQuery, ignoreCase = true) ||
                     domain.id.replace('-', ' ').contains(normalizedQuery, ignoreCase = true)
             }
+            showAllDomains -> STUDENT_GIG_DOMAIN_CATALOG
+            else -> STUDENT_GIG_FEATURED_DOMAINS
         }
     }
 
@@ -214,9 +216,58 @@ internal fun StudentDomainSelection(
         DomainSearchField(
             value = query,
             darkTheme = darkTheme,
-            onValueChange = { query = it },
+            onValueChange = {
+                query = it
+                if (it.isNotBlank()) {
+                    showAllDomains = true
+                }
+            },
             onClear = { query = "" }
         )
+
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 28.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = if (showAllDomains || normalizedQuery.isNotBlank()) {
+                    "All domains"
+                } else {
+                    "Featured domains"
+                },
+                color = textMuted,
+                fontSize = 12.sp,
+                fontWeight = FontWeight.Bold
+            )
+
+            Spacer(modifier = Modifier.weight(1f))
+
+            TextButton(
+                onClick = {
+                    showAllDomains = !showAllDomains
+                    if (!showAllDomains) {
+                        query = ""
+                    }
+                },
+                contentPadding = PaddingValues(
+                    horizontal = 4.dp,
+                    vertical = 2.dp
+                )
+            ) {
+                Text(
+                    text = if (showAllDomains) {
+                        "Show featured"
+                    } else {
+                        "Explore all " + STUDENT_GIG_DOMAIN_CATALOG.size
+                    },
+                    color = lavender,
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+        }
 
         LazyColumn(
             modifier = Modifier
@@ -269,10 +320,10 @@ internal fun StudentDomainSelection(
 
             item {
                 Text(
-                    text = if (normalizedQuery.isBlank()) {
-                        "You can add more domains later in your profile settings."
+                    text = if (normalizedQuery.isBlank() && !showAllDomains) {
+                        "Showing featured domains. Explore all " + STUDENT_GIG_DOMAIN_CATALOG.size + " marketplace domains when you need a broader choice."
                     } else {
-                        "Showing every SkillLaunch marketplace domain that matches your search."
+                        "Showing SkillLaunch marketplace domains that match your selection or search."
                     },
                     modifier = Modifier
                         .fillMaxWidth()
@@ -294,6 +345,22 @@ internal fun StudentDomainSelection(
                 color = Color(0xFFD95C5C),
                 fontSize = 13.sp,
                 fontWeight = FontWeight.SemiBold
+            )
+        }
+
+        if (selectedDomain.isNotBlank()) {
+            Text(
+                text = "Selected: $selectedDomain",
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(
+                        horizontal = 28.dp,
+                        vertical = 2.dp
+                    ),
+                color = textMuted,
+                fontSize = 12.sp,
+                fontWeight = FontWeight.SemiBold,
+                maxLines = 1
             )
         }
 
