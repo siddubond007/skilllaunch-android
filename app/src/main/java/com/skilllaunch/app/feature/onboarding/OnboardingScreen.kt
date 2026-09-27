@@ -87,7 +87,6 @@ fun OnboardingScreen(
 
     var step by rememberSaveable { mutableIntStateOf(1) }
     var primaryDomain by rememberSaveable { mutableStateOf("") }
-    var customSkill by rememberSaveable { mutableStateOf("") }
     var selectedSkills by rememberSaveable { mutableStateOf(emptyList<String>()) }
     var skillSearch by rememberSaveable { mutableStateOf("") }
     var githubUrl by rememberSaveable { mutableStateOf("") }
@@ -121,13 +120,11 @@ fun OnboardingScreen(
                 val data = profile?.onboardingData
 
                 if (isStudent) {
-                    val savedDomain = data?.primaryDomain.orEmpty()
-                    if (savedDomain.isNotBlank() && (studentGigDomainNames.contains(savedDomain) || studentDomains.containsKey(savedDomain))) {
-                        primaryDomain = savedDomain
-                    } else if (savedDomain.isNotBlank()) {
-                        primaryDomain = "Other"
-                        customSkill = savedDomain
-                    }
+                    val savedDomain = normalizeLegacyStudentDomain(
+                        data?.primaryDomain.orEmpty()
+                    )
+                    primaryDomain = savedDomain
+
                     val validSkillTitles = STUDENT_ONBOARDING_SKILLS_BY_DOMAIN[savedDomain]
                         .orEmpty()
                         .map { it.title }
@@ -176,7 +173,6 @@ fun OnboardingScreen(
             repository = repository,
             user = user,
             primaryDomain = primaryDomain,
-            customSkill = customSkill,
             selectedSkills = selectedSkills,
             githubUrl = githubUrl,
             youtubeUrl = youtubeUrl,
@@ -221,7 +217,6 @@ fun OnboardingScreen(
                 primaryDomain = it
                 selectedSkills = emptyList()
                 skillSearch = ""
-                customSkill = ""
                 error = ""
             },
             onContinue = {
@@ -406,7 +401,6 @@ fun OnboardingScreen(
                         repository = repository,
                         user = user,
                         primaryDomain = primaryDomain,
-                        customSkill = customSkill,
                         selectedSkills = selectedSkills,
                         githubUrl = githubUrl,
                         youtubeUrl = youtubeUrl,
@@ -500,59 +494,6 @@ fun OnboardingScreen(
                     verticalArrangement = Arrangement.spacedBy(14.dp)
                 ) {
                     when {
-                        isStudent && step == 1 -> item {
-                            SectionHeader(
-                                emoji = "⚡",
-                                title = "What's your superpower?",
-                                subtitle = "Choose your main focus so SkillLaunch can match you with the right projects."
-                            )
-                            SelectionGrid(
-                                options = studentDomains.keys.toList(),
-                                selected = primaryDomain,
-                                descriptionMap = studentDomainDescriptions,
-                                iconMap = studentDomainIcons,
-                                onSelect = {
-                                    primaryDomain = it
-                                    selectedSkills = emptyList()
-                                    skillSearch = ""
-                                    error = ""
-                                }
-                            )
-
-                            if (primaryDomain == "Other") {
-                                Column(
-                                    modifier = Modifier.padding(top = 2.dp),
-                                    verticalArrangement = Arrangement.spacedBy(7.dp)
-                                ) {
-                                    Text(
-                                        text = "What skill do you offer?",
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                        style = MaterialTheme.typography.labelLarge,
-                                        fontWeight = FontWeight.Bold
-                                    )
-                                    AuthField(
-                                        label = "Custom skill",
-                                        value = customSkill,
-                                        onValueChange = {
-                                            customSkill = it.take(50)
-                                            error = ""
-                                        },
-                                        placeholder = "e.g. CAD drafting, voice acting, Excel dashboards",
-                                        keyboardOptions = KeyboardOptions(
-                                            keyboardType = KeyboardType.Text,
-                                            imeAction = ImeAction.Done
-                                        ),
-                                        leadingIcon = AuthFieldIcon.User
-                                    )
-                                    Text(
-                                        text = "This becomes your primary profile skill instead of leaving your profile as “Other”.",
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                        style = MaterialTheme.typography.bodySmall
-                                    )
-                                }
-                            }
-                        }
-
                         !isStudent && step == 1 -> item {
                             SectionHeader(
                                 emoji = "💼",
@@ -707,7 +648,6 @@ fun OnboardingScreen(
                         repository = repository,
                         user = user,
                         primaryDomain = primaryDomain,
-                        customSkill = customSkill,
                         selectedSkills = selectedSkills,
                         githubUrl = githubUrl,
                         youtubeUrl = youtubeUrl,
@@ -732,8 +672,6 @@ fun OnboardingScreen(
                     val validationMessage = when {
                         isStudent && step == 1 && primaryDomain.isBlank() ->
                             "Choose your main focus to continue."
-                        isStudent && step == 1 && primaryDomain == "Other" && customSkill.trim().length < 2 ->
-                            "Add the skill you offer so your profile has a clear focus."
                         isStudent && step == 2 && selectedSkills.isEmpty() ->
                             "Choose at least one primary skill to continue."
                         isStudent && step == 3 && academicStatus.isBlank() ->
@@ -756,10 +694,6 @@ fun OnboardingScreen(
                     if (validationMessage.isNotBlank()) {
                         error = validationMessage
                         return@AuthPrimaryButton
-                    }
-
-                    if (isStudent && step == 1 && primaryDomain == "Other") {
-                        selectedSkills = listOf(customSkill.trim())
                     }
 
                     error = ""
@@ -1028,7 +962,6 @@ private fun validateAndSave(
     repository: ProfileRepository,
     user: AuthUser,
     primaryDomain: String,
-    customSkill: String,
     selectedSkills: List<String>,
     githubUrl: String,
     youtubeUrl: String,
@@ -1054,10 +987,6 @@ private fun validateAndSave(
             setError("Choose your main focus to continue.")
             return
         }
-        if (primaryDomain == "Other" && customSkill.trim().length < 2) {
-            setError("Tell us the skill you want to offer so your profile has a real focus.")
-            return
-        }
         if (selectedSkills.isEmpty()) {
             setError("Choose at least one skill.")
             return
@@ -1079,11 +1008,7 @@ private fun validateAndSave(
 
     val data = OnboardingData(
         role = if (isStudent) "STUDENT_FREELANCER" else "CLIENT",
-        primaryDomain = if (primaryDomain == "Other") {
-            customSkill.trim().ifBlank { null }
-        } else {
-            primaryDomain.ifBlank { null }
-        },
+        primaryDomain = primaryDomain.ifBlank { null },
         selectedSkills = selectedSkills,
         githubUrl = githubUrl.trim().ifBlank { null },
         youtubeUrl = youtubeUrl.trim().ifBlank { null },
@@ -1102,7 +1027,7 @@ private fun validateAndSave(
         tagline = if (isStudent) tagline.trim().ifBlank { null } else companyOrProjectName.trim().ifBlank { null },
         bio = if (isStudent) bio.trim().ifBlank { null } else tagline.trim().ifBlank { null },
         category = if (isStudent) {
-            if (primaryDomain == "Other") customSkill.trim().ifBlank { null } else primaryDomain
+            primaryDomain.ifBlank { null }
         } else {
             hiringCategories.firstOrNull()
         },
@@ -1141,7 +1066,6 @@ private fun skipOnboarding(
     repository: ProfileRepository,
     user: AuthUser,
     primaryDomain: String,
-    customSkill: String,
     selectedSkills: List<String>,
     githubUrl: String,
     youtubeUrl: String,
@@ -1163,7 +1087,7 @@ private fun skipOnboarding(
     val data = OnboardingData(
         role = user.role ?: "STUDENT_FREELANCER",
         primaryDomain = if (primaryDomain == "Other") {
-            customSkill.trim().ifBlank { null }
+            primaryDomain.ifBlank { null }
         } else {
             primaryDomain.ifBlank { null }
         },
@@ -1193,20 +1117,11 @@ private fun skipOnboarding(
             tagline.trim().ifBlank { null }
         },
         category = if (user.role == "STUDENT_FREELANCER") {
-            if (primaryDomain == "Other") {
-                customSkill.trim().ifBlank { null }
-            } else {
-                primaryDomain.trim().ifBlank { null }
-            }
+            primaryDomain.trim().ifBlank { null }
         } else {
             hiringCategories.firstOrNull()
         },
-        skills = when {
-            selectedSkills.isNotEmpty() -> selectedSkills
-            primaryDomain == "Other" && customSkill.trim().isNotBlank() ->
-                listOf(customSkill.trim())
-            else -> null
-        },
+        skills = selectedSkills.takeIf { it.isNotEmpty() },
         responseTimeExpectation = if (user.role == "STUDENT_FREELANCER") {
             availability.trim().ifBlank { null }
         } else {
@@ -1238,111 +1153,6 @@ private fun skipOnboarding(
             }
     }
 }
-
-private val studentDomains = linkedMapOf(
-    "Web Development" to listOf(
-        "Frontend", "Backend", "Full Stack", "React", "Next.js", "Vue.js",
-        "Angular", "Node.js", "Express", "REST APIs", "E-commerce", "Web Performance"
-    ),
-    "Mobile Development" to listOf(
-        "Android", "Kotlin", "Java", "iOS", "Swift", "Flutter",
-        "React Native", "Mobile UI", "Jetpack Compose", "App APIs", "Firebase", "App Testing"
-    ),
-    "Software & APIs" to listOf(
-        "Java", "Python", "C", "C++", "C#", "Go", "Rust",
-        "REST APIs", "GraphQL", "Desktop Apps", "Automation", "Scripting"
-    ),
-    "Data & AI" to listOf(
-        "Machine Learning", "Deep Learning", "Data Analysis", "Generative AI", "NLP",
-        "Computer Vision", "Python", "Pandas", "NumPy", "TensorFlow", "PyTorch", "Data Visualization"
-    ),
-    "Cybersecurity" to listOf(
-        "Web Security", "Network Security", "Ethical Hacking", "Penetration Testing",
-        "SOC", "SIEM", "Security Testing", "Vulnerability Assessment", "OSINT", "Cloud Security", "Linux", "Digital Forensics"
-    ),
-    "Cloud & DevOps" to listOf(
-        "AWS", "Azure", "Google Cloud", "Docker", "Kubernetes", "CI/CD",
-        "GitHub Actions", "Terraform", "Linux", "Nginx", "Monitoring", "Cloud Architecture"
-    ),
-    "UI/UX Design" to listOf(
-        "UI Design", "UX Research", "Figma", "Prototyping", "Wireframing", "Design Systems",
-        "Mobile UX", "Web UX", "Interaction Design", "Usability Testing", "Design Audits", "Accessibility"
-    ),
-    "Graphic & Brand Design" to listOf(
-        "Logos", "Branding", "Social Media", "Illustration", "Print Design", "Presentation Design",
-        "Canva", "Photoshop", "Illustrator", "Posters", "Thumbnails", "Brand Guidelines"
-    ),
-    "Video & Motion" to listOf(
-        "Video Editing", "Short-form", "YouTube", "Motion Graphics", "Color Grading",
-        "Reels", "DaVinci Resolve", "Premiere Pro", "After Effects", "Subtitles", "Storyboarding", "Podcast Editing"
-    ),
-    "Writing & Content" to listOf(
-        "Content Writing", "Copywriting", "Technical Writing", "Blogging", "Proofreading",
-        "Script Writing", "Documentation", "Editing", "Research Writing", "Product Descriptions", "Ghostwriting", "Resume Writing"
-    ),
-    "Marketing & SEO" to listOf(
-        "SEO", "Social Media", "Email Marketing", "Content Strategy", "Google Ads",
-        "Meta Ads", "Keyword Research", "Analytics", "Influencer Marketing", "Lead Generation", "Campaign Planning", "Community Management"
-    ),
-    "Business & Research" to listOf(
-        "Business Analysis", "Market Research", "Presentations", "Data Research", "Strategy",
-        "Documentation", "Competitor Research", "Business Plans", "Financial Research", "Process Mapping", "Operations", "Reports"
-    ),
-    "Education & Tutoring" to listOf(
-        "Programming", "Mathematics", "Science", "English", "Languages", "Academic Help",
-        "Test Preparation", "Computer Science", "Study Planning", "Presentation Coaching", "Assignment Guidance", "Tutoring"
-    ),
-    "Photography & Creative" to listOf(
-        "Photography", "Photo Editing", "Retouching", "Product Photos", "Creative Direction",
-        "Canva", "Lightroom", "Portraits", "Event Photography", "Photo Manipulation", "Background Removal", "Color Correction"
-    ),
-    "Game Development" to listOf(
-        "Unity", "Unreal Engine", "Game Design", "3D Assets", "Gameplay",
-        "Level Design", "C#", "Blender", "2D Games", "3D Games", "Shaders", "Game UI"
-    ),
-    "Other" to listOf(
-        "Virtual Assistance", "Data Entry", "Transcription", "Research", "Presentation Work",
-        "Other Skills", "Customer Support", "Spreadsheet Work", "Web Research", "File Conversion", "Typing", "Administrative Support"
-    )
-)
-
-private val studentDomainIcons = mapOf(
-    "Web Development" to "🌐",
-    "Mobile Development" to "📱",
-    "Software & APIs" to "⚙️",
-    "Data & AI" to "🧠",
-    "Cybersecurity" to "🛡️",
-    "Cloud & DevOps" to "☁️",
-    "UI/UX Design" to "🎨",
-    "Graphic & Brand Design" to "✨",
-    "Video & Motion" to "🎬",
-    "Writing & Content" to "✍️",
-    "Marketing & SEO" to "📣",
-    "Business & Research" to "📊",
-    "Education & Tutoring" to "🎓",
-    "Photography & Creative" to "📷",
-    "Game Development" to "🎮",
-    "Other" to "✦"
-)
-
-private val studentDomainDescriptions = mapOf(
-    "Web Development" to "Sites, apps, storefronts",
-    "Mobile Development" to "Android, iOS, cross-platform",
-    "Software & APIs" to "Apps, automation, integrations",
-    "Data & AI" to "ML, GenAI, analytics",
-    "Cybersecurity" to "Security, testing, defense",
-    "Cloud & DevOps" to "Cloud, containers, CI/CD",
-    "UI/UX Design" to "Interfaces, research, prototypes",
-    "Graphic & Brand Design" to "Branding, visuals, presentations",
-    "Video & Motion" to "Editing, reels, motion graphics",
-    "Writing & Content" to "Articles, copy, scripts",
-    "Marketing & SEO" to "SEO, social, campaigns",
-    "Business & Research" to "Analysis, research, strategy",
-    "Education & Tutoring" to "Subjects, coding, languages",
-    "Photography & Creative" to "Photos, editing, creative work",
-    "Game Development" to "Games, gameplay, 3D",
-    "Other" to "Skills outside these categories"
-)
 
 private val studentStepLabels = listOf("Focus", "Skills", "Journey", "Profile")
 private val clientStepLabels = listOf("Client type", "Hiring needs", "Identity")
