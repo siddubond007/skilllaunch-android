@@ -1110,6 +1110,7 @@ private fun skipOnboarding(
     youtubeUrl: String,
     portfolioUrl: String,
     academicStatus: String,
+    graduationMonth: Int,
     graduationYear: String,
     availability: String,
     tagline: String,
