@@ -1154,6 +1154,28 @@ private fun skipOnboarding(
     }
 }
 
+private fun normalizeLegacyStudentDomain(value: String): String {
+    if (value.isBlank()) return ""
+    if (studentGigDomainNames.contains(value)) return value
+
+    return when (value) {
+        "Mobile Development" -> "Mobile App Development"
+        "Software & APIs" -> "Software & IT Services"
+        "Data & AI" -> "AI, Machine Learning & Data Science"
+        "Cybersecurity", "Cloud & DevOps" -> "Software & IT Services"
+        "UI/UX Design", "Graphic & Brand Design" -> "Design & Creative"
+        "Video & Motion" -> "Video, Audio & Animation"
+        "Writing & Content" -> "Writing & Content Creation"
+        "Marketing & SEO" -> "Digital Marketing & SEO"
+        "Business & Research" -> "Business, Finance & HR"
+        "Education & Tutoring" -> "Education, Tutoring & Coaching"
+        "Photography & Creative" -> "Photography & Image Editing"
+        "Game Development" -> "Gaming & Esports"
+        "Web Development" -> "Web Development"
+        else -> ""
+    }
+}
+
 private val studentStepLabels = listOf("Focus", "Skills", "Journey", "Profile")
 private val clientStepLabels = listOf("Client type", "Hiring needs", "Identity")
 
