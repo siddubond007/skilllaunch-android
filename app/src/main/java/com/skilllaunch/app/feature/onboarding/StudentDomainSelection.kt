@@ -249,6 +249,7 @@ internal fun StudentDomainSelection(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Column(
+                        modifier = Modifier.weight(1f),
                         verticalArrangement = Arrangement.spacedBy(2.dp)
                     ) {
                         Text(
@@ -268,7 +269,9 @@ internal fun StudentDomainSelection(
                                 "6 popular starting points"
                             },
                             color = textMuted,
-                            fontSize = 11.sp
+                            fontSize = 11.sp,
+                            maxLines = 1,
+                            overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
                         )
                     }
 
@@ -276,6 +279,7 @@ internal fun StudentDomainSelection(
 
                     Box(
                         modifier = Modifier
+                            .width(124.dp)
                             .clip(RoundedCornerShape(999.dp))
                             .background(lavender.copy(alpha = if (darkTheme) 0.12f else 0.18f))
                             .border(
@@ -299,7 +303,10 @@ internal fun StudentDomainSelection(
                             },
                             color = if (darkTheme) Color.White else Color(0xFF5C48B9),
                             fontSize = 11.sp,
-                            fontWeight = FontWeight.Bold
+                            fontWeight = FontWeight.Bold,
+                            maxLines = 1,
+                            softWrap = false,
+                            overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
                         )
                     }
                 }
