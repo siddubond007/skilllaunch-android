@@ -93,6 +93,7 @@ fun OnboardingScreen(
     var youtubeUrl by rememberSaveable { mutableStateOf("") }
     var portfolioUrl by rememberSaveable { mutableStateOf("") }
     var academicStatus by rememberSaveable { mutableStateOf("") }
+    var graduationMonth by rememberSaveable { mutableIntStateOf(5) }
     var graduationYear by rememberSaveable { mutableStateOf("") }
     var availability by rememberSaveable { mutableStateOf("") }
     var tagline by rememberSaveable { mutableStateOf("") }
@@ -145,6 +146,7 @@ fun OnboardingScreen(
                         "Professional"
                     )
                     academicStatus = savedAcademicStatus.takeIf { it in stageThreeStatuses }.orEmpty()
+                    graduationMonth = data?.graduationMonth?.takeIf { it in 1..12 } ?: 5
                     graduationYear = data?.graduationYear?.toString().orEmpty()
                     availability = data?.availability.orEmpty()
                     tagline = profile?.tagline.orEmpty()
@@ -178,6 +180,7 @@ fun OnboardingScreen(
             youtubeUrl = youtubeUrl,
             portfolioUrl = portfolioUrl,
             academicStatus = academicStatus,
+            graduationMonth = graduationMonth,
             graduationYear = graduationYear,
             availability = availability,
             tagline = tagline,
@@ -313,6 +316,7 @@ fun OnboardingScreen(
     if (isStudent && step == 3) {
         OnboardingStageThree(
             academicStatus = academicStatus,
+            graduationMonth = graduationMonth,
             graduationYear = graduationYear,
             availability = availability,
             darkTheme = darkTheme,
@@ -329,8 +333,13 @@ fun OnboardingScreen(
             onAcademicStatusChange = {
                 academicStatus = it
                 if (it == "Self-Taught" || it == "Professional") {
+                    graduationMonth = 5
                     graduationYear = ""
                 }
+                error = ""
+            },
+            onGraduationMonthChange = {
+                graduationMonth = it
                 error = ""
             },
             onGraduationYearChange = {
@@ -352,6 +361,13 @@ fun OnboardingScreen(
                 val validationMessage = when {
                     academicStatus.isBlank() ->
                         "Choose your academic status to continue."
+                    academicStatus in setOf(
+                        "High School",
+                        "Undergraduate",
+                        "Postgraduate",
+                        "Bootcamp / Cert"
+                    ) && graduationYear.isBlank() ->
+                        "Select your expected graduation month and year."
                     availability.isBlank() ->
                         "Choose your work availability to continue."
                     else -> ""
@@ -1030,6 +1046,12 @@ private fun validateAndSave(
         youtubeUrl = youtubeUrl.trim().ifBlank { null },
         portfolioUrl = portfolioUrl.trim().ifBlank { null },
         academicStatus = academicStatus.ifBlank { null },
+        graduationMonth = graduationMonth.takeIf { academicStatus in setOf(
+            "High School",
+            "Undergraduate",
+            "Postgraduate",
+            "Bootcamp / Cert"
+        ) },
         graduationYear = graduationYear.toIntOrNull(),
         availability = availability.ifBlank { null },
         clientType = clientType.ifBlank { null },
@@ -1112,6 +1134,12 @@ private fun skipOnboarding(
         youtubeUrl = youtubeUrl.trim().ifBlank { null },
         portfolioUrl = portfolioUrl.trim().ifBlank { null },
         academicStatus = academicStatus.ifBlank { null },
+        graduationMonth = graduationMonth.takeIf { academicStatus in setOf(
+            "High School",
+            "Undergraduate",
+            "Postgraduate",
+            "Bootcamp / Cert"
+        ) },
         graduationYear = graduationYear.toIntOrNull(),
         availability = availability.ifBlank { null },
         clientType = clientType.ifBlank { null },
