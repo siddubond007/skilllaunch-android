@@ -17,6 +17,8 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBarsPadding
@@ -103,6 +105,7 @@ private fun stageThreeColors(darkTheme: Boolean) = if (darkTheme) {
 @Composable
 internal fun OnboardingStageThree(
     academicStatus: String,
+    graduationMonth: Int,
     graduationYear: String,
     availability: String,
     darkTheme: Boolean,
@@ -120,10 +123,10 @@ internal fun OnboardingStageThree(
 ) {
     val colors = stageThreeColors(darkTheme)
     val context = androidx.compose.ui.platform.LocalContext.current
-    var graduationMonth by remember { mutableIntStateOf(Calendar.MAY) }
 
     val displayedGraduation = graduationYear.toIntOrNull()?.let { year ->
-        val monthName = DateFormatSymbols().months[graduationMonth]
+        val monthIndex = graduationMonth.coerceIn(1, 12) - 1
+        val monthName = DateFormatSymbols().months[monthIndex]
             .takeIf { it.isNotBlank() }
             ?: "May"
         "$monthName $year"
@@ -144,22 +147,27 @@ internal fun OnboardingStageThree(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        Box(
+        Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(4.dp)
-                .clip(RoundedCornerShape(8.dp))
-                .background(
-                    if (darkTheme) Color(0xFF3A393E) else Color(0xFFD8D7DA)
-                )
+                .padding(horizontal = 28.dp),
+            horizontalArrangement = Arrangement.spacedBy(6.dp)
         ) {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth(0.75f)
-                    .height(4.dp)
-                    .clip(RoundedCornerShape(8.dp))
-                    .background(colors.accent)
-            )
+            repeat(4) { index ->
+                Box(
+                    modifier = Modifier
+                        .weight(1f)
+                        .height(5.dp)
+                        .clip(RoundedCornerShape(8.dp))
+                        .background(
+                            when (index) {
+                                0, 1 -> colors.accent.copy(alpha = 0.55f)
+                                2 -> colors.accent
+                                else -> if (darkTheme) Color(0xFF3A393E) else Color(0xFFD8D7DA)
+                            }
+                        )
+                )
+            }
         }
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -197,7 +205,7 @@ internal fun OnboardingStageThree(
 
                 item {
                     Text(
-                        text = "Help clients understand your current standing and when you'll be ready for projects.",
+                        text = "Tell us where you are in your journey and when you're ready to work.",
                         color = colors.textMuted,
                         fontSize = 16.sp,
                         lineHeight = 21.sp
@@ -257,11 +265,11 @@ internal fun OnboardingStageThree(
                                     DatePickerDialog(
                                         context,
                                         { _, year, month, _ ->
-                                            graduationMonth = month
+                                            onGraduationMonthChange(month + 1)
                                             onGraduationYearChange(year.toString())
                                         },
                                         initialYear,
-                                        graduationMonth,
+                                        graduationMonth.coerceIn(1, 12) - 1,
                                         1
                                     ).show()
                                 }
@@ -303,15 +311,24 @@ internal fun OnboardingStageThree(
         }
 
         /*
-         * Exact Stage 2 CTA geometry: full width, 24dp outer padding,
-         * pill-shaped button, anchored after the weighted content region.
+         * Same safe bottom action treatment as Stage 2.
+         * The form scrolls independently so this CTA never covers the content.
          */
-        Button(
-            onClick = onContinue,
-            enabled = !saving,
+        Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(24.dp),
+                .background(colors.background)
+                .navigationBarsPadding()
+                .imePadding()
+                .padding(horizontal = 24.dp)
+                .padding(top = 6.dp, bottom = 12.dp)
+        ) {
+            Button(
+                onClick = onContinue,
+                enabled = !saving,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(52.dp),
             shape = RoundedCornerShape(28.dp),
             colors = ButtonDefaults.buttonColors(
                 containerColor = colors.accent,
@@ -324,11 +341,12 @@ internal fun OnboardingStageThree(
                 vertical = 0.dp
             )
         ) {
-            Text(
-                text = "Continue  →",
-                fontSize = 14.sp,
-                fontWeight = FontWeight.Bold
-            )
+                Text(
+                    text = "Continue  →",
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Bold
+                )
+            }
         }
 
         if (skipConfirmation) {
