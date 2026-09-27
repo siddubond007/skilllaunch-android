@@ -276,11 +276,27 @@ fun OnboardingScreen(
                 error = ""
             },
             onContinue = {
-                if (selectedSkills.isEmpty()) {
-                    error = "Choose at least one primary skill to continue."
-                } else {
-                    error = ""
-                    step = 3
+                val linkValidationError = when {
+                    validateStudentLink(githubUrl, StudentLinkKind.GITHUB) != null ->
+                        validateStudentLink(githubUrl, StudentLinkKind.GITHUB)
+                    validateStudentLink(youtubeUrl, StudentLinkKind.YOUTUBE) != null ->
+                        validateStudentLink(youtubeUrl, StudentLinkKind.YOUTUBE)
+                    validateStudentLink(portfolioUrl, StudentLinkKind.PORTFOLIO) != null ->
+                        validateStudentLink(portfolioUrl, StudentLinkKind.PORTFOLIO)
+                    else -> null
+                }
+
+                when {
+                    selectedSkills.isEmpty() -> {
+                        error = "Choose at least one primary skill to continue."
+                    }
+                    linkValidationError != null -> {
+                        error = "Fix the highlighted link before continuing."
+                    }
+                    else -> {
+                        error = ""
+                        step = 3
+                    }
                 }
             },
             onConfirmSkip = {
