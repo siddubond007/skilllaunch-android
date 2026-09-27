@@ -70,6 +70,7 @@ data class OnboardingData(
     val youtubeUrl: String? = null,
     val portfolioUrl: String? = null,
     val academicStatus: String? = null,
+    val graduationMonth: Int? = null,
     val graduationYear: Int? = null,
     val availability: String? = null,
     val clientType: String? = null,
