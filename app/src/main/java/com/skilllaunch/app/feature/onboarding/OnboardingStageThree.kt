@@ -32,8 +32,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -50,7 +48,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.skilllaunch.app.feature.auth.SkillLaunchBrand
 import java.text.DateFormatSymbols
-import java.util.Calendar
 
 private val stageThreeAcademicStatuses = listOf(
     "High School",
@@ -115,6 +112,7 @@ internal fun OnboardingStageThree(
     onBack: () -> Unit,
     onSkip: () -> Unit,
     onAcademicStatusChange: (String) -> Unit,
+    onGraduationMonthChange: (Int) -> Unit,
     onGraduationYearChange: (String) -> Unit,
     onAvailabilityChange: (String) -> Unit,
     onContinue: () -> Unit,
