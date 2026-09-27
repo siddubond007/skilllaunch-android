@@ -346,7 +346,7 @@ internal fun StudentSkillsSelection(
                         textPrimary = textPrimary,
                         textMuted = textMuted,
                         onValueChange = onGithubChange,
-                        kind = StudentStudentStudentLinkKind.GITHUB
+                        kind = StudentLinkKind.GITHUB
                     )
                 }
 
@@ -557,7 +557,7 @@ internal fun validateStudentLink(value: String, kind: StudentLinkKind): String? 
     }
 
     return when (kind) {
-        StudentStudentStudentLinkKind.GITHUB ->
+        StudentLinkKind.GITHUB ->
             if (host == "github.com") null else "Use a github.com profile or repository URL."
         StudentLinkKind.YOUTUBE ->
             if (host == "youtube.com" || host == "m.youtube.com" || host == "youtu.be") {
@@ -738,7 +738,7 @@ private fun LinkGlyph(kind: StudentLinkKind, tint: Color, modifier: Modifier) {
     Canvas(modifier) {
         val stroke = 1.7.dp.toPx()
         when (kind) {
-            StudentStudentLinkKind.GITHUB -> {
+            StudentLinkKind.GITHUB -> {
                 drawCircle(
                     color = tint,
                     radius = size.minDimension * 0.29f,
