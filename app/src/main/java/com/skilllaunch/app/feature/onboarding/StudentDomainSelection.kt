@@ -169,23 +169,29 @@ internal fun StudentDomainSelection(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        Box(
+        Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(4.dp)
-                .clip(RoundedCornerShape(8.dp))
-                .background(
-                    if (darkTheme) Color(0xFF3A393E)
-                    else Color(0xFFD8D7DA)
-                )
+                .padding(horizontal = 28.dp),
+            horizontalArrangement = Arrangement.spacedBy(6.dp)
         ) {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth(0.25f)
-                    .height(4.dp)
-                    .clip(RoundedCornerShape(8.dp))
-                    .background(lavender)
-            )
+            repeat(4) { index ->
+                Box(
+                    modifier = Modifier
+                        .weight(1f)
+                        .height(5.dp)
+                        .clip(RoundedCornerShape(8.dp))
+                        .background(
+                            if (index == 0) {
+                                lavender
+                            } else if (darkTheme) {
+                                Color(0xFF3A393E)
+                            } else {
+                                Color(0xFFD8D7DA)
+                            }
+                        )
+                )
+            }
         }
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -213,69 +219,91 @@ internal fun StudentDomainSelection(
             )
         }
 
-        DomainSearchField(
-            value = query,
-            darkTheme = darkTheme,
-            onValueChange = {
-                query = it
-                if (it.isNotBlank()) {
-                    showAllDomains = true
-                }
-            },
-            onClear = { query = "" }
-        )
-
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 28.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                text = if (showAllDomains || normalizedQuery.isNotBlank()) {
-                    "All domains"
-                } else {
-                    "Featured domains"
-                },
-                color = textMuted,
-                fontSize = 12.sp,
-                fontWeight = FontWeight.Bold
-            )
-
-            Spacer(modifier = Modifier.weight(1f))
-
-            TextButton(
-                onClick = {
-                    showAllDomains = !showAllDomains
-                    if (!showAllDomains) {
-                        query = ""
-                    }
-                },
-                contentPadding = PaddingValues(
-                    horizontal = 4.dp,
-                    vertical = 2.dp
-                )
-            ) {
-                Text(
-                    text = if (showAllDomains) {
-                        "Show featured"
-                    } else {
-                        "Explore all " + STUDENT_GIG_DOMAIN_CATALOG.size
-                    },
-                    color = lavender,
-                    fontSize = 12.sp,
-                    fontWeight = FontWeight.Bold
-                )
-            }
-        }
-
         LazyColumn(
             modifier = Modifier
                 .fillMaxWidth()
                 .weight(1f),
-            contentPadding = PaddingValues(horizontal = 28.dp, vertical = 2.dp),
+            contentPadding = PaddingValues(
+                horizontal = 28.dp,
+                vertical = 8.dp
+            ),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
+            item(key = "domain-search") {
+                DomainSearchField(
+                    value = query,
+                    darkTheme = darkTheme,
+                    onValueChange = {
+                        query = it
+                        if (it.isNotBlank()) {
+                            showAllDomains = true
+                        }
+                    },
+                    onClear = { query = "" }
+                )
+            }
+
+            item(key = "domain-discovery") {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Column(
+                        verticalArrangement = Arrangement.spacedBy(2.dp)
+                    ) {
+                        Text(
+                            text = if (showAllDomains || normalizedQuery.isNotBlank()) {
+                                "All 38 domains"
+                            } else {
+                                "Featured domains"
+                            },
+                            color = textPrimary,
+                            fontSize = 13.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                        Text(
+                            text = if (showAllDomains || normalizedQuery.isNotBlank()) {
+                                "Search or browse the full marketplace catalog"
+                            } else {
+                                "6 popular starting points"
+                            },
+                            color = textMuted,
+                            fontSize = 11.sp
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.weight(1f))
+
+                    Box(
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(999.dp))
+                            .background(lavender.copy(alpha = if (darkTheme) 0.12f else 0.18f))
+                            .border(
+                                width = 1.dp,
+                                color = lavender.copy(alpha = 0.65f),
+                                shape = RoundedCornerShape(999.dp)
+                            )
+                            .clickable {
+                                showAllDomains = !showAllDomains
+                                if (!showAllDomains) {
+                                    query = ""
+                                }
+                            }
+                            .padding(horizontal = 12.dp, vertical = 8.dp)
+                    ) {
+                        Text(
+                            text = if (showAllDomains) {
+                                "Show featured"
+                            } else {
+                                "Explore all 38"
+                            },
+                            color = if (darkTheme) Color.White else Color(0xFF5C48B9),
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                }
+            }
             filteredDomains.chunked(2).forEach { row ->
                 item(key = row.joinToString("|")) {
                     Row(
@@ -334,56 +362,111 @@ internal fun StudentDomainSelection(
                     fontStyle = androidx.compose.ui.text.font.FontStyle.Italic
                 )
             }
+            item {
+                Spacer(modifier = Modifier.height(12.dp))
+            }
         }
 
-        if (error.isNotBlank()) {
-            Text(
-                text = error,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 28.dp, vertical = 5.dp),
-                color = Color(0xFFD95C5C),
-                fontSize = 13.sp,
-                fontWeight = FontWeight.SemiBold
-            )
-        }
-
-        if (selectedDomain.isNotBlank()) {
-            Text(
-                text = "Selected: $selectedDomain",
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(
-                        horizontal = 28.dp,
-                        vertical = 2.dp
-                    ),
-                color = textMuted,
-                fontSize = 12.sp,
-                fontWeight = FontWeight.SemiBold,
-                maxLines = 1
-            )
-        }
-
-        Button(
-            onClick = onContinue,
-            enabled = !saving,
+        Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(24.dp),
-            shape = RoundedCornerShape(28.dp),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = lavender,
-                contentColor = Color(0xFF17171A),
-                disabledContainerColor = lavender.copy(alpha = 0.55f),
-                disabledContentColor = Color(0xFF17171A).copy(alpha = 0.65f)
-            ),
-            contentPadding = PaddingValues(horizontal = 24.dp, vertical = 0.dp)
+                .background(pageBackground)
+                .padding(horizontal = 24.dp)
+                .padding(top = 6.dp, bottom = 16.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            Text(
-                text = "Continue  →",
-                fontSize = 14.sp,
-                fontWeight = FontWeight.Bold
-            )
+            if (selectedDomain.isNotBlank()) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(14.dp))
+                        .background(
+                            if (darkTheme) Color(0xFF262629)
+                            else Color(0xFFEDEBF0)
+                        )
+                        .border(
+                            width = 1.dp,
+                            color = lavender.copy(alpha = 0.50f),
+                            shape = RoundedCornerShape(14.dp)
+                        )
+                        .padding(horizontal = 12.dp, vertical = 9.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .size(24.dp)
+                            .clip(CircleShape)
+                            .background(lavender),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        CheckGlyph(
+                            tint = Color(0xFF17171A),
+                            modifier = Modifier.size(14.dp)
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.size(9.dp))
+
+                    Column(
+                        modifier = Modifier.weight(1f),
+                        verticalArrangement = Arrangement.spacedBy(1.dp)
+                    ) {
+                        Text(
+                            text = "Selected domain",
+                            color = textMuted,
+                            fontSize = 10.sp,
+                            fontWeight = FontWeight.SemiBold
+                        )
+                        Text(
+                            text = selectedDomain,
+                            color = textPrimary,
+                            fontSize = 13.sp,
+                            fontWeight = FontWeight.Bold,
+                            maxLines = 1
+                        )
+                    }
+                }
+            } else {
+                Text(
+                    text = "Choose one primary domain to continue.",
+                    modifier = Modifier.fillMaxWidth(),
+                    color = textMuted,
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.Medium
+                )
+            }
+
+            if (error.isNotBlank()) {
+                Text(
+                    text = error,
+                    modifier = Modifier.fillMaxWidth(),
+                    color = Color(0xFFD95C5C),
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.SemiBold
+                )
+            }
+
+            Button(
+                onClick = onContinue,
+                enabled = !saving,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(52.dp),
+                shape = RoundedCornerShape(28.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = lavender,
+                    contentColor = Color(0xFF17171A),
+                    disabledContainerColor = lavender.copy(alpha = 0.55f),
+                    disabledContentColor = Color(0xFF17171A).copy(alpha = 0.65f)
+                ),
+                contentPadding = PaddingValues(horizontal = 24.dp)
+            ) {
+                Text(
+                    text = "Continue  →",
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Bold
+                )
+            }
         }
 
         if (skipConfirmation) {
@@ -479,7 +562,7 @@ private fun DomainSearchField(
             decorationBox = { inner ->
                 if (value.isBlank()) {
                     Text(
-                        text = "Search domains (e.g. Web Development, AI)...",
+                        text = "Search all 38 domains...",
                         color = textMuted,
                         fontSize = 16.sp,
                         maxLines = 1
@@ -512,7 +595,7 @@ private fun StudentDomainCard(
 
     Column(
         modifier = modifier
-            .height(208.dp)
+.height(196.dp)
             .clip(RoundedCornerShape(22.dp))
             .background(if (selected) selectedBackground else cardBackground)
             .border(
@@ -527,7 +610,7 @@ private fun StudentDomainCard(
     ) {
         Box(
             modifier = Modifier
-                .size(126.dp)
+                .size(114.dp)
                 .clip(RoundedCornerShape(17.dp))
                 .background(Color.Transparent)
         ) {
