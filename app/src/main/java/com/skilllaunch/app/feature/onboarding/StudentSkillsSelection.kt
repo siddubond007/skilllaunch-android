@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBarsPadding
@@ -80,7 +81,6 @@ internal fun StudentSkillsSelection(
     val chipBackground = if (darkTheme) Color(0xFF303034) else Color(0xFFE0DFE2)
     val textPrimary = if (darkTheme) Color.White else Color(0xFF17171A)
     val textMuted = if (darkTheme) Color(0xFFAAA9AE) else Color(0xFF77767D)
-    val divider = if (darkTheme) Color.White.copy(alpha = 0.08f) else Color.Black.copy(alpha = 0.08f)
     val lavender = Color(0xFFD4C6FF)
 
     val allSkills = STUDENT_ONBOARDING_SKILLS_BY_DOMAIN[primaryDomain].orEmpty()
@@ -109,23 +109,31 @@ internal fun StudentSkillsSelection(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        Box(
+        Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(4.dp)
-                .clip(RoundedCornerShape(8.dp))
-                .background(
-                    if (darkTheme) Color(0xFF3A393E)
-                    else Color(0xFFD8D7DA)
-                )
+                .padding(horizontal = 28.dp),
+            horizontalArrangement = Arrangement.spacedBy(6.dp)
         ) {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth(0.50f)
-                    .height(4.dp)
-                    .clip(RoundedCornerShape(8.dp))
-                    .background(lavender)
-            )
+            repeat(4) { index ->
+                Box(
+                    modifier = Modifier
+                        .weight(1f)
+                        .height(5.dp)
+                        .clip(RoundedCornerShape(8.dp))
+                        .background(
+                            if (index == 1) {
+                                lavender
+                            } else if (index == 0) {
+                                lavender.copy(alpha = 0.55f)
+                            } else if (darkTheme) {
+                                Color(0xFF3A393E)
+                            } else {
+                                Color(0xFFD8D7DA)
+                            }
+                        )
+                )
+            }
         }
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -159,7 +167,7 @@ internal fun StudentSkillsSelection(
 
                 item {
                     Text(
-                        text = "Choose the skill areas you can actually deliver. Everything here comes from the SkillLaunch marketplace taxonomy.",
+                        text = "Choose the skills you can confidently deliver. Pick up to 6.",
                         color = textMuted,
                         fontSize = 16.sp,
                         lineHeight = 21.sp
@@ -180,29 +188,128 @@ internal fun StudentSkillsSelection(
                 }
 
                 item {
-                    Text(
-                        text = "${selectedSkills.size}/6 primary skills selected",
-                        color = textMuted,
-                        fontSize = 14.sp,
-                        fontWeight = FontWeight.SemiBold
-                    )
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(16.dp))
+                            .background(
+                                if (darkTheme) Color(0xFF262629)
+                                else Color(0xFFEDEBF0)
+                            )
+                            .border(
+                                width = 1.dp,
+                                color = lavender.copy(alpha = 0.35f),
+                                shape = RoundedCornerShape(16.dp)
+                            )
+                            .padding(horizontal = 14.dp, vertical = 12.dp),
+                        verticalArrangement = Arrangement.spacedBy(3.dp)
+                    ) {
+                        Text(
+                            text = "Your skills · ${selectedSkills.size} / 6",
+                            color = textPrimary,
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                        Text(
+                            text = if (selectedSkills.size == 6) {
+                                "6 selected — remove one to choose another."
+                            } else {
+                                "Select up to 6 skills that best represent your work."
+                            },
+                            color = textMuted,
+                            fontSize = 12.sp,
+                            lineHeight = 16.sp
+                        )
+                    }
+                }
+
+                if (selectedSkills.isNotEmpty()) {
+                    item {
+                        Text(
+                            text = "Selected skills",
+                            color = textPrimary,
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+
+                    item {
+                        FlowRow(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            verticalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            selectedSkills.forEach { skill ->
+                                StageTwoSkillChip(
+                                    text = skill,
+                                    selected = true,
+                                    darkTheme = darkTheme,
+                                    lavender = lavender,
+                                    background = chipBackground,
+                                    textPrimary = textPrimary,
+                                    onClick = { onToggleSkill(skill) }
+                                )
+                            }
+                        }
+                    }
                 }
 
                 item {
-                    FlowRow(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        verticalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        filteredSkills.forEach { skill ->
-                            StageTwoSkillChip(
-                                text = skill.title,
-                                selected = selectedSkills.contains(skill.title),
-                                darkTheme = darkTheme,
-                                lavender = lavender,
-                                background = chipBackground,
-                                textPrimary = textPrimary,
-                                onClick = { onToggleSkill(skill.title) }
+                    Text(
+                        text = "Choose more skills",
+                        color = textPrimary,
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+
+                val availableSkills = filteredSkills.filterNot { selectedSkills.contains(it.title) }
+
+                if (availableSkills.isNotEmpty()) {
+                    item {
+                        FlowRow(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            verticalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            availableSkills.forEach { skill ->
+                                StageTwoSkillChip(
+                                    text = skill.title,
+                                    selected = false,
+                                    darkTheme = darkTheme,
+                                    lavender = lavender,
+                                    background = chipBackground,
+                                    textPrimary = textPrimary,
+                                    onClick = {
+                                        onToggleSkill(skill.title)
+                                    }
+                                )
+                            }
+                        }
+                    }
+                } else {
+                    item {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clip(RoundedCornerShape(16.dp))
+                                .background(
+                                    if (darkTheme) Color(0xFF262629)
+                                    else Color(0xFFEDEBF0)
+                                )
+                                .padding(horizontal = 16.dp, vertical = 18.dp)
+                        ) {
+                            Text(
+                                text = if (normalizedSearch.isBlank()) {
+                                    "You've selected all available skills for this domain."
+                                } else {
+                                    "No matching skills. Try another search."
+                                },
+                                color = textMuted,
+                                fontSize = 13.sp,
+                                lineHeight = 18.sp,
+                                textAlign = TextAlign.Center,
+                                modifier = Modifier.fillMaxWidth()
                             )
                         }
                     }
@@ -239,7 +346,7 @@ internal fun StudentSkillsSelection(
                         textPrimary = textPrimary,
                         textMuted = textMuted,
                         onValueChange = onGithubChange,
-                        kind = LinkKind.GITHUB
+                        kind = StudentStudentStudentLinkKind.GITHUB
                     )
                 }
 
@@ -252,20 +359,20 @@ internal fun StudentSkillsSelection(
                         textPrimary = textPrimary,
                         textMuted = textMuted,
                         onValueChange = onYoutubeChange,
-                        kind = LinkKind.VIDEO
+                        kind = StudentLinkKind.YOUTUBE
                     )
                 }
 
                 item {
                     StageTwoLinkField(
                         value = portfolioUrl,
-                        placeholder = "https://your-portfolio-link",
+                        placeholder = "https://your-portfolio.com",
                         darkTheme = darkTheme,
                         background = searchBackground,
                         textPrimary = textPrimary,
                         textMuted = textMuted,
                         onValueChange = onPortfolioChange,
-                        kind = LinkKind.WEB
+                        kind = StudentLinkKind.PORTFOLIO
                     )
                 }
 
@@ -282,12 +389,21 @@ internal fun StudentSkillsSelection(
             }
         }
 
-        Button(
-            onClick = onContinue,
-            enabled = !saving,
+        Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(24.dp),
+                .background(pageBackground)
+                .navigationBarsPadding()
+                .imePadding()
+                .padding(horizontal = 24.dp)
+                .padding(top = 6.dp, bottom = 12.dp)
+        ) {
+            Button(
+                onClick = onContinue,
+                enabled = !saving,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(52.dp),
             shape = RoundedCornerShape(28.dp),
             colors = ButtonDefaults.buttonColors(
                 containerColor = lavender,
@@ -297,11 +413,12 @@ internal fun StudentSkillsSelection(
             ),
             contentPadding = PaddingValues(horizontal = 24.dp, vertical = 0.dp)
         ) {
-            Text(
-                text = "Continue  →",
-                fontSize = 14.sp,
-                fontWeight = FontWeight.Bold
-            )
+                Text(
+                    text = "Continue  →",
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Bold
+                )
+            }
         }
 
         if (skipConfirmation) {
@@ -416,10 +533,40 @@ private fun StageTwoSkillChip(
     }
 }
 
-private enum class LinkKind {
+internal enum class StudentLinkKind {
     GITHUB,
-    VIDEO,
-    WEB
+    YOUTUBE,
+    PORTFOLIO
+}
+
+internal fun validateStudentLink(value: String, kind: StudentLinkKind): String? {
+    val trimmed = value.trim()
+    if (trimmed.isBlank()) return null
+
+    val uri = try {
+        java.net.URI(trimmed)
+    } catch (_: Exception) {
+        return "Enter a valid URL."
+    }
+
+    val scheme = uri.scheme?.lowercase()
+    val host = uri.host?.lowercase()?.removePrefix("www.")
+
+    if (scheme !in setOf("http", "https") || host.isNullOrBlank()) {
+        return "Use a complete URL starting with https://."
+    }
+
+    return when (kind) {
+        StudentStudentStudentLinkKind.GITHUB ->
+            if (host == "github.com") null else "Use a github.com profile or repository URL."
+        StudentLinkKind.YOUTUBE ->
+            if (host == "youtube.com" || host == "m.youtube.com" || host == "youtu.be") {
+                null
+            } else {
+                "Use a youtube.com or youtu.be URL."
+            }
+        StudentLinkKind.PORTFOLIO -> null
+    }
 }
 
 @Composable
@@ -431,48 +578,89 @@ private fun StageTwoLinkField(
     textPrimary: Color,
     textMuted: Color,
     onValueChange: (String) -> Unit,
-    kind: LinkKind
+    kind: StudentLinkKind
 ) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(56.dp)
-            .clip(RoundedCornerShape(30.dp))
-            .background(background)
-            .padding(horizontal = 16.dp),
-        verticalAlignment = Alignment.CenterVertically
+    val linkError = if (
+        value.trim().isNotBlank() &&
+        (value.contains("://") || value.contains("."))
     ) {
-        LinkGlyph(
-            kind = kind,
-            tint = textMuted,
-            modifier = Modifier.size(21.dp)
-        )
-        Spacer(modifier = Modifier.size(10.dp))
-        BasicTextField(
-            value = value,
-            onValueChange = onValueChange,
-            modifier = Modifier.weight(1f),
-            singleLine = true,
-            keyboardOptions = KeyboardOptions(
-                keyboardType = KeyboardType.Uri,
-                imeAction = ImeAction.Next
-            ),
-            textStyle = TextStyle(
-                color = textPrimary,
-                fontSize = 15.sp
-            ),
-            decorationBox = { innerTextField ->
-                if (value.isBlank()) {
-                    Text(
-                        text = placeholder,
-                        color = textMuted,
-                        fontSize = 15.sp,
-                        maxLines = 1
+        validateStudentLink(value, kind)
+    } else {
+        null
+    }
+
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(5.dp)
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(56.dp)
+                .clip(RoundedCornerShape(30.dp))
+                .background(background)
+                .border(
+                    width = if (linkError != null) 1.dp else 0.dp,
+                    color = if (linkError != null) Color(0xFFD95C5C) else Color.Transparent,
+                    shape = RoundedCornerShape(30.dp)
+                )
+                .padding(horizontal = 16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            LinkGlyph(
+                kind = kind,
+                tint = if (linkError != null) Color(0xFFD95C5C) else textMuted,
+                modifier = Modifier.size(21.dp)
+            )
+            Spacer(modifier = Modifier.size(10.dp))
+            BasicTextField(
+                value = value,
+                onValueChange = onValueChange,
+                modifier = Modifier.weight(1f),
+                singleLine = true,
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Uri,
+                    imeAction = ImeAction.Next
+                ),
+                textStyle = TextStyle(
+                    color = textPrimary,
+                    fontSize = 15.sp
+                ),
+                decorationBox = { innerTextField ->
+                    if (value.isBlank()) {
+                        Text(
+                            text = placeholder,
+                            color = textMuted,
+                            fontSize = 15.sp,
+                            maxLines = 1
+                        )
+                    }
+                    innerTextField()
+                }
+            )
+            if (value.isNotBlank()) {
+                IconButton(
+                    onClick = { onValueChange("") },
+                    modifier = Modifier.size(32.dp)
+                ) {
+                    CloseGlyph(
+                        tint = if (linkError != null) Color(0xFFD95C5C) else textMuted,
+                        modifier = Modifier.size(17.dp)
                     )
                 }
-                innerTextField()
             }
-        )
+        }
+
+        if (linkError != null) {
+            Text(
+                text = linkError,
+                modifier = Modifier.padding(horizontal = 12.dp),
+                color = Color(0xFFD95C5C),
+                fontSize = 12.sp,
+                lineHeight = 16.sp,
+                fontWeight = FontWeight.Medium
+            )
+        }
     }
 }
 
@@ -546,11 +734,11 @@ private fun BackArrowGlyph(tint: Color, modifier: Modifier) {
 }
 
 @Composable
-private fun LinkGlyph(kind: LinkKind, tint: Color, modifier: Modifier) {
+private fun LinkGlyph(kind: StudentLinkKind, tint: Color, modifier: Modifier) {
     Canvas(modifier) {
         val stroke = 1.7.dp.toPx()
         when (kind) {
-            LinkKind.GITHUB -> {
+            StudentStudentLinkKind.GITHUB -> {
                 drawCircle(
                     color = tint,
                     radius = size.minDimension * 0.29f,
@@ -572,7 +760,7 @@ private fun LinkGlyph(kind: LinkKind, tint: Color, modifier: Modifier) {
                     cap = StrokeCap.Round
                 )
             }
-            LinkKind.VIDEO -> {
+            StudentLinkKind.YOUTUBE -> {
                 drawRoundRect(
                     color = tint,
                     topLeft = Offset(size.width * 0.10f, size.height * 0.22f),
@@ -594,7 +782,7 @@ private fun LinkGlyph(kind: LinkKind, tint: Color, modifier: Modifier) {
                 }
                 drawPath(p, color = tint, style = Stroke(width = stroke))
             }
-            LinkKind.WEB -> {
+            StudentLinkKind.PORTFOLIO -> {
                 drawCircle(
                     color = tint,
                     radius = size.minDimension * 0.39f,
