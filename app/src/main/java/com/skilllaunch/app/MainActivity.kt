@@ -155,13 +155,22 @@ private fun SkillLaunchRoot(
             onboardingResolvedForUser = false
             profileRepository.getProfile(userId)
                 .onSuccess { profile ->
+                    val role = state.user?.role
+                    val canUseOnboarding =
+                        role == "STUDENT_FREELANCER" || role == "CLIENT"
+
                     val status = profile.profile?.onboardingStatus
-                    showOnboarding = when (status) {
-                        "SKIPPED" -> false
-                        "COMPLETED" -> profile.profile?.onboardingCompleted == false
-                        "NOT_STARTED", "PENDING", "IN_PROGRESS" -> true
-                        else -> profile.profile?.onboardingCompleted == false
+                    showOnboarding = if (!canUseOnboarding) {
+                        false
+                    } else {
+                        when (status) {
+                            "SKIPPED" -> false
+                            "COMPLETED" -> profile.profile?.onboardingCompleted == false
+                            "NOT_STARTED", "PENDING", "IN_PROGRESS" -> true
+                            else -> profile.profile?.onboardingCompleted == false
+                        }
                     }
+
                     onboardingResolvedForUser = true
                 }
                 .onFailure {
@@ -206,7 +215,10 @@ private fun SkillLaunchRoot(
                     gigRepository = gigRepository,
                     onLogout = authViewModel::logout,
                     onOpenOnboarding = {
-                        showOnboarding = true
+                        val role = state.user?.role
+                        if (role == "STUDENT_FREELANCER" || role == "CLIENT") {
+                            showOnboarding = true
+                        }
                     },
                     profileRefreshVersion = profileRefreshVersion,
                     themeState = themeState,
