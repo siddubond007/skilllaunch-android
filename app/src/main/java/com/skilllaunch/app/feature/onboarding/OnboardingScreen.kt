@@ -342,7 +342,7 @@ fun OnboardingScreen(
             saving = saving,
             skipConfirmation = showSkipConfirmation,
             onBack = {
-                step = 2
+                onStepChange(2)
                 error = ""
             },
             onSkip = {
@@ -425,7 +425,7 @@ fun OnboardingScreen(
                 avatarUrl = it
             },
             onBack = {
-                step = 3
+                onStepChange(3)
                 error = ""
             },
             onSkip = {
