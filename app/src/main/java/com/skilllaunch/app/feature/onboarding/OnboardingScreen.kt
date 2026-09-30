@@ -113,6 +113,7 @@ fun OnboardingScreen(
     var error by remember { mutableStateOf("") }
 
     val isStudent = user.role == "STUDENT_FREELANCER"
+    val isClient = user.role == "CLIENT"
 
     LaunchedEffect(user.id) {
         repository.getMyProfile()
@@ -151,8 +152,10 @@ fun OnboardingScreen(
                     availability = data?.availability.orEmpty()
                     tagline = profile?.tagline.orEmpty()
                     bio = profile?.bio.orEmpty()
-                } else {
-                    clientType = data?.clientType.orEmpty()
+                } else if (isClient) {
+                    clientType = data?.clientType
+                        ?.takeIf { it in clientTypes }
+                        .orEmpty()
                     hiringCategories = data?.hiringCategories.orEmpty()
                     hiringIntent = data?.hiringIntent.orEmpty()
                     projectScope = data?.projectScope.orEmpty()
@@ -704,6 +707,8 @@ fun OnboardingScreen(
                     )
                 } else {
                     val validationMessage = when {
+                        !isStudent && !isClient ->
+                            "This account type does not use onboarding."
                         isStudent && step == 1 && primaryDomain.isBlank() ->
                             "Choose your main focus to continue."
                         isStudent && step == 2 && selectedSkills.isEmpty() ->
@@ -1034,8 +1039,12 @@ private fun validateAndSave(
             setError("Choose your academic status and availability.")
             return
         }
-    } else {
-        if (clientType.isBlank() || hiringCategories.isEmpty() || hiringIntent.isBlank() || projectScope.isBlank()) {
+    } else if (isClient) {
+        if (clientType !in clientTypes) {
+            setError("Choose the client type to continue.")
+            return
+        }
+        if (hiringCategories.isEmpty() || hiringIntent.isBlank() || projectScope.isBlank()) {
             setError("Complete your hiring preferences first.")
             return
         }
@@ -1043,10 +1052,13 @@ private fun validateAndSave(
             setError("Add a company or project name.")
             return
         }
+    } else {
+        setError("This account type does not use onboarding.")
+        return
     }
 
     val data = OnboardingData(
-        role = if (isStudent) "STUDENT_FREELANCER" else "CLIENT",
+        role = user.role,
         primaryDomain = primaryDomain.ifBlank { null },
         selectedSkills = selectedSkills,
         githubUrl = githubUrl.trim().ifBlank { null },
