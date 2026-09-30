@@ -65,6 +65,7 @@ private val stageThreeAcademicStatuses = listOf(
 private val stageThreeAvailabilityOptions = listOf(
     "Part-time (< 20 hrs)",
     "Half-time (20-30 hrs)",
+    "30-40 hrs",
     "Full-time (40+ hrs)"
 )
 
@@ -219,7 +220,7 @@ internal fun OnboardingStageThree(
 
                 item {
                     Text(
-                        text = "Tell us where you are in your journey and when you're ready to work.",
+                        text = "Tell us where you are in your journey and how much time you can give to projects.",
                         color = colors.textMuted,
                         fontSize = 16.sp,
                         lineHeight = 21.sp
@@ -424,7 +425,7 @@ private fun MonthYearPickerDialog(
     val colors = stageThreeColors(darkTheme)
     val currentYear = Calendar.getInstance().get(Calendar.YEAR)
     val currentMonth = Calendar.getInstance().get(Calendar.MONTH) + 1
-    val minYear = currentYear
+    val minYear = if (currentMonth == 12) currentYear + 1 else currentYear
     val maxYear = currentYear + 10
     val months = DateFormatSymbols().shortMonths.take(12)
 
@@ -455,11 +456,7 @@ private fun MonthYearPickerDialog(
                     TextButton(
                         onClick = {
                             if (selectedYear > minYear) {
-                                val nextYear = selectedYear - 1
-                                onYearChange(nextYear)
-                                if (nextYear == minYear && selectedMonth <= currentMonth) {
-                                    onMonthChange((currentMonth + 1).coerceAtMost(12))
-                                }
+                                onYearChange(selectedYear - 1)
                             }
                         }
                     ) {
