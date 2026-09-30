@@ -90,6 +90,8 @@ fun OnboardingScreen(
     user: AuthUser,
     repository: ProfileRepository,
     darkTheme: Boolean,
+    step: Int,
+    onStepChange: (Int) -> Unit,
     onToggleTheme: () -> Unit,
     onFinished: () -> Unit
 ) {
@@ -99,7 +101,6 @@ fun OnboardingScreen(
         factory = ProfileViewModel.factory(repository)
     )
 
-    var step by rememberSaveable { mutableIntStateOf(1) }
     var primaryDomain by rememberSaveable { mutableStateOf("") }
     var selectedSkills by rememberSaveable { mutableStateOf(emptyList<String>()) }
     var skillSearch by rememberSaveable { mutableStateOf("") }
@@ -218,7 +219,7 @@ fun OnboardingScreen(
             showSkipConfirmation -> showSkipConfirmation = false
             loadingInitialProfile -> error = "Please wait while your profile setup is loading."
             step > 1 -> {
-                step -= 1
+                onStepChange(step - 1)
                 error = ""
             }
             else -> showSkipConfirmation = true
@@ -244,7 +245,7 @@ fun OnboardingScreen(
                     error = "Choose your primary domain to continue."
                 } else {
                     error = ""
-                    step = 2
+                    onStepChange(2)
                 }
             },
             onConfirmSkip = {
@@ -269,7 +270,7 @@ fun OnboardingScreen(
             skipConfirmation = showSkipConfirmation,
             error = error,
             onBack = {
-                step = 1
+                onStepChange(1)
                 error = ""
             },
             onSkip = {
@@ -315,7 +316,7 @@ fun OnboardingScreen(
                     }
                     else -> {
                         error = ""
-                        step = 3
+                        onStepChange(3)
                     }
                 }
             },
@@ -394,7 +395,7 @@ fun OnboardingScreen(
                     error = validationMessage
                 } else {
                     error = ""
-                    step = 4
+                    onStepChange(4)
                 }
             }
         )
@@ -517,7 +518,7 @@ fun OnboardingScreen(
             ) {
                 TextButton(
                     onClick = {
-                        step -= 1
+                        onStepChange(step - 1)
                         error = ""
                     },
                     contentPadding = androidx.compose.foundation.layout.PaddingValues(
@@ -786,7 +787,7 @@ fun OnboardingScreen(
                     }
 
                     error = ""
-                    step += 1
+                    onStepChange(step + 1)
                 }
             }
 
