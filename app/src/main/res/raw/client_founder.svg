@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 180">
+<defs>
+<radialGradient id="clay" cx="35%" cy="28%" r="80%"><stop offset="0" stop-color="#fffdf9"/><stop offset=".52" stop-color="#e8e1d7"/><stop offset="1" stop-color="#a9a197"/></radialGradient>
+<linearGradient id="clay2" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#fffdf9"/><stop offset=".58" stop-color="#ddd5ca"/><stop offset="1" stop-color="#989087"/></linearGradient>
+</defs>
+<ellipse cx="128" cy="156" rx="70" ry="10" fill="#8f887f" opacity=".22"/>
+<path d="M55 126 C36 144 27 155 22 164 C20 169 24 173 29 171 L67 130Z" fill="url(#clay2)"/>
+<circle cx="89" cy="68" r="40" fill="none" stroke="url(#clay)" stroke-width="18" stroke-linecap="round"/>
+<circle cx="132" cy="70" r="16" fill="url(#clay2)"/>
+<path d="M108 116 C118 101 140 94 158 101 C177 109 184 130 179 144 C174 153 148 158 126 154 C108 151 99 135 108 116Z" fill="url(#clay)"/>
+<ellipse cx="142" cy="116" rx="31" ry="9" fill="#fffdf9" opacity=".22"/>
+</svg>
