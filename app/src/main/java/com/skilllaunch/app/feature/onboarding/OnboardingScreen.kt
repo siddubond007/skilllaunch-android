@@ -1020,7 +1020,6 @@ private fun ClientTypeCard(
             ) {
                 ClientTypeArtwork(
                     type = type,
-                    darkTheme = darkTheme,
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(if (darkTheme) 148.dp else 118.dp)
