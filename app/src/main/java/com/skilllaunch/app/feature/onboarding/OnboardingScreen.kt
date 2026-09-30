@@ -2,6 +2,8 @@ package com.skilllaunch.app.feature.onboarding
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.animateFloatAsState
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
@@ -51,6 +53,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -58,6 +61,13 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.StrokeJoin
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.draw.scale
+
 import com.skilllaunch.app.data.model.auth.AuthUser
 import com.skilllaunch.app.data.model.profile.OnboardingData
 import com.skilllaunch.app.data.model.profile.ProfileUpdateRequest
@@ -531,21 +541,54 @@ fun OnboardingScreen(
                 ) {
                     when {
                         isClient && step == 1 -> item {
-                            SectionHeader(
-                                emoji = "💼",
-                                title = "Who's hiring today?",
-                                subtitle = "Tell us what kind of client you are so we can shape your hiring experience."
-                            )
-                            SelectionGrid(
-                                options = clientTypes,
-                                selected = clientType,
-                                descriptionMap = clientTypeDescriptions,
-                                iconMap = clientTypeIcons,
-                                onSelect = {
-                                    clientType = it
-                                    error = ""
+                            Column(
+                                verticalArrangement = Arrangement.spacedBy(15.dp)
+                            ) {
+                                Text(
+                                    text = "Who's hiring today?",
+                                    style = TextStyle(
+                                        fontFamily = androidx.compose.ui.text.font.FontFamily.Serif,
+                                        fontSize = 36.sp,
+                                        lineHeight = 40.sp,
+                                        fontWeight = FontWeight.Bold
+                                    ),
+                                    color = MaterialTheme.colorScheme.onSurface
+                                )
+
+                                Text(
+                                    text = "Tell us what kind of client you are so we can shape your hiring experience.",
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    style = MaterialTheme.typography.bodyLarge,
+                                    lineHeight = 22.sp
+                                )
+
+                                if (error.isNotBlank()) {
+                                    Surface(
+                                        shape = RoundedCornerShape(12.dp),
+                                        color = MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.78f)
+                                    ) {
+                                        Text(
+                                            text = error,
+                                            modifier = Modifier.padding(
+                                                horizontal = 13.dp,
+                                                vertical = 10.dp
+                                            ),
+                                            color = MaterialTheme.colorScheme.onErrorContainer,
+                                            style = MaterialTheme.typography.bodySmall,
+                                            fontWeight = FontWeight.SemiBold
+                                        )
+                                    }
                                 }
-                            )
+
+                                ClientTypeSelectionGrid(
+                                    options = clientTypes,
+                                    selected = clientType,
+                                    onSelect = {
+                                        clientType = it
+                                        error = ""
+                                    }
+                                )
+                            }
                         }
 
                         isClient && step == 2 -> item {
@@ -675,7 +718,7 @@ fun OnboardingScreen(
                     isLastStep -> "Explore Talent"
                     else -> "Continue"
                 },
-                enabled = true,
+                enabled = !saving && !loadingInitialProfile,
                 loading = saving
             ) {
                 if (isLastStep) {
@@ -784,6 +827,359 @@ private fun SectionHeader(
         )
     }
 }
+
+@Composable
+private fun ClientTypeSelectionGrid(
+    options: List<String>,
+    selected: String,
+    onSelect: (String) -> Unit
+) {
+    Column(
+        verticalArrangement = Arrangement.spacedBy(11.dp)
+    ) {
+        options.chunked(2).forEach { row ->
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(11.dp)
+            ) {
+                row.forEach { option ->
+                    ClientTypeCard(
+                        type = option,
+                        selected = selected == option,
+                        modifier = Modifier.weight(1f),
+                        onClick = { onSelect(option) }
+                    )
+                }
+
+                if (row.size == 1) {
+                    Spacer(modifier = Modifier.weight(1f))
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun ClientTypeCard(
+    type: String,
+    selected: Boolean,
+    modifier: Modifier,
+    onClick: () -> Unit
+) {
+    val accent = Color(0xFFD6B632)
+    val shape = RoundedCornerShape(16.dp)
+    val borderColor by animateColorAsState(
+        targetValue = if (selected) accent else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.07f),
+        label = "clientTypeBorder"
+    )
+    val backgroundColor by animateColorAsState(
+        targetValue = if (selected) {
+            accent.copy(alpha = 0.08f)
+        } else {
+            MaterialTheme.colorScheme.surface.copy(alpha = 0.56f)
+        },
+        label = "clientTypeBackground"
+    )
+    val scale by animateFloatAsState(
+        targetValue = if (selected) 1.0f else 0.985f,
+        label = "clientTypeScale"
+    )
+
+    Box(
+        modifier = modifier
+            .fillMaxWidth()
+            .height(132.dp)
+            .scale(scale)
+            .clip(shape)
+            .background(backgroundColor)
+            .border(
+                width = if (selected) 1.4.dp else 1.dp,
+                color = borderColor,
+                shape = shape
+            )
+            .clickable(onClick = onClick)
+            .padding(15.dp)
+    ) {
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.SpaceBetween
+        ) {
+            Box(
+                modifier = Modifier.fillMaxWidth(),
+                contentAlignment = Alignment.TopStart
+            ) {
+                ClientTypeIcon(
+                    type = type,
+                    tint = accent,
+                    modifier = Modifier.size(25.dp)
+                )
+
+                if (selected) {
+                    Box(
+                        modifier = Modifier
+                            .align(Alignment.TopEnd)
+                            .size(21.dp)
+                            .clip(androidx.compose.foundation.shape.CircleShape)
+                            .background(accent),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = "✓",
+                            color = Color(0xFF111111),
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.ExtraBold
+                        )
+                    }
+                }
+            }
+
+            Column(
+                verticalArrangement = Arrangement.spacedBy(3.dp)
+            ) {
+                Text(
+                    text = clientTypeDisplayNames[type] ?: type,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    style = MaterialTheme.typography.titleSmall,
+                    fontWeight = FontWeight.ExtraBold,
+                    maxLines = 1
+                )
+                Text(
+                    text = clientTypeShortDescriptions[type].orEmpty(),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    style = MaterialTheme.typography.bodySmall,
+                    lineHeight = 15.sp,
+                    maxLines = 2
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun ClientTypeIcon(
+    type: String,
+    tint: Color,
+    modifier: Modifier = Modifier
+) {
+    androidx.compose.foundation.Canvas(modifier = modifier) {
+        val w = size.width
+        val h = size.height
+        val stroke = Stroke(
+            width = size.minDimension * 0.085f,
+            cap = StrokeCap.Round,
+            join = StrokeJoin.Round
+        )
+
+        when (type) {
+            "Solo Founder / Individual" -> {
+                drawCircle(
+                    color = tint,
+                    radius = w * 0.18f,
+                    center = Offset(w * 0.34f, h * 0.27f),
+                    style = stroke
+                )
+                drawArc(
+                    color = tint,
+                    startAngle = 205f,
+                    sweepAngle = 125f,
+                    useCenter = false,
+                    topLeft = Offset(w * 0.08f, h * 0.42f),
+                    size = Size(w * 0.52f, h * 0.46f),
+                    style = stroke
+                )
+                drawLine(
+                    color = tint,
+                    start = Offset(w * 0.72f, h * 0.24f),
+                    end = Offset(w * 0.72f, h * 0.52f),
+                    strokeWidth = stroke.width,
+                    cap = StrokeCap.Round
+                )
+                drawLine(
+                    color = tint,
+                    start = Offset(w * 0.58f, h * 0.38f),
+                    end = Offset(w * 0.86f, h * 0.38f),
+                    strokeWidth = stroke.width,
+                    cap = StrokeCap.Round
+                )
+            }
+
+            "Early-stage Startup" -> {
+                val rocket = Path().apply {
+                    moveTo(w * 0.54f, h * 0.08f)
+                    cubicTo(
+                        w * 0.35f, h * 0.22f,
+                        w * 0.28f, h * 0.45f,
+                        w * 0.38f, h * 0.62f
+                    )
+                    lineTo(w * 0.55f, h * 0.78f)
+                    cubicTo(
+                        w * 0.73f, h * 0.66f,
+                        w * 0.82f, h * 0.40f,
+                        w * 0.54f, h * 0.08f
+                    )
+                    close()
+                }
+                drawPath(rocket, color = tint, style = stroke)
+                drawCircle(
+                    color = tint,
+                    radius = w * 0.07f,
+                    center = Offset(w * 0.54f, h * 0.32f),
+                    style = stroke
+                )
+                drawLine(
+                    color = tint,
+                    start = Offset(w * 0.31f, h * 0.68f),
+                    end = Offset(w * 0.16f, h * 0.84f),
+                    strokeWidth = stroke.width,
+                    cap = StrokeCap.Round
+                )
+                drawLine(
+                    color = tint,
+                    start = Offset(w * 0.20f, h * 0.64f),
+                    end = Offset(w * 0.12f, h * 0.64f),
+                    strokeWidth = stroke.width,
+                    cap = StrokeCap.Round
+                )
+            }
+
+            "Small Business" -> {
+                drawRect(
+                    color = tint,
+                    topLeft = Offset(w * 0.16f, h * 0.42f),
+                    size = Size(w * 0.68f, h * 0.46f),
+                    style = stroke
+                )
+                drawLine(
+                    color = tint,
+                    start = Offset(w * 0.12f, h * 0.42f),
+                    end = Offset(w * 0.88f, h * 0.42f),
+                    strokeWidth = stroke.width,
+                    cap = StrokeCap.Round
+                )
+                for (i in 0..2) {
+                    val left = w * (0.15f + i * 0.23f)
+                    drawLine(
+                        color = tint,
+                        start = Offset(left, h * 0.24f),
+                        end = Offset(left + w * 0.12f, h * 0.42f),
+                        strokeWidth = stroke.width,
+                        cap = StrokeCap.Round
+                    )
+                }
+                drawLine(
+                    color = tint,
+                    start = Offset(w * 0.46f, h * 0.60f),
+                    end = Offset(w * 0.46f, h * 0.88f),
+                    strokeWidth = stroke.width,
+                    cap = StrokeCap.Round
+                )
+            }
+
+            "Company" -> {
+                drawRect(
+                    color = tint,
+                    topLeft = Offset(w * 0.22f, h * 0.16f),
+                    size = Size(w * 0.56f, h * 0.72f),
+                    style = stroke
+                )
+                for (row in 0..2) {
+                    for (col in 0..1) {
+                        val x = w * (0.36f + col * 0.21f)
+                        val y = h * (0.31f + row * 0.17f)
+                        drawRect(
+                            color = tint,
+                            topLeft = Offset(x, y),
+                            size = Size(w * 0.08f, h * 0.08f),
+                            style = stroke
+                        )
+                    }
+                }
+                drawLine(
+                    color = tint,
+                    start = Offset(w * 0.50f, h * 0.88f),
+                    end = Offset(w * 0.50f, h * 0.68f),
+                    strokeWidth = stroke.width,
+                    cap = StrokeCap.Round
+                )
+            }
+
+            "Academic / Research" -> {
+                val cap = Path().apply {
+                    moveTo(w * 0.10f, h * 0.38f)
+                    lineTo(w * 0.50f, h * 0.14f)
+                    lineTo(w * 0.90f, h * 0.38f)
+                    lineTo(w * 0.50f, h * 0.60f)
+                    close()
+                }
+                drawPath(cap, color = tint, style = stroke)
+                drawLine(
+                    color = tint,
+                    start = Offset(w * 0.50f, h * 0.60f),
+                    end = Offset(w * 0.50f, h * 0.82f),
+                    strokeWidth = stroke.width,
+                    cap = StrokeCap.Round
+                )
+                drawLine(
+                    color = tint,
+                    start = Offset(w * 0.84f, h * 0.38f),
+                    end = Offset(w * 0.84f, h * 0.67f),
+                    strokeWidth = stroke.width,
+                    cap = StrokeCap.Round
+                )
+                drawCircle(
+                    color = tint,
+                    radius = stroke.width * 0.75f,
+                    center = Offset(w * 0.84f, h * 0.72f)
+                )
+            }
+
+            else -> {
+                val heart = Path().apply {
+                    moveTo(w * 0.50f, h * 0.84f)
+                    cubicTo(
+                        w * 0.42f, h * 0.72f,
+                        w * 0.16f, h * 0.56f,
+                        w * 0.18f, h * 0.32f
+                    )
+                    cubicTo(
+                        w * 0.20f, h * 0.13f,
+                        w * 0.40f, h * 0.10f,
+                        w * 0.50f, h * 0.27f
+                    )
+                    cubicTo(
+                        w * 0.60f, h * 0.10f,
+                        w * 0.80f, h * 0.13f,
+                        w * 0.82f, h * 0.32f
+                    )
+                    cubicTo(
+                        w * 0.84f, h * 0.56f,
+                        w * 0.58f, h * 0.72f,
+                        w * 0.50f, h * 0.84f
+                    )
+                }
+                drawPath(heart, color = tint, style = stroke)
+            }
+        }
+    }
+}
+
+private val clientTypeDisplayNames = mapOf(
+    "Solo Founder / Individual" to "Solo Founder",
+    "Early-stage Startup" to "Early Startup",
+    "Small Business" to "Small Business",
+    "Company" to "Company",
+    "Academic / Research" to "Academic",
+    "Non-profit / Organization" to "Non-profit"
+)
+
+private val clientTypeShortDescriptions = mapOf(
+    "Solo Founder / Individual" to "Personal or founder-led",
+    "Early-stage Startup" to "Fast-moving products",
+    "Small Business" to "Growing local business",
+    "Company" to "Established organization",
+    "Academic / Research" to "Research or education",
+    "Non-profit / Organization" to "Mission-driven projects"
+)
 
 @Composable
 private fun SelectionGrid(
