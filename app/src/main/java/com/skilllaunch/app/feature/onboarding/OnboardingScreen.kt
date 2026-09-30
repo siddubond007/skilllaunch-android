@@ -548,8 +548,8 @@ fun OnboardingScreen(
                                     text = "Who's hiring today?",
                                     style = TextStyle(
                                         fontFamily = androidx.compose.ui.text.font.FontFamily.Serif,
-                                        fontSize = 36.sp,
-                                        lineHeight = 40.sp,
+                                        fontSize = 37.sp,
+                                        lineHeight = 41.sp,
                                         fontWeight = FontWeight.Bold
                                     ),
                                     color = MaterialTheme.colorScheme.onSurface
@@ -558,7 +558,9 @@ fun OnboardingScreen(
                                 Text(
                                     text = "Tell us what kind of client you are so we can shape your hiring experience.",
                                     color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                    style = MaterialTheme.typography.bodyLarge,
+                                    style = MaterialTheme.typography.bodyLarge.copy(
+                                        fontSize = 15.sp
+                                    ),
                                     lineHeight = 22.sp
                                 )
 
@@ -888,12 +890,12 @@ private fun ClientTypeSelectionGrid(
     onSelect: (String) -> Unit
 ) {
     Column(
-        verticalArrangement = Arrangement.spacedBy(11.dp)
+        verticalArrangement = Arrangement.spacedBy(10.dp)
     ) {
         options.chunked(2).forEach { row ->
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(11.dp)
+                horizontalArrangement = Arrangement.spacedBy(10.dp)
             ) {
                 row.forEach { option ->
                     ClientTypeCard(
@@ -927,25 +929,25 @@ private fun ClientTypeCard(
     )
     val backgroundColor by animateColorAsState(
         targetValue = if (selected) {
-            accent.copy(alpha = 0.08f)
+            accent.copy(alpha = 0.11f)
         } else {
-            MaterialTheme.colorScheme.surface.copy(alpha = 0.56f)
+            MaterialTheme.colorScheme.surface.copy(alpha = 0.74f)
         },
         label = "clientTypeBackground"
     )
     Box(
         modifier = modifier
             .fillMaxWidth()
-            .height(132.dp)
+            .height(148.dp)
             .clip(shape)
             .background(backgroundColor)
             .border(
-                width = if (selected) 1.4.dp else 1.dp,
+                width = if (selected) 1.6.dp else 1.dp,
                 color = borderColor,
                 shape = shape
             )
             .clickable(onClick = onClick)
-            .padding(15.dp)
+            .padding(14.dp)
     ) {
         Column(
             modifier = Modifier.fillMaxSize(),
@@ -958,14 +960,14 @@ private fun ClientTypeCard(
                 ClientTypeIcon(
                     type = type,
                     tint = accent,
-                    modifier = Modifier.size(25.dp)
+                    modifier = Modifier.size(28.dp)
                 )
 
                 if (selected) {
                     Box(
                         modifier = Modifier
                             .align(Alignment.TopEnd)
-                            .size(21.dp)
+                            .size(23.dp)
                             .clip(androidx.compose.foundation.shape.CircleShape)
                             .background(accent),
                         contentAlignment = Alignment.Center
@@ -986,14 +988,18 @@ private fun ClientTypeCard(
                 Text(
                     text = clientTypeDisplayNames[type] ?: type,
                     color = MaterialTheme.colorScheme.onSurface,
-                    style = MaterialTheme.typography.titleSmall,
+                    style = MaterialTheme.typography.titleSmall.copy(
+                        fontSize = 14.sp
+                    ),
                     fontWeight = FontWeight.ExtraBold,
                     maxLines = 1
                 )
                 Text(
                     text = clientTypeShortDescriptions[type].orEmpty(),
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    style = MaterialTheme.typography.bodySmall,
+                    style = MaterialTheme.typography.bodySmall.copy(
+                        fontSize = 11.sp
+                    ),
                     lineHeight = 15.sp,
                     maxLines = 2
                 )
