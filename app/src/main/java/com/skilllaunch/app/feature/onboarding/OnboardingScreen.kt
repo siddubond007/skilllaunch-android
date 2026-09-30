@@ -180,7 +180,6 @@ fun OnboardingScreen(
             youtubeUrl = youtubeUrl,
             portfolioUrl = portfolioUrl,
             academicStatus = academicStatus,
-            graduationMonth = graduationMonth,
             graduationYear = graduationYear,
             availability = availability,
             tagline = tagline,
