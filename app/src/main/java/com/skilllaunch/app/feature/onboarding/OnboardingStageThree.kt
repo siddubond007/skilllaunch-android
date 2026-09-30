@@ -128,8 +128,14 @@ internal fun OnboardingStageThree(
     var draftGraduationMonth by remember(graduationMonth) {
         mutableIntStateOf(graduationMonth.coerceIn(1, 12))
     }
+    val today = Calendar.getInstance()
+    val currentYear = today.get(Calendar.YEAR)
+    val currentMonth = today.get(Calendar.MONTH) + 1
+    val defaultGraduationYear = if (currentMonth == 12) currentYear + 1 else currentYear
+    val defaultGraduationMonth = if (currentMonth == 12) 1 else currentMonth + 1
+
     var draftGraduationYear by remember(graduationYear) {
-        mutableIntStateOf(graduationYear.toIntOrNull() ?: (Calendar.getInstance().get(Calendar.YEAR) + 1))
+        mutableIntStateOf(graduationYear.toIntOrNull() ?: defaultGraduationYear)
     }
 
     val displayedGraduation = graduationYear.toIntOrNull()?.let { year ->
@@ -270,7 +276,12 @@ internal fun OnboardingStageThree(
                                 onClick = {
                                     draftGraduationMonth = graduationMonth.coerceIn(1, 12)
                                     draftGraduationYear = graduationYear.toIntOrNull()
-                                        ?: (Calendar.getInstance().get(Calendar.YEAR) + 1)
+                                        ?: defaultGraduationYear
+                                    draftGraduationMonth = if (graduationYear.toIntOrNull() == currentYear) {
+                                        graduationMonth.coerceAtLeast(defaultGraduationMonth)
+                                    } else {
+                                        graduationMonth.coerceIn(1, 12).takeIf { it >= 1 } ?: defaultGraduationMonth
+                                    }
                                     showGraduationPicker = true
                                 }
                             )
@@ -360,9 +371,13 @@ internal fun OnboardingStageThree(
                     showGraduationPicker = false
                 },
                 onConfirm = {
-                    onGraduationMonthChange(draftGraduationMonth)
-                    onGraduationYearChange(draftGraduationYear.toString())
-                    showGraduationPicker = false
+                    val validFutureDate = draftGraduationYear > currentYear ||
+                        (draftGraduationYear == currentYear && draftGraduationMonth > currentMonth)
+                    if (validFutureDate) {
+                        onGraduationMonthChange(draftGraduationMonth)
+                        onGraduationYearChange(draftGraduationYear.toString())
+                        showGraduationPicker = false
+                    }
                 }
             )
         }
@@ -408,6 +423,9 @@ private fun MonthYearPickerDialog(
 ) {
     val colors = stageThreeColors(darkTheme)
     val currentYear = Calendar.getInstance().get(Calendar.YEAR)
+    val currentMonth = Calendar.getInstance().get(Calendar.MONTH) + 1
+    val minYear = currentYear
+    val maxYear = currentYear + 10
     val months = DateFormatSymbols().shortMonths.take(12)
 
     AlertDialog(
@@ -436,8 +454,12 @@ private fun MonthYearPickerDialog(
 
                     TextButton(
                         onClick = {
-                            if (selectedYear > currentYear) {
-                                onYearChange(selectedYear - 1)
+                            if (selectedYear > minYear) {
+                                val nextYear = selectedYear - 1
+                                onYearChange(nextYear)
+                                if (nextYear == minYear && selectedMonth <= currentMonth) {
+                                    onMonthChange((currentMonth + 1).coerceAtMost(12))
+                                }
                             }
                         }
                     ) {
@@ -453,7 +475,7 @@ private fun MonthYearPickerDialog(
 
                     TextButton(
                         onClick = {
-                            if (selectedYear < currentYear + 10) {
+                            if (selectedYear < maxYear) {
                                 onYearChange(selectedYear + 1)
                             }
                         }
@@ -476,13 +498,15 @@ private fun MonthYearPickerDialog(
                     ) {
                         row.forEachIndexed { index, month ->
                             val monthNumber = months.indexOf(month) + 1
+                            val isPastMonth = selectedYear == currentYear && monthNumber <= currentMonth
+                            val isSelected = monthNumber == selectedMonth && !isPastMonth
                             Box(
                                 modifier = Modifier
                                     .weight(1f)
                                     .height(44.dp)
                                     .clip(RoundedCornerShape(14.dp))
                                     .background(
-                                        if (monthNumber == selectedMonth) {
+                                        if (isSelected) {
                                             colors.accent
                                         } else {
                                             colors.surface
@@ -490,27 +514,29 @@ private fun MonthYearPickerDialog(
                                     )
                                     .border(
                                         width = 1.dp,
-                                        color = if (monthNumber == selectedMonth) {
+                                        color = if (isSelected) {
                                             colors.accent
                                         } else {
                                             colors.border
                                         },
                                         shape = RoundedCornerShape(14.dp)
                                     )
-                                    .clickable {
+                                    .clickable(
+                                        enabled = !isPastMonth
+                                    ) {
                                         onMonthChange(monthNumber)
                                     },
                                 contentAlignment = Alignment.Center
                             ) {
                                 Text(
                                     text = month,
-                                    color = if (monthNumber == selectedMonth) {
-                                        colors.accentText
-                                    } else {
-                                        colors.textPrimary
+                                    color = when {
+                                        isSelected -> colors.accentText
+                                        isPastMonth -> colors.textMuted.copy(alpha = 0.40f)
+                                        else -> colors.textPrimary
                                     },
                                     fontSize = 12.sp,
-                                    fontWeight = if (monthNumber == selectedMonth) {
+                                    fontWeight = if (isSelected) {
                                         FontWeight.Bold
                                     } else {
                                         FontWeight.Medium
