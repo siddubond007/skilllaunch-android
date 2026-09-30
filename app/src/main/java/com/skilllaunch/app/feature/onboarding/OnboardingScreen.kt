@@ -720,7 +720,7 @@ fun OnboardingScreen(
                 else -> "Continue"
             }
 
-            val onContinueClick: () -> Unit = {
+            fun onContinueClick() {
                 if (isLastStep) {
                     validateAndSave(
                         scope = scope,
@@ -775,7 +775,7 @@ fun OnboardingScreen(
 
                     if (validationMessage.isNotBlank()) {
                         error = validationMessage
-                        return@AuthPrimaryButton
+                        return
                     }
 
                     error = ""
@@ -788,7 +788,7 @@ fun OnboardingScreen(
                     text = continueText,
                     enabled = !saving && !loadingInitialProfile,
                     loading = saving,
-                    onClick = onContinueClick
+                    onClick = { onContinueClick() }
                 )
             } else {
                 AuthPrimaryButton(
