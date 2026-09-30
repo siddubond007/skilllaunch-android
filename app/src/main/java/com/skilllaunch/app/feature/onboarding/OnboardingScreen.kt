@@ -707,7 +707,7 @@ fun OnboardingScreen(
                     )
                 } else {
                     val validationMessage = when {
-                        isClient && !isClient ->
+                        !isStudent && !isClient ->
                             "This account type does not use onboarding."
                         isStudent && step == 1 && primaryDomain.isBlank() ->
                             "Choose your main focus to continue."
