@@ -52,24 +52,35 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             val systemDarkTheme = isSystemInDarkTheme()
-            val darkThemeState = rememberSaveable {
-                mutableStateOf(systemDarkTheme)
+            var localThemeOverride by rememberSaveable { mutableStateOf<Boolean?>(null) }
+            var lastObservedSystemTheme by rememberSaveable { mutableStateOf(systemDarkTheme) }
+
+            LaunchedEffect(systemDarkTheme) {
+                if (systemDarkTheme != lastObservedSystemTheme) {
+                    localThemeOverride = null
+                    lastObservedSystemTheme = systemDarkTheme
+                }
             }
 
-            SkillLaunchTheme(darkTheme = darkThemeState.value) {
+            val effectiveDarkTheme = localThemeOverride ?: systemDarkTheme
+            val darkThemeState: State<Boolean> = androidx.compose.runtime.derivedStateOf {
+                effectiveDarkTheme
+            }
+
+            SkillLaunchTheme(darkTheme = effectiveDarkTheme) {
                 val view = LocalView.current
                 SideEffect {
                     val window = (view.context as Activity).window
                     val controller = WindowCompat.getInsetsController(window, view)
-                    controller.isAppearanceLightStatusBars = !darkThemeState.value
-                    controller.isAppearanceLightNavigationBars = !darkThemeState.value
+                    controller.isAppearanceLightStatusBars = !effectiveDarkTheme
+                    controller.isAppearanceLightNavigationBars = !effectiveDarkTheme
                 }
 
                 SkillLaunchRoot(
                     themeState = darkThemeState,
                     systemDarkTheme = systemDarkTheme,
                     onToggleTheme = {
-                        darkThemeState.value = !darkThemeState.value
+                        localThemeOverride = !effectiveDarkTheme
                     }
                 )
             }
@@ -88,7 +99,20 @@ private fun SkillLaunchRoot(
     var splashMinimumElapsed by rememberSaveable { mutableStateOf(false) }
     var onboardingResolvedForUser by rememberSaveable { mutableStateOf(false) }
     var showOnboarding by rememberSaveable { mutableStateOf(false) }
+    var onboardingStep by rememberSaveable { mutableIntStateOf(1) }
+    var onboardingStepOwnerId by rememberSaveable { mutableStateOf<String?>(null) }
     var profileRefreshVersion by rememberSaveable { mutableIntStateOf(0) }
+
+    LaunchedEffect(state.user?.id) {
+        val userId = state.user?.id
+        if (userId.isNullOrBlank()) {
+            onboardingStep = 1
+            onboardingStepOwnerId = null
+        } else if (onboardingStepOwnerId != userId) {
+            onboardingStep = 1
+            onboardingStepOwnerId = userId
+        }
+    }
 
     val darkTheme = themeState.value
 
@@ -201,8 +225,11 @@ private fun SkillLaunchRoot(
                     repository = profileRepository,
                     darkTheme = darkTheme,
                     onToggleTheme = onToggleTheme,
+                    step = onboardingStep,
+                    onStepChange = { onboardingStep = it },
                     onFinished = {
                         showOnboarding = false
+                        onboardingStep = 1
                         profileRefreshVersion += 1
                     }
                 )
