@@ -12,7 +12,6 @@ import androidx.compose.foundation.interaction.collectIsFocusedAsState
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -63,8 +62,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.drawscope.DrawScope
-import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
@@ -81,6 +78,9 @@ import com.skilllaunch.app.feature.auth.AuthField
 import com.skilllaunch.app.feature.auth.AuthFieldIcon
 import com.skilllaunch.app.feature.auth.AuthPrimaryButton
 import com.skilllaunch.app.feature.auth.SkillLaunchBrand
+import coil3.compose.AsyncImage
+import androidx.compose.ui.layout.ContentScale
+import com.skilllaunch.app.R
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -953,7 +953,7 @@ private fun ClientTypeCard(
     Box(
         modifier = modifier
             .fillMaxWidth()
-            .height(if (darkTheme) 206.dp else 154.dp)
+            .height(if (darkTheme) 220.dp else 190.dp)
             .then(
                 if (selected && darkTheme) {
                     Modifier.shadow(
@@ -1021,11 +1021,15 @@ private fun ClientTypeCard(
                 ClientTypeArtwork(
                     type = type,
                     darkTheme = darkTheme,
-                    modifier = Modifier.size(if (darkTheme) 116.dp else 78.dp)
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(if (darkTheme) 148.dp else 118.dp)
+                        .padding(horizontal = 2.dp)
                 )
             }
 
             Column(
+                modifier = Modifier.padding(bottom = 1.dp),
                 verticalArrangement = Arrangement.spacedBy(3.dp)
             ) {
                 Text(
@@ -1055,298 +1059,23 @@ private fun ClientTypeCard(
 @Composable
 private fun ClientTypeArtwork(
     type: String,
-    darkTheme: Boolean,
     modifier: Modifier = Modifier
 ) {
-    val front = if (darkTheme) Color(0xFFF1ECE6) else Color(0xFF746A57)
-    val light = if (darkTheme) Color(0xFFFFFDFC) else Color(0xFFB4AA96)
-    val mid = if (darkTheme) Color(0xFFD8D0C6) else Color(0xFF8F846F)
-    val deep = if (darkTheme) Color(0xFF9B9288) else Color(0xFF625A4C)
-    val glow = if (darkTheme) Color(0xFFBFB5FF).copy(alpha = 0.15f) else Color.Transparent
-
-    Canvas(modifier) {
-        val w = size.width
-        val h = size.height
-
-        if (darkTheme) {
-            drawCircle(
-                color = glow,
-                radius = w * 0.42f,
-                center = androidx.compose.ui.geometry.Offset(w * 0.5f, h * 0.45f)
-            )
-        }
-
-        when (type) {
-            "Solo Founder / Individual" -> {
-                drawCircle(
-                    color = deep.copy(alpha = 0.30f),
-                    radius = w * 0.19f,
-                    center = androidx.compose.ui.geometry.Offset(w * 0.67f, h * 0.51f + 5.dp.toPx())
-                )
-                drawCircle(
-                    brush = Brush.radialGradient(
-                        colors = listOf(light, front, mid),
-                        center = androidx.compose.ui.geometry.Offset(w * 0.42f, h * 0.34f)
-                    ),
-                    radius = w * 0.18f,
-                    center = androidx.compose.ui.geometry.Offset(w * 0.42f, h * 0.34f)
-                )
-                drawArc(
-                    brush = Brush.linearGradient(listOf(light, mid)),
-                    startAngle = 205f,
-                    sweepAngle = 130f,
-                    useCenter = false,
-                    topLeft = androidx.compose.ui.geometry.Offset(w * 0.16f, h * 0.49f),
-                    size = androidx.compose.ui.geometry.Size(w * 0.50f, h * 0.24f),
-                    style = androidx.compose.ui.graphics.drawscope.Stroke(
-                        width = w * 0.09f,
-                        cap = androidx.compose.ui.graphics.StrokeCap.Round
-                    )
-                )
-                drawLine(
-                    brush = Brush.linearGradient(listOf(light, mid)),
-                    start = androidx.compose.ui.geometry.Offset(w * 0.56f, h * 0.55f),
-                    end = androidx.compose.ui.geometry.Offset(w * 0.38f, h * 0.82f),
-                    strokeWidth = w * 0.09f,
-                    cap = androidx.compose.ui.graphics.StrokeCap.Round
-                )
-                drawCircle(
-                    brush = Brush.radialGradient(listOf(light, mid)),
-                    radius = w * 0.115f,
-                    center = androidx.compose.ui.geometry.Offset(w * 0.70f, h * 0.63f)
-                )
-                val shoulders = Path().apply {
-                    moveTo(w * 0.56f, h * 0.78f)
-                    cubicTo(
-                        w * 0.64f, h * 0.70f,
-                        w * 0.79f, h * 0.70f,
-                        w * 0.87f, h * 0.78f
-                    )
-                    cubicTo(
-                        w * 0.91f, h * 0.83f,
-                        w * 0.88f, h * 0.89f,
-                        w * 0.78f, h * 0.90f
-                    )
-                    lineTo(w * 0.58f, h * 0.90f)
-                    close()
-                }
-                drawPath(shoulders, brush = Brush.linearGradient(listOf(light, mid)))
-            }
-
-            "Early-stage Startup" -> {
-                val stem = Path().apply {
-                    moveTo(w * 0.50f, h * 0.88f)
-                    cubicTo(
-                        w * 0.47f, h * 0.70f,
-                        w * 0.51f, h * 0.53f,
-                        w * 0.50f, h * 0.36f
-                    )
-                }
-                drawPath(
-                    stem,
-                    color = deep,
-                    style = androidx.compose.ui.graphics.drawscope.Stroke(
-                        width = w * 0.055f,
-                        cap = androidx.compose.ui.graphics.StrokeCap.Round
-                    )
-                )
-                drawPath(
-                    Path().apply {
-                        moveTo(w * 0.49f, h * 0.55f)
-                        cubicTo(w * 0.20f, h * 0.45f, w * 0.18f, h * 0.22f, w * 0.48f, h * 0.20f)
-                        cubicTo(w * 0.63f, h * 0.32f, w * 0.58f, h * 0.48f, w * 0.49f, h * 0.55f)
-                        close()
-                    },
-                    brush = Brush.linearGradient(listOf(light, front, mid))
-                )
-                drawPath(
-                    Path().apply {
-                        moveTo(w * 0.51f, h * 0.50f)
-                        cubicTo(w * 0.56f, h * 0.23f, w * 0.77f, h * 0.16f, w * 0.86f, h * 0.22f)
-                        cubicTo(w * 0.88f, h * 0.48f, w * 0.69f, h * 0.59f, w * 0.51f, h * 0.50f)
-                        close()
-                    },
-                    brush = Brush.linearGradient(listOf(mid, front, light))
-                )
-                drawRoundRect(
-                    brush = Brush.horizontalGradient(listOf(deep, mid)),
-                    topLeft = androidx.compose.ui.geometry.Offset(w * 0.31f, h * 0.85f),
-                    size = androidx.compose.ui.geometry.Size(w * 0.38f, h * 0.07f),
-                    cornerRadius = androidx.compose.ui.geometry.CornerRadius(w * 0.035f)
-                )
-            }
-
-            "Small Business" -> drawCubeStack(w, h, front, light, mid, deep)
-            "Company" -> drawBuildingStack(w, h, front, light, mid, deep)
-
-            "Academic / Research" -> {
-                val top = Path().apply {
-                    moveTo(w * 0.12f, h * 0.48f)
-                    lineTo(w * 0.50f, h * 0.24f)
-                    lineTo(w * 0.88f, h * 0.48f)
-                    lineTo(w * 0.50f, h * 0.63f)
-                    close()
-                }
-                drawPath(top, brush = Brush.linearGradient(listOf(light, front, mid)))
-                val capSide = Path().apply {
-                    moveTo(w * 0.27f, h * 0.57f)
-                    lineTo(w * 0.73f, h * 0.50f)
-                    lineTo(w * 0.70f, h * 0.70f)
-                    cubicTo(w * 0.61f, h * 0.80f, w * 0.39f, h * 0.80f, w * 0.30f, h * 0.70f)
-                    close()
-                }
-                drawPath(capSide, brush = Brush.linearGradient(listOf(mid, front)))
-                drawLine(
-                    color = deep,
-                    start = androidx.compose.ui.geometry.Offset(w * 0.76f, h * 0.47f),
-                    end = androidx.compose.ui.geometry.Offset(w * 0.76f, h * 0.68f),
-                    strokeWidth = w * 0.035f,
-                    cap = androidx.compose.ui.graphics.StrokeCap.Round
-                )
-            }
-
-            "Non-profit / Organization" -> {
-                val heart = Path().apply {
-                    moveTo(w * 0.50f, h * 0.84f)
-                    cubicTo(w * 0.44f, h * 0.73f, w * 0.16f, h * 0.59f, w * 0.17f, h * 0.37f)
-                    cubicTo(w * 0.18f, h * 0.19f, w * 0.38f, h * 0.13f, w * 0.50f, h * 0.31f)
-                    cubicTo(w * 0.62f, h * 0.13f, w * 0.82f, h * 0.19f, w * 0.83f, h * 0.37f)
-                    cubicTo(w * 0.84f, h * 0.59f, w * 0.56f, h * 0.73f, w * 0.50f, h * 0.84f)
-                    close()
-                }
-                drawPath(heart, brush = Brush.linearGradient(listOf(light, front, mid)))
-                drawCircle(
-                    color = deep.copy(alpha = 0.72f),
-                    radius = w * 0.055f,
-                    center = androidx.compose.ui.geometry.Offset(w * 0.58f, h * 0.42f)
-                )
-                drawLine(
-                    color = deep.copy(alpha = 0.72f),
-                    start = androidx.compose.ui.geometry.Offset(w * 0.58f, h * 0.50f),
-                    end = androidx.compose.ui.geometry.Offset(w * 0.58f, h * 0.67f),
-                    strokeWidth = w * 0.035f,
-                    cap = androidx.compose.ui.graphics.StrokeCap.Round
-                )
-            }
-
-            else -> Unit
-        }
+    val resource = when (type) {
+        "Solo Founder / Individual" -> R.raw.client_founder
+        "Early-stage Startup" -> R.raw.client_startup
+        "Small Business" -> R.raw.client_small_business
+        "Company" -> R.raw.client_company
+        "Academic / Research" -> R.raw.client_academic
+        "Non-profit / Organization" -> R.raw.client_nonprofit
+        else -> R.raw.client_company
     }
-}
 
-private fun DrawScope.drawCubeStack(
-    w: Float,
-    h: Float,
-    front: Color,
-    light: Color,
-    mid: Color,
-    deep: Color
-) {
-    drawCube(
-        cx = w * 0.50f,
-        cy = h * 0.72f,
-        size = w * 0.34f,
-        top = light,
-        left = mid,
-        right = deep
-    )
-    drawCube(
-        cx = w * 0.36f,
-        cy = h * 0.57f,
-        size = w * 0.26f,
-        top = front,
-        left = mid,
-        right = deep
-    )
-    drawCube(
-        cx = w * 0.62f,
-        cy = h * 0.55f,
-        size = w * 0.25f,
-        top = light,
-        left = front,
-        right = deep
-    )
-}
-
-private fun DrawScope.drawBuildingStack(
-    w: Float,
-    h: Float,
-    front: Color,
-    light: Color,
-    mid: Color,
-    deep: Color
-) {
-    drawCube(
-        cx = w * 0.50f,
-        cy = h * 0.72f,
-        size = w * 0.37f,
-        top = front,
-        left = mid,
-        right = deep
-    )
-    drawCube(
-        cx = w * 0.50f,
-        cy = h * 0.51f,
-        size = w * 0.25f,
-        top = light,
-        left = front,
-        right = mid
-    )
-    drawCube(
-        cx = w * 0.64f,
-        cy = h * 0.66f,
-        size = w * 0.18f,
-        top = light,
-        left = mid,
-        right = deep
-    )
-}
-
-private fun DrawScope.drawCube(
-    cx: Float,
-    cy: Float,
-    size: Float,
-    top: Color,
-    left: Color,
-    right: Color
-) {
-    val half = size * 0.5f
-    val topPoint = androidx.compose.ui.geometry.Offset(cx, cy - half * 0.75f)
-    val leftPoint = androidx.compose.ui.geometry.Offset(cx - half, cy - half * 0.16f)
-    val rightPoint = androidx.compose.ui.geometry.Offset(cx + half, cy - half * 0.16f)
-    val centerPoint = androidx.compose.ui.geometry.Offset(cx, cy + half * 0.33f)
-    val bottomLeft = androidx.compose.ui.geometry.Offset(cx - half, cy + half * 0.82f)
-    val bottomRight = androidx.compose.ui.geometry.Offset(cx + half, cy + half * 0.82f)
-
-    drawPath(
-        Path().apply {
-            moveTo(topPoint.x, topPoint.y)
-            lineTo(rightPoint.x, rightPoint.y)
-            lineTo(centerPoint.x, centerPoint.y)
-            lineTo(leftPoint.x, leftPoint.y)
-            close()
-        },
-        color = top
-    )
-    drawPath(
-        Path().apply {
-            moveTo(leftPoint.x, leftPoint.y)
-            lineTo(centerPoint.x, centerPoint.y)
-            lineTo(bottomLeft.x, bottomLeft.y)
-            lineTo(leftPoint.x, leftPoint.y)
-            close()
-        },
-        color = left
-    )
-    drawPath(
-        Path().apply {
-            moveTo(centerPoint.x, centerPoint.y)
-            lineTo(rightPoint.x, rightPoint.y)
-            lineTo(bottomRight.x, bottomRight.y)
-            lineTo(centerPoint.x, centerPoint.y)
-            close()
-        },
-        color = right
+    AsyncImage(
+        model = resource,
+        contentDescription = null,
+        modifier = modifier,
+        contentScale = ContentScale.Fit
     )
 }
 
