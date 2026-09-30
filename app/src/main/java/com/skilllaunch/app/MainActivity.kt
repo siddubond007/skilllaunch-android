@@ -174,47 +174,49 @@ private fun SkillLaunchRoot(
     LaunchedEffect(state.isAuthenticated, state.user?.id) {
         val userId = state.user?.id
 
-        if (state.isAuthenticated && !userId.isNullOrBlank() && onboardingStepOwnerId != userId) {
-            onboardingStep = sessionStore.getOnboardingStep(
-                userId = userId,
-                maxStep = if (state.user?.role == "STUDENT_FREELANCER") 4 else 3
-            )
-            onboardingStepOwnerId = userId
-        }
-    }
-
-    LaunchedEffect(state.isAuthenticated, state.user?.id) {
-        val userId = state.user?.id
         if (!state.isAuthenticated || userId.isNullOrBlank()) {
             showOnboarding = false
             onboardingResolvedForUser = false
-        } else {
-            onboardingResolvedForUser = false
-            profileRepository.getProfile(userId)
-                .onSuccess { profile ->
-                    val role = state.user?.role
-                    val canUseOnboarding =
-                        role == "STUDENT_FREELANCER" || role == "CLIENT"
-
-                    val status = profile.profile?.onboardingStatus
-                    showOnboarding = if (!canUseOnboarding) {
-                        false
-                    } else {
-                        when (status) {
-                            "SKIPPED" -> false
-                            "COMPLETED" -> profile.profile?.onboardingCompleted == false
-                            "NOT_STARTED", "PENDING", "IN_PROGRESS" -> true
-                            else -> profile.profile?.onboardingCompleted == false
-                        }
-                    }
-
-                    onboardingResolvedForUser = true
-                }
-                .onFailure {
-                    showOnboarding = false
-                    onboardingResolvedForUser = true
-                }
+            return@LaunchedEffect
         }
+
+        onboardingResolvedForUser = false
+
+        val role = state.user?.role
+        val canUseOnboarding =
+            role == "STUDENT_FREELANCER" || role == "CLIENT"
+
+        onboardingStep = if (canUseOnboarding) {
+            sessionStore.getOnboardingStep(
+                userId = userId,
+                maxStep = if (role == "STUDENT_FREELANCER") 4 else 3
+            )
+        } else {
+            1
+        }
+        onboardingStepOwnerId = userId
+
+        profileRepository.getProfile(userId)
+            .onSuccess { profile ->
+                val status = profile.profile?.onboardingStatus
+
+                showOnboarding = if (!canUseOnboarding) {
+                    false
+                } else {
+                    when (status) {
+                        "SKIPPED" -> false
+                        "COMPLETED" -> profile.profile?.onboardingCompleted == false
+                        "NOT_STARTED", "PENDING", "IN_PROGRESS" -> true
+                        else -> profile.profile?.onboardingCompleted == false
+                    }
+                }
+
+                onboardingResolvedForUser = true
+            }
+            .onFailure {
+                showOnboarding = false
+                onboardingResolvedForUser = true
+            }
     }
 
     Surface(
