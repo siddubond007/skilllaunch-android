@@ -1026,6 +1026,10 @@ private fun validateAndSave(
             setError("Choose at least one skill.")
             return
         }
+        if (tagline.trim().isBlank()) {
+            setError("Add a professional headline to complete your profile.")
+            return
+        }
         if (academicStatus.isBlank() || availability.isBlank()) {
             setError("Choose your academic status and availability.")
             return
