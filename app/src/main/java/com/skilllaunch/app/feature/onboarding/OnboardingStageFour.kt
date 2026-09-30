@@ -184,7 +184,6 @@ internal fun OnboardingStageFour(
             }
 
             pickerError = ""
-            selectedResumeName = fileName
             profileViewModel.clearResumeUploadError()
             profileViewModel.uploadResumeToBackend(uri, context)
         }
@@ -302,7 +301,7 @@ internal fun OnboardingStageFour(
             )
 
             ProfileFieldLabel(
-                text = "PROFESSIONAL HEADLINE",
+                text = "PROFESSIONAL HEADLINE *",
                 color = colors.textSecondary
             )
 
@@ -426,6 +425,16 @@ internal fun OnboardingStageFour(
                 )
             }
 
+            error.takeIf { it.isNotBlank() }?.let { message ->
+                Text(
+                    text = message,
+                    color = colors.error,
+                    fontSize = 12.sp,
+                    lineHeight = 17.sp,
+                    fontWeight = FontWeight.SemiBold
+                )
+            }
+
             Spacer(modifier = Modifier.height(8.dp))
         }
 
@@ -445,7 +454,7 @@ internal fun OnboardingStageFour(
             )
         ) {
             Text(
-                text = "Launch Profile  →",
+                text = "Find My First Project  →",
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Bold
             )
@@ -662,7 +671,10 @@ private fun ResumeDropzone(
             .height(174.dp)
             .clip(shape)
             .background(accent.copy(alpha = 0.10f))
-            .clickable(onClick = onClick)
+            .clickable(
+            enabled = !uploading,
+            onClick = onClick
+        )
     ) {
         Canvas(modifier = Modifier.fillMaxSize()) {
             drawRoundRect(
