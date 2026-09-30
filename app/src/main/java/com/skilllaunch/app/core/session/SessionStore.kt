@@ -49,4 +49,41 @@ class SessionStore(
             preferences.remove(ACCESS_TOKEN)
         }
     }
+
+    suspend fun getOnboardingStep(
+        userId: String,
+        maxStep: Int
+    ): Int {
+        if (userId.isBlank()) return 1
+
+        val key = stringPreferencesKey("onboarding_step_${userId.trim()}")
+        return context.skillLaunchDataStore.data
+            .map { preferences -> preferences[key] }
+            .first()
+            ?.toIntOrNull()
+            ?.coerceIn(1, maxStep)
+            ?: 1
+    }
+
+    suspend fun saveOnboardingStep(
+        userId: String,
+        step: Int
+    ) {
+        if (userId.isBlank()) return
+
+        val key = stringPreferencesKey("onboarding_step_${userId.trim()}")
+        context.skillLaunchDataStore.edit { preferences ->
+            preferences[key] = step.coerceAtLeast(1).toString()
+        }
+    }
+
+    suspend fun clearOnboardingStep(userId: String) {
+        if (userId.isBlank()) return
+
+        val key = stringPreferencesKey("onboarding_step_${userId.trim()}")
+        context.skillLaunchDataStore.edit { preferences ->
+            preferences.remove(key)
+        }
+    }
+
 }
