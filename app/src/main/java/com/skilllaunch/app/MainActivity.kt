@@ -44,6 +44,7 @@ import com.skilllaunch.app.feature.auth.SignupScreen
 import com.skilllaunch.app.feature.onboarding.OnboardingScreen
 import com.skilllaunch.app.ui.theme.SkillLaunchTheme
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -103,6 +104,8 @@ private fun SkillLaunchRoot(
     var onboardingStepOwnerId by rememberSaveable { mutableStateOf<String?>(null) }
     var profileRefreshVersion by rememberSaveable { mutableIntStateOf(0) }
 
+    val onboardingScope = androidx.compose.runtime.rememberCoroutineScope()
+
     val darkTheme = themeState.value
 
     LaunchedEffect(Unit) {
@@ -159,14 +162,23 @@ private fun SkillLaunchRoot(
 
     val state by authViewModel.uiState.collectAsStateWithLifecycleCompat()
 
-    LaunchedEffect(state.isCheckingSession, state.isAuthenticated, state.user?.id) {
+    fun updateOnboardingStep(nextStep: Int) {
+        onboardingStep = nextStep
+        state.user?.id?.takeIf { it.isNotBlank() }?.let { userId ->
+            onboardingScope.launch {
+                sessionStore.saveOnboardingStep(userId, nextStep)
+            }
+        }
+    }
+
+    LaunchedEffect(state.isAuthenticated, state.user?.id) {
         val userId = state.user?.id
 
-        if (!state.isCheckingSession && !state.isAuthenticated) {
-            onboardingStep = 1
-            onboardingStepOwnerId = null
-        } else if (!userId.isNullOrBlank() && onboardingStepOwnerId != userId) {
-            onboardingStep = 1
+        if (state.isAuthenticated && !userId.isNullOrBlank() && onboardingStepOwnerId != userId) {
+            onboardingStep = sessionStore.getOnboardingStep(
+                userId = userId,
+                maxStep = if (state.user?.role == "STUDENT_FREELANCER") 4 else 3
+            )
             onboardingStepOwnerId = userId
         }
     }
@@ -226,10 +238,15 @@ private fun SkillLaunchRoot(
                     repository = profileRepository,
                     darkTheme = darkTheme,
                     step = onboardingStep,
-                    onStepChange = { onboardingStep = it },
+                    onStepChange = ::updateOnboardingStep,
                     onToggleTheme = onToggleTheme,
                     onFinished = {
                         showOnboarding = false
+                        state.user?.id?.takeIf { it.isNotBlank() }?.let { userId ->
+                            onboardingScope.launch {
+                                sessionStore.clearOnboardingStep(userId)
+                            }
+                        }
                         onboardingStep = 1
                         profileRefreshVersion += 1
                     }
