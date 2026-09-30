@@ -3,7 +3,6 @@ package com.skilllaunch.app.feature.onboarding
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
-import androidx.compose.animation.animateFloatAsState
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
@@ -66,7 +65,6 @@ import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Path
-import androidx.compose.ui.draw.scale
 
 import com.skilllaunch.app.data.model.auth.AuthUser
 import com.skilllaunch.app.data.model.profile.OnboardingData
@@ -935,16 +933,10 @@ private fun ClientTypeCard(
         },
         label = "clientTypeBackground"
     )
-    val scale by animateFloatAsState(
-        targetValue = if (selected) 1.0f else 0.985f,
-        label = "clientTypeScale"
-    )
-
     Box(
         modifier = modifier
             .fillMaxWidth()
             .height(132.dp)
-            .scale(scale)
             .clip(shape)
             .background(backgroundColor)
             .border(
