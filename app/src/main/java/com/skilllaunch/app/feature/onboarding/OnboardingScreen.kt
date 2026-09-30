@@ -59,6 +59,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
@@ -550,8 +551,8 @@ fun OnboardingScreen(
                                     text = "Who's hiring today?",
                                     style = TextStyle(
                                         fontFamily = androidx.compose.ui.text.font.FontFamily.Serif,
-                                        fontSize = 37.sp,
-                                        lineHeight = 41.sp,
+                                        fontSize = 36.sp,
+                                        lineHeight = 40.sp,
                                         fontWeight = FontWeight.Bold
                                     ),
                                     color = MaterialTheme.colorScheme.onSurface
@@ -681,7 +682,7 @@ fun OnboardingScreen(
                 }
             }
 
-            Spacer(modifier = Modifier.height(10.dp))
+            Spacer(modifier = Modifier.height(6.dp))
 
             val isLastStep = step == if (isStudent) 4 else 3
 
@@ -817,7 +818,7 @@ private fun ClientPrimaryButton(
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .height(58.dp)
+            .height(60.dp)
             .clip(RoundedCornerShape(16.dp))
             .background(accent.copy(alpha = if (enabled) 1f else 0.52f))
             .clickable(enabled = enabled && !loading, onClick = onClick),
@@ -894,12 +895,12 @@ private fun ClientTypeSelectionGrid(
     onSelect: (String) -> Unit
 ) {
     Column(
-        verticalArrangement = Arrangement.spacedBy(10.dp)
+        verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         options.chunked(2).forEach { row ->
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(10.dp)
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 row.forEach { option ->
                     ClientTypeCard(
@@ -927,28 +928,41 @@ private fun ClientTypeCard(
     modifier: Modifier,
     onClick: () -> Unit
 ) {
-    val accent = Color(0xFFD6B632)
-    val shape = RoundedCornerShape(16.dp)
+    val accent = if (darkTheme) Color(0xFF9A8CFF) else Color(0xFFD6B632)
+    val iconColor = if (darkTheme) Color(0xFFF1ECE5) else Color(0xFF5B4A00)
+    val checkColor = if (darkTheme) Color(0xFF63D985) else Color(0xFFD6B632)
+    val shape = RoundedCornerShape(18.dp)
+
     val borderColor by animateColorAsState(
-        targetValue = if (selected) accent else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.07f),
+        targetValue = if (selected) accent else MaterialTheme.colorScheme.onSurface.copy(alpha = if (darkTheme) 0.12f else 0.08f),
         label = "clientTypeBorder"
     )
+
     val backgroundColor by animateColorAsState(
-        targetValue = if (selected) {
-            accent.copy(alpha = if (darkTheme) 0.14f else 0.10f)
+        targetValue = if (darkTheme) {
+            if (selected) Color(0xFF252B35) else Color(0xFF1B2029)
         } else {
-            if (darkTheme) {
-                MaterialTheme.colorScheme.surface.copy(alpha = 0.58f)
-            } else {
-                MaterialTheme.colorScheme.surface.copy(alpha = 0.88f)
-            }
+            if (selected) accent.copy(alpha = 0.10f) else MaterialTheme.colorScheme.surface.copy(alpha = 0.90f)
         },
         label = "clientTypeBackground"
     )
+
     Box(
         modifier = modifier
             .fillMaxWidth()
-            .height(136.dp)
+            .height(if (darkTheme) 188.dp else 148.dp)
+            .then(
+                if (selected && darkTheme) {
+                    Modifier.shadow(
+                        elevation = 12.dp,
+                        shape = shape,
+                        ambientColor = accent.copy(alpha = 0.35f),
+                        spotColor = accent.copy(alpha = 0.45f)
+                    )
+                } else {
+                    Modifier
+                }
+            )
             .clip(shape)
             .background(backgroundColor)
             .border(
@@ -957,7 +971,10 @@ private fun ClientTypeCard(
                 shape = shape
             )
             .clickable(onClick = onClick)
-            .padding(14.dp)
+            .padding(
+                horizontal = if (darkTheme) 14.dp else 14.dp,
+                vertical = if (darkTheme) 13.dp else 14.dp
+            )
     ) {
         Column(
             modifier = Modifier.fillMaxSize(),
@@ -967,25 +984,24 @@ private fun ClientTypeCard(
                 modifier = Modifier.fillMaxWidth(),
                 contentAlignment = Alignment.TopStart
             ) {
-                Icon(
-                    imageVector = clientTypeIcon(type),
-                    contentDescription = null,
-                    tint = accent,
-                    modifier = Modifier.size(30.dp)
+                ClientTypeIcon(
+                    type = type,
+                    darkTheme = darkTheme,
+                    modifier = Modifier.size(if (darkTheme) 76.dp else 30.dp)
                 )
 
                 if (selected) {
                     Box(
                         modifier = Modifier
                             .align(Alignment.TopEnd)
-                            .size(24.dp)
+                            .size(if (darkTheme) 24.dp else 23.dp)
                             .clip(androidx.compose.foundation.shape.CircleShape)
-                            .background(accent),
+                            .background(checkColor),
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
                             text = "✓",
-                            color = Color(0xFF111111),
+                            color = Color(0xFF102116),
                             fontSize = 12.sp,
                             fontWeight = FontWeight.ExtraBold
                         )
@@ -1000,7 +1016,7 @@ private fun ClientTypeCard(
                     text = clientTypeDisplayNames[type] ?: type,
                     color = MaterialTheme.colorScheme.onSurface,
                     style = MaterialTheme.typography.titleSmall.copy(
-                        fontSize = 14.sp,
+                        fontSize = if (darkTheme) 14.sp else 14.sp,
                         lineHeight = 18.sp
                     ),
                     fontWeight = FontWeight.ExtraBold,
@@ -1010,13 +1026,46 @@ private fun ClientTypeCard(
                     text = clientTypeShortDescriptions[type].orEmpty(),
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     style = MaterialTheme.typography.bodySmall.copy(
-                        fontSize = 11.sp
+                        fontSize = if (darkTheme) 10.sp else 11.sp
                     ),
-                    lineHeight = 15.sp,
+                    lineHeight = 14.sp,
                     maxLines = 2
                 )
             }
         }
+    }
+}
+
+@Composable
+private fun ClientTypeIcon(
+    type: String,
+    darkTheme: Boolean,
+    modifier: Modifier = Modifier
+) {
+    val base = if (darkTheme) Color(0xFFF1ECE5) else Color(0xFF5B4A00)
+    val shadow = if (darkTheme) Color(0xFF8D8A84).copy(alpha = 0.34f) else Color(0xFF7F6C1B).copy(alpha = 0.20f)
+
+    Box(
+        modifier = modifier,
+        contentAlignment = Alignment.Center
+    ) {
+        // Offset copy creates the raised/extruded appearance of the reference artwork.
+        Icon(
+            imageVector = clientTypeIcon(type),
+            contentDescription = null,
+            tint = shadow,
+            modifier = Modifier
+                .size(if (darkTheme) 66.dp else 28.dp)
+                .padding(start = 4.dp, top = 5.dp)
+        )
+
+        Icon(
+            imageVector = clientTypeIcon(type),
+            contentDescription = null,
+            tint = base,
+            modifier = Modifier
+                .size(if (darkTheme) 66.dp else 28.dp)
+        )
     }
 }
 
