@@ -795,7 +795,7 @@ fun OnboardingScreen(
                     text = continueText,
                     enabled = !saving && !loadingInitialProfile,
                     loading = saving,
-                    onClick = onContinueClick
+                    onClick = { onContinueClick() }
                 )
             }
         }
