@@ -103,17 +103,6 @@ private fun SkillLaunchRoot(
     var onboardingStepOwnerId by rememberSaveable { mutableStateOf<String?>(null) }
     var profileRefreshVersion by rememberSaveable { mutableIntStateOf(0) }
 
-    LaunchedEffect(state.user?.id) {
-        val userId = state.user?.id
-        if (userId.isNullOrBlank()) {
-            onboardingStep = 1
-            onboardingStepOwnerId = null
-        } else if (onboardingStepOwnerId != userId) {
-            onboardingStep = 1
-            onboardingStepOwnerId = userId
-        }
-    }
-
     val darkTheme = themeState.value
 
     LaunchedEffect(Unit) {
@@ -170,6 +159,18 @@ private fun SkillLaunchRoot(
 
     val state by authViewModel.uiState.collectAsStateWithLifecycleCompat()
 
+    LaunchedEffect(state.isCheckingSession, state.isAuthenticated, state.user?.id) {
+        val userId = state.user?.id
+
+        if (!state.isCheckingSession && !state.isAuthenticated) {
+            onboardingStep = 1
+            onboardingStepOwnerId = null
+        } else if (!userId.isNullOrBlank() && onboardingStepOwnerId != userId) {
+            onboardingStep = 1
+            onboardingStepOwnerId = userId
+        }
+    }
+
     LaunchedEffect(state.isAuthenticated, state.user?.id) {
         val userId = state.user?.id
         if (!state.isAuthenticated || userId.isNullOrBlank()) {
@@ -224,6 +225,8 @@ private fun SkillLaunchRoot(
                     user = state.user!!,
                     repository = profileRepository,
                     darkTheme = darkTheme,
+                    step = onboardingStep,
+                    onStepChange = { onboardingStep = it },
                     onToggleTheme = onToggleTheme,
                     step = onboardingStep,
                     onStepChange = { onboardingStep = it },
