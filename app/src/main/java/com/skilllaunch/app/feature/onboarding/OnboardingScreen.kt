@@ -492,7 +492,9 @@ fun OnboardingScreen(
             Spacer(modifier = Modifier.height(16.dp))
             OnboardingProgress(
                 current = step,
-                total = if (isStudent) 4 else 3
+                total = if (isStudent) 4 else 3,
+                activeColor = if (isClient && step == 1) Color(0xFFD6B632)
+                else MaterialTheme.colorScheme.primary
             )
 
             Text(
@@ -712,15 +714,13 @@ fun OnboardingScreen(
                 )
             }
 
-            AuthPrimaryButton(
-                text = when {
-                    isLastStep && isStudent -> "Find My First Project"
-                    isLastStep -> "Explore Talent"
-                    else -> "Continue"
-                },
-                enabled = !saving && !loadingInitialProfile,
-                loading = saving
-            ) {
+            val continueText = when {
+                isLastStep && isStudent -> "Find My First Project"
+                isLastStep -> "Explore Talent"
+                else -> "Continue"
+            }
+
+            val onContinueClick: () -> Unit = {
                 if (isLastStep) {
                     validateAndSave(
                         scope = scope,
@@ -782,12 +782,67 @@ fun OnboardingScreen(
                     step += 1
                 }
             }
+
+            if (isClient && step == 1) {
+                ClientPrimaryButton(
+                    text = continueText,
+                    enabled = !saving && !loadingInitialProfile,
+                    loading = saving,
+                    onClick = onContinueClick
+                )
+            } else {
+                AuthPrimaryButton(
+                    text = continueText,
+                    enabled = !saving && !loadingInitialProfile,
+                    loading = saving,
+                    onClick = onContinueClick
+                )
+            }
         }
     }
 }
 
 @Composable
-private fun OnboardingProgress(current: Int, total: Int) {
+private fun ClientPrimaryButton(
+    text: String,
+    enabled: Boolean = true,
+    loading: Boolean = false,
+    onClick: () -> Unit
+) {
+    val accent = Color(0xFFD6B632)
+
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(58.dp)
+            .clip(RoundedCornerShape(16.dp))
+            .background(accent.copy(alpha = if (enabled) 1f else 0.52f))
+            .clickable(enabled = enabled && !loading, onClick = onClick),
+        contentAlignment = Alignment.Center
+    ) {
+        if (loading) {
+            androidx.compose.material3.CircularProgressIndicator(
+                modifier = Modifier.size(21.dp),
+                strokeWidth = 2.dp,
+                color = Color(0xFF171717)
+            )
+        } else {
+            Text(
+                text = text,
+                color = Color(0xFF171717),
+                style = MaterialTheme.typography.labelLarge,
+                fontWeight = FontWeight.ExtraBold
+            )
+        }
+    }
+}
+
+@Composable
+private fun OnboardingProgress(
+    current: Int,
+    total: Int,
+    activeColor: Color
+) {
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.spacedBy(7.dp)
@@ -799,7 +854,7 @@ private fun OnboardingProgress(current: Int, total: Int) {
                     .height(5.dp)
                     .clip(RoundedCornerShape(8.dp))
                     .background(
-                        if (index < current) MaterialTheme.colorScheme.primary
+                        if (index < current) activeColor
                         else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.10f)
                     )
             )
