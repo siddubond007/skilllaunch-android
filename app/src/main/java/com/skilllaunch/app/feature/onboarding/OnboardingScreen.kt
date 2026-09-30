@@ -40,12 +40,12 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Business
-import androidx.compose.material.icons.filled.PersonAdd
-import androidx.compose.material.icons.filled.RocketLaunch
-import androidx.compose.material.icons.filled.School
-import androidx.compose.material.icons.filled.Storefront
-import androidx.compose.material.icons.filled.VolunteerActivism
+import androidx.compose.material.icons.outlined.Business
+import androidx.compose.material.icons.outlined.PersonAdd
+import androidx.compose.material.icons.outlined.RocketLaunch
+import androidx.compose.material.icons.outlined.School
+import androidx.compose.material.icons.outlined.Storefront
+import androidx.compose.material.icons.outlined.VolunteerActivism
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -953,7 +953,7 @@ private fun ClientTypeCard(
     Box(
         modifier = modifier
             .fillMaxWidth()
-            .height(if (darkTheme) 188.dp else 148.dp)
+            .height(if (darkTheme) 206.dp else 154.dp)
             .then(
                 if (selected && darkTheme) {
                     Modifier.shadow(
@@ -990,7 +990,7 @@ private fun ClientTypeCard(
                     imageVector = clientTypeIcon(type),
                     contentDescription = null,
                     tint = Color(0xFFD6B632),
-                    modifier = Modifier.size(21.dp)
+                    modifier = Modifier.size(22.dp)
                 )
 
                 if (selected) {
@@ -1021,7 +1021,7 @@ private fun ClientTypeCard(
                 ClientTypeArtwork(
                     type = type,
                     darkTheme = darkTheme,
-                    modifier = Modifier.size(if (darkTheme) 104.dp else 74.dp)
+                    modifier = Modifier.size(if (darkTheme) 116.dp else 78.dp)
                 )
             }
 
@@ -1351,12 +1351,12 @@ private fun DrawScope.drawCube(
 }
 
 private fun clientTypeIcon(type: String) = when (type) {
-    "Solo Founder / Individual" -> Icons.Filled.PersonAdd
-    "Early-stage Startup" -> Icons.Filled.RocketLaunch
-    "Small Business" -> Icons.Filled.Storefront
-    "Company" -> Icons.Filled.Business
-    "Academic / Research" -> Icons.Filled.School
-    "Non-profit / Organization" -> Icons.Filled.VolunteerActivism
+    "Solo Founder / Individual" -> Icons.Outlined.PersonAdd
+    "Early-stage Startup" -> Icons.Outlined.RocketLaunch
+    "Small Business" -> Icons.Outlined.Storefront
+    "Company" -> Icons.Outlined.Business
+    "Academic / Research" -> Icons.Outlined.School
+    "Non-profit / Organization" -> Icons.Outlined.VolunteerActivism
     else -> Icons.Filled.Business
 }
 
