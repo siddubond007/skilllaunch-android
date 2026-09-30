@@ -953,7 +953,7 @@ private fun ClientTypeCard(
     Box(
         modifier = modifier
             .fillMaxWidth()
-            .height(if (darkTheme) 220.dp else 190.dp)
+            .height(220.dp)
             .then(
                 if (selected && darkTheme) {
                     Modifier.shadow(
@@ -1022,7 +1022,7 @@ private fun ClientTypeCard(
                     type = type,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(if (darkTheme) 148.dp else 118.dp)
+                        .height(156.dp)
                         .padding(horizontal = 2.dp)
                 )
             }
