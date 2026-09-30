@@ -228,8 +228,6 @@ private fun SkillLaunchRoot(
                     step = onboardingStep,
                     onStepChange = { onboardingStep = it },
                     onToggleTheme = onToggleTheme,
-                    step = onboardingStep,
-                    onStepChange = { onboardingStep = it },
                     onFinished = {
                         showOnboarding = false
                         onboardingStep = 1
