@@ -530,7 +530,7 @@ fun OnboardingScreen(
                     verticalArrangement = Arrangement.spacedBy(14.dp)
                 ) {
                     when {
-                        !isStudent && step == 1 -> item {
+                        isClient && step == 1 -> item {
                             SectionHeader(
                                 emoji = "💼",
                                 title = "Who's hiring today?",
@@ -548,7 +548,7 @@ fun OnboardingScreen(
                             )
                         }
 
-                        !isStudent && step == 2 -> item {
+                        isClient && step == 2 -> item {
                             SectionHeader(
                                 emoji = "🎯",
                                 title = "What do you need built?",
@@ -594,7 +594,7 @@ fun OnboardingScreen(
                             )
                         }
 
-                        !isStudent && step == 3 -> item {
+                        isClient && step == 3 -> item {
                             SectionHeader(
                                 emoji = "🌱",
                                 title = "Tell students who they're building for.",
@@ -707,7 +707,7 @@ fun OnboardingScreen(
                     )
                 } else {
                     val validationMessage = when {
-                        !isStudent && !isClient ->
+                        isClient && !isClient ->
                             "This account type does not use onboarding."
                         isStudent && step == 1 && primaryDomain.isBlank() ->
                             "Choose your main focus to continue."
@@ -717,15 +717,15 @@ fun OnboardingScreen(
                             "Choose your current academic status first."
                         isStudent && step == 3 && availability.isBlank() ->
                             "Choose when you can work so we can match you appropriately."
-                        !isStudent && step == 1 && clientType.isBlank() ->
+                        isClient && step == 1 && clientType.isBlank() ->
                             "Choose the client type to continue."
-                        !isStudent && step == 2 && hiringCategories.isEmpty() ->
+                        isClient && step == 2 && hiringCategories.isEmpty() ->
                             "Choose at least one talent category."
-                        !isStudent && step == 2 && hiringIntent.isBlank() ->
+                        isClient && step == 2 && hiringIntent.isBlank() ->
                             "Choose your hiring goal."
-                        !isStudent && step == 2 && projectScope.isBlank() ->
+                        isClient && step == 2 && projectScope.isBlank() ->
                             "Choose the project scope."
-                        !isStudent && step == 3 && companyOrProjectName.isBlank() ->
+                        isClient && step == 3 && companyOrProjectName.isBlank() ->
                             "Add a company or project name."
                         else -> ""
                     }
@@ -1022,6 +1022,8 @@ private fun validateAndSave(
     onFinished: () -> Unit,
     isStudent: Boolean
 ) {
+    val isClient = user.role == "CLIENT"
+
     if (isStudent) {
         if (primaryDomain.isBlank()) {
             setError("Choose your main focus to continue.")
