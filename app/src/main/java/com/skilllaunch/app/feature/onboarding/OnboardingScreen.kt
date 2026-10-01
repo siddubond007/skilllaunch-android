@@ -39,7 +39,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Business
+import androidx.compose.material.icons.outlined.Apartment
 import androidx.compose.material.icons.outlined.PersonAdd
 import androidx.compose.material.icons.outlined.RocketLaunch
 import androidx.compose.material.icons.outlined.School
@@ -1082,10 +1082,10 @@ private fun clientTypeIcon(type: String) = when (type) {
     "Solo Founder / Individual" -> Icons.Outlined.PersonAdd
     "Early-stage Startup" -> Icons.Outlined.RocketLaunch
     "Small Business" -> Icons.Outlined.Storefront
-    "Company" -> Icons.Outlined.Business
+    "Company" -> Icons.Outlined.Apartment
     "Academic / Research" -> Icons.Outlined.School
     "Non-profit / Organization" -> Icons.Outlined.VolunteerActivism
-    else -> Icons.Filled.Business
+    else -> Icons.Outlined.Apartment
 }
 
 private val clientTypeDisplayNames = mapOf(
