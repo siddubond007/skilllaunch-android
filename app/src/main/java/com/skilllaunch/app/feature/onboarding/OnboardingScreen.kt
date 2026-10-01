@@ -1078,9 +1078,13 @@ private fun ClientTypeCard(
                 ClientTypeArtwork(
                     type = type,
                     darkTheme = darkTheme,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .aspectRatio(4f / 3f)
+                    modifier = if (darkTheme) {
+                        Modifier
+                            .fillMaxWidth()
+                            .aspectRatio(4f / 3f)
+                    } else {
+                        Modifier.fillMaxSize()
+                    }
                 )
             }
 
