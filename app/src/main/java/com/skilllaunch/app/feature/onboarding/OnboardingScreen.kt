@@ -1081,6 +1081,9 @@ private fun ClientTypeCard(
                     modifier = Modifier
                         .fillMaxWidth()
                         .aspectRatio(4f / 3f)
+                        .padding(
+                            vertical = if (darkTheme) 0.dp else 6.dp
+                        )
                 )
             }
 
@@ -1130,13 +1133,13 @@ private fun ClientTypeArtwork(
         }
     } else {
         when (type) {
-            "Solo Founder / Individual" -> R.drawable.client_founder_3d
-            "Early-stage Startup" -> R.drawable.client_startup_3d
-            "Small Business" -> R.drawable.client_small_business_3d
-            "Company" -> R.drawable.client_company_3d
-            "Academic / Research" -> R.drawable.client_academic_3d
-            "Non-profit / Organization" -> R.drawable.client_nonprofit_3d
-            else -> R.drawable.client_company_3d
+            "Solo Founder / Individual" -> R.drawable.client_founder_dark
+            "Early-stage Startup" -> R.drawable.client_startup_dark
+            "Small Business" -> R.drawable.client_small_business_dark
+            "Company" -> R.drawable.client_company_dark
+            "Academic / Research" -> R.drawable.client_academic_dark
+            "Non-profit / Organization" -> R.drawable.client_nonprofit_dark
+            else -> R.drawable.client_company_dark
         }
     }
 
