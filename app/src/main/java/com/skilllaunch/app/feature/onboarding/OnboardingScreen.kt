@@ -1132,7 +1132,7 @@ private fun ClientTypeArtwork(
         contentDescription = "Client Type Artwork",
         modifier = modifier.fillMaxSize(),
         contentScale = androidx.compose.ui.layout.ContentScale.Fit,
-        filterQuality = FilterQuality.High
+        filterQuality = FilterQuality.None
     )
 }
 
