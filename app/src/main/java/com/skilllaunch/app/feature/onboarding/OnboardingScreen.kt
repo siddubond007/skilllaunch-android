@@ -1081,6 +1081,10 @@ private fun ClientTypeCard(
                     modifier = Modifier
                         .fillMaxWidth()
                         .aspectRatio(4f / 3f)
+                        .padding(
+                            top = if (darkTheme) 0.dp else 14.dp,
+                            bottom = if (darkTheme) 0.dp else 14.dp
+                        )
                 )
             }
 
