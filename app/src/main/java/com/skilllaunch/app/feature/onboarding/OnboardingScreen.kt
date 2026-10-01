@@ -503,8 +503,8 @@ fun OnboardingScreen(
             OnboardingProgress(
                 current = step,
                 total = if (isStudent) 4 else 3,
-                activeColor = if (isClient && step == 1) {
-                    Color(0xFF9B8CFF)
+                activeColor = if (isClient) {
+                    Color(0xFFD6B632)
                 } else {
                     MaterialTheme.colorScheme.primary
                 },
