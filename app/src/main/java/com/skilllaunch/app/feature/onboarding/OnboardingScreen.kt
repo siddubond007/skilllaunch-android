@@ -999,7 +999,7 @@ private fun ClientTypeCard(
 
     val backgroundColor by animateColorAsState(
         targetValue = if (darkTheme) {
-            if (selected) Color(0xFF252B35) else Color(0xFF1B2029)
+            Color(0xFF181E27)
         } else {
             Color.White
         },
@@ -1146,7 +1146,15 @@ private fun ClientTypeArtwork(
     Image(
         painter = painterResource(id = resource),
         contentDescription = "Client Type Artwork",
-        modifier = modifier.fillMaxSize(),
+        modifier = modifier
+            .fillMaxSize()
+            .then(
+                if (!darkTheme) {
+                    Modifier.padding(top = 8.dp, bottom = 8.dp)
+                } else {
+                    Modifier
+                }
+            ),
         contentScale = androidx.compose.ui.layout.ContentScale.Fit
     )
 }
