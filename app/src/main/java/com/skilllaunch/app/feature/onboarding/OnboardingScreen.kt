@@ -1045,7 +1045,7 @@ private fun ClientTypeCard(
                 Icon(
                     imageVector = clientTypeIcon(type),
                     contentDescription = null,
-                    tint = clientTypeAccent(type),
+                    tint = Color(0xFFD6B632),
                     modifier = Modifier.size(22.dp)
                 )
 
@@ -1166,21 +1166,6 @@ private fun ClientTypeArtwork(
             contentScale = androidx.compose.ui.layout.ContentScale.Fit
         )
 
-        if (!darkTheme && type == "Early-stage Startup") {
-            Box(
-                modifier = Modifier
-                    .align(Alignment.BottomCenter)
-                    .fillMaxWidth()
-                    .height(15.dp)
-                    .background(
-                        Brush.verticalGradient(
-                            colors = listOf(
-                                Color.Transparent,
-                                Color.White.copy(alpha = 0.96f)
-                            )
-                        )
-                    )
-            )
         }
     }
 }
