@@ -62,8 +62,11 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
@@ -494,21 +497,49 @@ fun OnboardingScreen(
                 horizontalPadding = 0.dp
             )
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(11.dp))
             OnboardingProgress(
                 current = step,
                 total = if (isStudent) 4 else 3,
-                activeColor = if (isClient && step == 1) Color(0xFF9A8CFF)
-                else MaterialTheme.colorScheme.primary
+                activeColor = if (isClient && step == 1) {
+                    Color(0xFF9B8CFF)
+                } else {
+                    MaterialTheme.colorScheme.primary
+                },
+                inactiveColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.10f)
             )
 
+            val stepLabel = if (isStudent) {
+                studentStepLabels[step - 1]
+            } else {
+                clientStepLabels[step - 1]
+            }
+
             Text(
-                text = "Step " + step + " of " + (if (isStudent) 4 else 3) + " • " +
-                    if (isStudent) studentStepLabels[step - 1] else clientStepLabels[step - 1],
-                modifier = Modifier.padding(top = 7.dp),
+                text = AnnotatedString.Builder().apply {
+                    withStyle(
+                        SpanStyle(
+                            color = MaterialTheme.colorScheme.onSurface,
+                            fontWeight = FontWeight.Bold
+                        )
+                    ) {
+                        append("Step $step")
+                    }
+                    withStyle(
+                        SpanStyle(
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    ) {
+                        append(" of " + (if (isStudent) 4 else 3) + "  •  ")
+                        append(stepLabel)
+                    }
+                }.toAnnotatedString(),
+                modifier = Modifier.padding(top = 8.dp),
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
-                style = MaterialTheme.typography.labelSmall,
-                fontWeight = FontWeight.SemiBold
+                fontSize = 12.5.sp,
+                lineHeight = 16.sp,
+                fontWeight = FontWeight.Medium,
+                letterSpacing = 0.1.sp
             )
 
             AnimatedVisibility(
@@ -549,13 +580,13 @@ fun OnboardingScreen(
                     when {
                         isClient && step == 1 -> item {
                             Column(
-                                verticalArrangement = Arrangement.spacedBy(15.dp)
+                                verticalArrangement = Arrangement.spacedBy(11.dp)
                             ) {
                                 Text(
                                     text = "Who's hiring today?",
                                     style = TextStyle(
                                         fontFamily = androidx.compose.ui.text.font.FontFamily.Serif,
-                                        fontSize = 36.sp,
+                                        fontSize = 37.sp,
                                         lineHeight = 40.sp,
                                         fontWeight = FontWeight.Bold
                                     ),
@@ -566,7 +597,7 @@ fun OnboardingScreen(
                                     text = "Tell us what kind of client you are so we can shape your hiring experience.",
                                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                                     style = MaterialTheme.typography.bodyLarge.copy(
-                                        fontSize = 15.sp
+                                        fontSize = 15.5.sp
                                     ),
                                     lineHeight = 22.sp
                                 )
@@ -849,21 +880,35 @@ private fun ClientPrimaryButton(
 private fun OnboardingProgress(
     current: Int,
     total: Int,
-    activeColor: Color
+    activeColor: Color,
+    inactiveColor: Color
 ) {
     Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(7.dp)
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(5.dp),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        verticalAlignment = Alignment.CenterVertically
     ) {
         repeat(total) { index ->
             Box(
                 modifier = Modifier
                     .weight(1f)
-                    .height(5.dp)
-                    .clip(RoundedCornerShape(8.dp))
+                    .fillMaxSize()
+                    .clip(RoundedCornerShape(100.dp))
                     .background(
-                        if (index < current) activeColor
-                        else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.10f)
+                        if (index < current) {
+                            Brush.horizontalGradient(
+                                listOf(
+                                    activeColor,
+                                    activeColor.copy(alpha = 0.72f)
+                                )
+                            )
+                        } else {
+                            Brush.linearGradient(
+                                listOf(inactiveColor, inactiveColor)
+                            )
+                        }
                     )
             )
         }
@@ -899,12 +944,12 @@ private fun ClientTypeSelectionGrid(
     onSelect: (String) -> Unit
 ) {
     Column(
-        verticalArrangement = Arrangement.spacedBy(12.dp)
+        verticalArrangement = Arrangement.spacedBy(11.dp)
     ) {
         options.chunked(2).forEach { row ->
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
+                horizontalArrangement = Arrangement.spacedBy(11.dp)
             ) {
                 row.forEach { option ->
                     ClientTypeCard(
@@ -953,7 +998,7 @@ private fun ClientTypeCard(
     Box(
         modifier = modifier
             .fillMaxWidth()
-            .height(220.dp)
+            .height(210.dp)
             .then(
                 if (selected && darkTheme) {
                     Modifier.shadow(
@@ -1015,16 +1060,30 @@ private fun ClientTypeCard(
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .weight(1f),
+                    .weight(1f)
+                    .padding(top = 1.dp, bottom = 1.dp),
                 contentAlignment = Alignment.Center
             ) {
-                ClientTypeArtwork(
-                    type = type,
+                Box(
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .height(156.dp)
-                        .padding(horizontal = 2.dp)
-                )
+                        .size(132.dp)
+                        .clip(androidx.compose.foundation.shape.CircleShape)
+                        .background(
+                            if (darkTheme) {
+                                Color(0xFF2C3040).copy(alpha = 0.88f)
+                            } else {
+                                Color(0xFFE8E4DA).copy(alpha = 0.82f)
+                            }
+                        ),
+                    contentAlignment = Alignment.Center
+                ) {
+                    ClientTypeArtwork(
+                        type = type,
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(horizontal = 8.dp, vertical = 7.dp)
+                    )
+                }
             }
 
             Column(
