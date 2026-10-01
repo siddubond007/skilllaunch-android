@@ -71,6 +71,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.res.painterResource
 
 import com.skilllaunch.app.data.model.auth.AuthUser
 import com.skilllaunch.app.data.model.profile.OnboardingData
@@ -82,7 +83,6 @@ import com.skilllaunch.app.feature.auth.AuthFieldIcon
 import com.skilllaunch.app.feature.auth.AuthPrimaryButton
 import com.skilllaunch.app.feature.auth.SkillLaunchBrand
 import com.skilllaunch.app.R
-import coil3.compose.AsyncImage
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -1110,19 +1110,19 @@ private fun ClientTypeArtwork(
     modifier: Modifier = Modifier
 ) {
     val resource = when (type) {
-        "Solo Founder / Individual" -> R.raw.client_founder
-        "Early-stage Startup" -> R.raw.client_startup
-        "Small Business" -> R.raw.client_small_business
-        "Company" -> R.raw.client_company
-        "Academic / Research" -> R.raw.client_academic
-        "Non-profit / Organization" -> R.raw.client_nonprofit
-        else -> R.raw.client_company
+        "Solo Founder / Individual" -> R.drawable.client_founder_3d
+        "Early-stage Startup" -> R.drawable.client_startup_3d
+        "Small Business" -> R.drawable.client_small_business_3d
+        "Company" -> R.drawable.client_company_3d
+        "Academic / Research" -> R.drawable.client_academic_3d
+        "Non-profit / Organization" -> R.drawable.client_nonprofit_3d
+        else -> R.drawable.client_company_3d
     }
 
-    AsyncImage(
-        model = resource,
-        contentDescription = null,
-        modifier = modifier,
+    Image(
+        painter = painterResource(id = resource),
+        contentDescription = "Client Type Artwork",
+        modifier = modifier.fillMaxSize(),
         contentScale = androidx.compose.ui.layout.ContentScale.Fit
     )
 }
