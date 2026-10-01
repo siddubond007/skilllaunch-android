@@ -506,7 +506,11 @@ fun OnboardingScreen(
                 } else {
                     MaterialTheme.colorScheme.primary
                 },
-                inactiveColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.10f)
+                inactiveColor = if (darkTheme) {
+                    Color(0xFF2B3040)
+                } else {
+                    Color(0xFFD8D5E6)
+                }
             )
 
             val stepLabel = if (isStudent) {
@@ -1064,30 +1068,17 @@ private fun ClientTypeCard(
                     .padding(top = 1.dp, bottom = 1.dp),
                 contentAlignment = Alignment.Center
             ) {
-                Box(
+                ClientTypeArtwork(
+                    type = type,
                     modifier = Modifier
-                        .size(132.dp)
-                        .clip(androidx.compose.foundation.shape.CircleShape)
-                        .background(
-                            if (darkTheme) {
-                                Color(0xFF2C3040).copy(alpha = 0.88f)
-                            } else {
-                                Color(0xFFE8E4DA).copy(alpha = 0.82f)
-                            }
-                        ),
-                    contentAlignment = Alignment.Center
-                ) {
-                    ClientTypeArtwork(
-                        type = type,
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(horizontal = 8.dp, vertical = 7.dp)
-                    )
-                }
+                        .fillMaxWidth()
+                        .height(132.dp)
+                        .padding(horizontal = 1.dp)
+                )
             }
 
             Column(
-                modifier = Modifier.padding(bottom = 1.dp),
+                modifier = Modifier.padding(bottom = 2.dp),
                 verticalArrangement = Arrangement.spacedBy(3.dp)
             ) {
                 Text(
