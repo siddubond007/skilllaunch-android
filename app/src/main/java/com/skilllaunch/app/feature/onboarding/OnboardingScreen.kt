@@ -8,7 +8,6 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.interaction.collectIsFocusedAsState
 
 import androidx.compose.foundation.background
@@ -72,7 +71,6 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.res.painterResource
 
 import com.skilllaunch.app.data.model.auth.AuthUser
 import com.skilllaunch.app.data.model.profile.OnboardingData
@@ -84,6 +82,7 @@ import com.skilllaunch.app.feature.auth.AuthFieldIcon
 import com.skilllaunch.app.feature.auth.AuthPrimaryButton
 import com.skilllaunch.app.feature.auth.SkillLaunchBrand
 import com.skilllaunch.app.R
+import coil3.compose.AsyncImage
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -1120,8 +1119,8 @@ private fun ClientTypeArtwork(
         else -> R.raw.client_company
     }
 
-    Image(
-        painter = painterResource(resource),
+    AsyncImage(
+        model = resource,
         contentDescription = null,
         modifier = modifier,
         contentScale = androidx.compose.ui.layout.ContentScale.Fit
