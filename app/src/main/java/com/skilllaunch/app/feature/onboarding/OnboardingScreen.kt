@@ -1066,15 +1066,14 @@ private fun ClientTypeCard(
                 modifier = Modifier
                     .fillMaxWidth()
                     .weight(1f)
-                    .padding(top = 1.dp, bottom = 1.dp),
+                    .padding(horizontal = 4.dp, vertical = 2.dp),
                 contentAlignment = Alignment.Center
             ) {
                 ClientTypeArtwork(
                     type = type,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(142.dp)
-                        .padding(horizontal = 1.dp)
+                        .aspectRatio(4f / 3f)
                 )
             }
 
