@@ -1082,7 +1082,8 @@ private fun ClientTypeCard(
                         .fillMaxWidth()
                         .aspectRatio(4f / 3f)
                         .padding(
-                            vertical = if (darkTheme) 0.dp else 6.dp
+                            top = if (darkTheme) 0.dp else 8.dp,
+                            bottom = if (darkTheme) 0.dp else 4.dp
                         )
                 )
             }
@@ -1146,15 +1147,7 @@ private fun ClientTypeArtwork(
     Image(
         painter = painterResource(id = resource),
         contentDescription = "Client Type Artwork",
-        modifier = modifier
-            .fillMaxSize()
-            .then(
-                if (!darkTheme) {
-                    Modifier.padding(top = 8.dp, bottom = 8.dp)
-                } else {
-                    Modifier
-                }
-            ),
+        modifier = modifier.fillMaxSize(),
         contentScale = androidx.compose.ui.layout.ContentScale.Fit
     )
 }
