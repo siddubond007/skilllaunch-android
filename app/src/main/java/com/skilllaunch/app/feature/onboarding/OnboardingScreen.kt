@@ -8,6 +8,7 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.interaction.collectIsFocusedAsState
 
 import androidx.compose.foundation.background
@@ -71,7 +72,6 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import coil3.compose.AsyncImage
 
 import com.skilllaunch.app.data.model.auth.AuthUser
 import com.skilllaunch.app.data.model.profile.OnboardingData
@@ -1109,7 +1109,19 @@ private fun ClientTypeArtwork(
     type: String,
     modifier: Modifier = Modifier
 ) {
-    val resource = when (type) {
+    val context = LocalContext.current
+
+    val drawableName = when (type) {
+        "Solo Founder / Individual" -> "client_stage1_founder"
+        "Early-stage Startup" -> "client_stage1_startup"
+        "Small Business" -> "client_stage1_small_business"
+        "Company" -> "client_stage1_company"
+        "Academic / Research" -> "client_stage1_academic"
+        "Non-profit / Organization" -> "client_stage1_nonprofit"
+        else -> "client_stage1_company"
+    }
+
+    val fallbackResource = when (type) {
         "Solo Founder / Individual" -> R.raw.client_founder
         "Early-stage Startup" -> R.raw.client_startup
         "Small Business" -> R.raw.client_small_business
@@ -1119,8 +1131,16 @@ private fun ClientTypeArtwork(
         else -> R.raw.client_company
     }
 
-    AsyncImage(
-        model = resource,
+    val newResource = remember(context, drawableName) {
+        context.resources.getIdentifier(
+            drawableName,
+            "drawable",
+            context.packageName
+        )
+    }
+
+    Image(
+        painter = painterResource(if (newResource != 0) newResource else fallbackResource),
         contentDescription = null,
         modifier = modifier,
         contentScale = androidx.compose.ui.layout.ContentScale.Fit
