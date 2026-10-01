@@ -1077,6 +1077,7 @@ private fun ClientTypeCard(
             ) {
                 ClientTypeArtwork(
                     type = type,
+                    darkTheme = darkTheme,
                     modifier = Modifier
                         .fillMaxWidth()
                         .aspectRatio(4f / 3f)
@@ -1114,16 +1115,29 @@ private fun ClientTypeCard(
 @Composable
 private fun ClientTypeArtwork(
     type: String,
+    darkTheme: Boolean,
     modifier: Modifier = Modifier
 ) {
-    val resource = when (type) {
-        "Solo Founder / Individual" -> R.drawable.client_founder_3d
-        "Early-stage Startup" -> R.drawable.client_startup_3d
-        "Small Business" -> R.drawable.client_small_business_3d
-        "Company" -> R.drawable.client_company_3d
-        "Academic / Research" -> R.drawable.client_academic_3d
-        "Non-profit / Organization" -> R.drawable.client_nonprofit_3d
-        else -> R.drawable.client_company_3d
+    val resource = when {
+        !darkTheme -> when (type) {
+            "Solo Founder / Individual" -> R.drawable.client_founder_light
+            "Early-stage Startup" -> R.drawable.client_startup_light
+            "Small Business" -> R.drawable.client_small_business_light
+            "Company" -> R.drawable.client_company_light
+            "Academic / Research" -> R.drawable.client_academic_light
+            "Non-profit / Organization" -> R.drawable.client_nonprofit_light
+            else -> R.drawable.client_company_light
+        }
+
+        else -> when (type) {
+            "Solo Founder / Individual" -> R.drawable.client_founder_3d
+            "Early-stage Startup" -> R.drawable.client_startup_3d
+            "Small Business" -> R.drawable.client_small_business_3d
+            "Company" -> R.drawable.client_company_3d
+            "Academic / Research" -> R.drawable.client_academic_3d
+            "Non-profit / Organization" -> R.drawable.client_nonprofit_3d
+            else -> R.drawable.client_company_3d
+        }
     }
 
     Image(
