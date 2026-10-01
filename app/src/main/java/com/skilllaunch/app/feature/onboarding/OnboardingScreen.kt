@@ -1045,7 +1045,7 @@ private fun ClientTypeCard(
                 Icon(
                     imageVector = clientTypeIcon(type),
                     contentDescription = null,
-                    tint = Color(0xFFD6B632),
+                    tint = clientTypeAccent(type),
                     modifier = Modifier.size(22.dp)
                 )
 
@@ -1140,12 +1140,59 @@ private fun ClientTypeArtwork(
         }
     }
 
-    Image(
-        painter = painterResource(id = resource),
-        contentDescription = "Client Type Artwork",
+    val accent = clientTypeAccent(type)
+
+    Box(
         modifier = modifier.fillMaxSize(),
-        contentScale = androidx.compose.ui.layout.ContentScale.Fit
-    )
+        contentAlignment = Alignment.Center
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(
+                    Brush.radialGradient(
+                        colors = listOf(
+                            accent.copy(alpha = if (darkTheme) 0.10f else 0.16f),
+                            Color.Transparent
+                        )
+                    )
+                )
+        )
+
+        Image(
+            painter = painterResource(id = resource),
+            contentDescription = "Client Type Artwork",
+            modifier = Modifier.fillMaxSize(),
+            contentScale = androidx.compose.ui.layout.ContentScale.Fit
+        )
+
+        if (!darkTheme && type == "Early-stage Startup") {
+            Box(
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .fillMaxWidth()
+                    .height(15.dp)
+                    .background(
+                        Brush.verticalGradient(
+                            colors = listOf(
+                                Color.Transparent,
+                                Color.White.copy(alpha = 0.96f)
+                            )
+                        )
+                    )
+            )
+        }
+    }
+}
+
+private fun clientTypeAccent(type: String): Color = when (type) {
+    "Solo Founder / Individual" -> Color(0xFFE5B73B)
+    "Early-stage Startup" -> Color(0xFF79C98C)
+    "Small Business" -> Color(0xFFF2A65A)
+    "Company" -> Color(0xFF72A9E8)
+    "Academic / Research" -> Color(0xFF9B83E8)
+    "Non-profit / Organization" -> Color(0xFFE98C8C)
+    else -> Color(0xFFD6B632)
 }
 
 private fun clientTypeIcon(type: String) = when (type) {
