@@ -8,7 +8,6 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.interaction.collectIsFocusedAsState
 
 import androidx.compose.foundation.background
@@ -72,7 +71,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.res.painterResource
+import coil3.compose.AsyncImage
 
 import com.skilllaunch.app.data.model.auth.AuthUser
 import com.skilllaunch.app.data.model.profile.OnboardingData
@@ -1111,17 +1110,17 @@ private fun ClientTypeArtwork(
     modifier: Modifier = Modifier
 ) {
     val resource = when (type) {
-        "Solo Founder / Individual" -> R.drawable.client_founder
-        "Early-stage Startup" -> R.drawable.client_startup
-        "Small Business" -> R.drawable.client_small_business
-        "Company" -> R.drawable.client_company
-        "Academic / Research" -> R.drawable.client_academic
-        "Non-profit / Organization" -> R.drawable.client_nonprofit
-        else -> R.drawable.client_company
+        "Solo Founder / Individual" -> R.raw.client_founder
+        "Early-stage Startup" -> R.raw.client_startup
+        "Small Business" -> R.raw.client_small_business
+        "Company" -> R.raw.client_company
+        "Academic / Research" -> R.raw.client_academic
+        "Non-profit / Organization" -> R.raw.client_nonprofit
+        else -> R.raw.client_company
     }
 
-    Image(
-        painter = painterResource(resource),
+    AsyncImage(
+        model = resource,
         contentDescription = null,
         modifier = modifier,
         contentScale = androidx.compose.ui.layout.ContentScale.Fit
