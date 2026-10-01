@@ -3,7 +3,6 @@ package com.skilllaunch.app.feature.onboarding
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
-import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
@@ -75,7 +74,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import coil.compose.AsyncImage
+import androidx.compose.ui.res.painterResource
 
 import com.skilllaunch.app.data.model.auth.AuthUser
 import com.skilllaunch.app.data.model.profile.OnboardingData
@@ -995,7 +994,6 @@ private fun ClientTypeCard(
 
     val borderColor by animateColorAsState(
         targetValue = if (selected) accent else MaterialTheme.colorScheme.onSurface.copy(alpha = if (darkTheme) 0.12f else 0.08f),
-        animationSpec = tween(durationMillis = 140),
         label = "clientTypeBorder"
     )
 
@@ -1005,7 +1003,6 @@ private fun ClientTypeCard(
         } else {
             Color.White
         },
-        animationSpec = tween(durationMillis = 140),
         label = "clientTypeBackground"
     )
 
@@ -1141,12 +1138,11 @@ private fun ClientTypeArtwork(
         }
     }
 
-    AsyncImage(
-        model = resource,
+    Image(
+        painter = painterResource(id = resource),
         contentDescription = "Client Type Artwork",
         modifier = modifier.fillMaxSize(),
-        contentScale = androidx.compose.ui.layout.ContentScale.Fit,
-        clipToBounds = true
+        contentScale = androidx.compose.ui.layout.ContentScale.Fit
     )
 }
 
