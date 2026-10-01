@@ -1001,7 +1001,7 @@ private fun ClientTypeCard(
         targetValue = if (darkTheme) {
             if (selected) Color(0xFF252B35) else Color(0xFF1B2029)
         } else {
-            if (selected) accent.copy(alpha = 0.10f) else MaterialTheme.colorScheme.surface.copy(alpha = 0.90f)
+            Color.White
         },
         label = "clientTypeBackground"
     )
