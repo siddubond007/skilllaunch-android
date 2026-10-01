@@ -1118,8 +1118,8 @@ private fun ClientTypeArtwork(
     darkTheme: Boolean,
     modifier: Modifier = Modifier
 ) {
-    val resource = when {
-        !darkTheme -> when (type) {
+    val resource = if (!darkTheme) {
+        when (type) {
             "Solo Founder / Individual" -> R.drawable.client_founder_light
             "Early-stage Startup" -> R.drawable.client_startup_light
             "Small Business" -> R.drawable.client_small_business_light
@@ -1128,8 +1128,8 @@ private fun ClientTypeArtwork(
             "Non-profit / Organization" -> R.drawable.client_nonprofit_light
             else -> R.drawable.client_company_light
         }
-
-        else -> when (type) {
+    } else {
+        when (type) {
             "Solo Founder / Individual" -> R.drawable.client_founder_3d
             "Early-stage Startup" -> R.drawable.client_startup_3d
             "Small Business" -> R.drawable.client_small_business_3d
@@ -1140,44 +1140,12 @@ private fun ClientTypeArtwork(
         }
     }
 
-    val accent = clientTypeAccent(type)
-
-    Box(
+    Image(
+        painter = painterResource(id = resource),
+        contentDescription = "Client Type Artwork",
         modifier = modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center
-    ) {
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(
-                    Brush.radialGradient(
-                        colors = listOf(
-                            accent.copy(alpha = if (darkTheme) 0.10f else 0.16f),
-                            Color.Transparent
-                        )
-                    )
-                )
-        )
-
-        Image(
-            painter = painterResource(id = resource),
-            contentDescription = "Client Type Artwork",
-            modifier = Modifier.fillMaxSize(),
-            contentScale = androidx.compose.ui.layout.ContentScale.Fit
-        )
-
-        }
-    }
-}
-
-private fun clientTypeAccent(type: String): Color = when (type) {
-    "Solo Founder / Individual" -> Color(0xFFE5B73B)
-    "Early-stage Startup" -> Color(0xFF79C98C)
-    "Small Business" -> Color(0xFFF2A65A)
-    "Company" -> Color(0xFF72A9E8)
-    "Academic / Research" -> Color(0xFF9B83E8)
-    "Non-profit / Organization" -> Color(0xFFE98C8C)
-    else -> Color(0xFFD6B632)
+        contentScale = androidx.compose.ui.layout.ContentScale.Fit
+    )
 }
 
 private fun clientTypeIcon(type: String) = when (type) {
