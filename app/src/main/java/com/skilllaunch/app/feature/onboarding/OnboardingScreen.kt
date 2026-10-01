@@ -63,6 +63,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.FilterQuality
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
@@ -1124,7 +1125,8 @@ private fun ClientTypeArtwork(
         painter = painterResource(id = resource),
         contentDescription = "Client Type Artwork",
         modifier = modifier.fillMaxSize(),
-        contentScale = androidx.compose.ui.layout.ContentScale.Fit
+        contentScale = androidx.compose.ui.layout.ContentScale.Fit,
+        filterQuality = FilterQuality.High
     )
 }
 
