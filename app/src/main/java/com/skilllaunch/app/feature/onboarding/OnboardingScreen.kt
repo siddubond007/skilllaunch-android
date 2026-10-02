@@ -1893,6 +1893,11 @@ private val projectScopeOptions = listOf(
     "3+ months"
 )
 
+private val budgetPhilosophyOptions = listOf(
+    "Fixed-price micro-projects",
+    "Hourly ongoing work"
+)
+
 
 @Composable
 private fun ResumeUploadCard(
