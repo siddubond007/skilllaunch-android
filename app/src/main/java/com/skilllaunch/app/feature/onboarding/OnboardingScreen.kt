@@ -1067,18 +1067,8 @@ private fun ClientTypeCard(
         modifier = modifier
             .fillMaxWidth()
             .height(218.dp)
-            .then(
-                if (selected && darkTheme) {
-                    Modifier.shadow(
-                        elevation = 12.dp,
-                        shape = shape,
-                        ambientColor = accent.copy(alpha = 0.35f),
-                        spotColor = accent.copy(alpha = 0.45f)
-                    )
-                } else {
-                    Modifier
-                }
-            )
+            // Avoid a runtime shadow blur on every rapid selection change.
+            // The selected border/checkmark already provides the active-state signal.
             .clip(shape)
             .background(backgroundColor)
             .border(
