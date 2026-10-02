@@ -776,16 +776,14 @@ fun OnboardingScreen(
                                 title = "Tell students who they're building for.",
                                 subtitle = "A simple identity makes your first project feel more trustworthy without slowing you down."
                             )
-                            AuthField(
+                            ClientBrandIdentityField(
                                 label = "Company / Project name",
                                 value = companyOrProjectName,
                                 onValueChange = { value ->
                                     companyOrProjectName = value.take(60)
                                     error = ""
                                 },
-                                placeholder = "SkillLaunch Labs",
-                                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
-                                leadingIcon = AuthFieldIcon.User
+                                placeholder = "SkillLaunch Labs"
                             )
                             OnboardingTextArea(
                                 label = "Short tagline",
@@ -1466,6 +1464,93 @@ private fun ChoiceCard(
                 )
             }
         }
+    }
+}
+
+@Composable
+private fun ClientBrandIdentityField(
+    label: String,
+    value: String,
+    onValueChange: (String) -> Unit,
+    placeholder: String
+) {
+    val interactionSource = remember { androidx.compose.foundation.interaction.MutableInteractionSource() }
+    val focused = interactionSource.collectIsFocusedAsState().value
+    val shape = RoundedCornerShape(18.dp)
+
+    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        Text(
+            text = label,
+            color = MaterialTheme.colorScheme.onSurface,
+            style = MaterialTheme.typography.labelLarge,
+            fontWeight = FontWeight.Bold
+        )
+
+        BasicTextField(
+            value = value,
+            onValueChange = onValueChange,
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(70.dp),
+            singleLine = true,
+            interactionSource = interactionSource,
+            cursorBrush = androidx.compose.ui.graphics.SolidColor(
+                Color(0xFFD6B632)
+            ),
+            textStyle = TextStyle(
+                color = MaterialTheme.colorScheme.onSurface,
+                fontSize = 17.sp,
+                lineHeight = 22.sp,
+                fontWeight = FontWeight.SemiBold
+            ),
+            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
+            decorationBox = { inner ->
+                Row(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .clip(shape)
+                        .background(
+                            MaterialTheme.colorScheme.surface.copy(alpha = 0.64f)
+                        )
+                        .border(
+                            width = if (focused) 1.5.dp else 1.dp,
+                            color = if (focused) {
+                                Color(0xFFD6B632)
+                            } else {
+                                MaterialTheme.colorScheme.onSurface.copy(alpha = 0.18f)
+                            },
+                            shape = shape
+                        )
+                        .padding(horizontal = 18.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        imageVector = AuthFieldIcon.User,
+                        contentDescription = null,
+                        tint = Color(0xFFD6B632),
+                        modifier = Modifier.size(22.dp)
+                    )
+
+                    Spacer(modifier = Modifier.size(13.dp))
+
+                    Box(
+                        modifier = Modifier.weight(1f),
+                        contentAlignment = Alignment.CenterStart
+                    ) {
+                        if (value.isBlank()) {
+                            Text(
+                                text = placeholder,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.55f),
+                                fontSize = 16.sp,
+                                lineHeight = 22.sp,
+                                fontWeight = FontWeight.Medium
+                            )
+                        }
+                        inner()
+                    }
+                }
+            }
+        )
     }
 }
 
