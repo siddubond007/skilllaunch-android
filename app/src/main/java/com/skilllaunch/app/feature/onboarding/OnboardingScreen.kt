@@ -1525,7 +1525,7 @@ private fun ClientBrandIdentityField(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Icon(
-                        imageVector = AuthFieldIcon.User,
+                        imageVector = Icons.Outlined.Apartment,
                         contentDescription = null,
                         tint = Color(0xFFD6B632),
                         modifier = Modifier.size(22.dp)
