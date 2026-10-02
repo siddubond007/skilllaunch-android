@@ -35,7 +35,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.FilterChip
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -565,7 +564,7 @@ fun OnboardingScreen(
                 ) {
                     Text(
                         text = "← Back to previous step",
-                        color = MaterialTheme.colorScheme.primary,
+                        color = if (isClient) Color(0xFFD6B632) else MaterialTheme.colorScheme.primary,
                         fontWeight = FontWeight.Bold
                     )
                 }
@@ -644,49 +643,105 @@ fun OnboardingScreen(
                         }
 
                         isClient && step == 2 -> item {
-                            SectionHeader(
-                                emoji = "🎯",
-                                title = "What do you need built?",
-                                subtitle = "Choose the talent you are looking for and the kind of work you expect."
-                            )
-                            SelectionChipGroup(
-                                options = clientCategories,
-                                selected = hiringCategories,
-                                onToggle = {
-                                    hiringCategories = toggleMulti(hiringCategories, it, 6)
-                                    error = ""
+                            Column(
+                                modifier = Modifier.fillMaxWidth(),
+                                verticalArrangement = Arrangement.spacedBy(0.dp)
+                            ) {
+                                Text(
+                                    text = "What do you need built?",
+                                    style = TextStyle(
+                                        fontFamily = androidx.compose.ui.text.font.FontFamily.Serif,
+                                        fontSize = 29.sp,
+                                        lineHeight = 34.sp,
+                                        fontWeight = FontWeight.Bold
+                                    ),
+                                    color = MaterialTheme.colorScheme.onSurface
+                                )
+
+                                Spacer(modifier = Modifier.height(6.dp))
+
+                                Text(
+                                    text = "Choose the talent you are looking for and the kind of work you expect.",
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    fontSize = 14.5.sp,
+                                    lineHeight = 21.sp
+                                )
+
+                                if (error.isNotBlank()) {
+                                    Spacer(modifier = Modifier.height(10.dp))
+                                    Surface(
+                                        shape = RoundedCornerShape(10.dp),
+                                        color = MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.78f)
+                                    ) {
+                                        Text(
+                                            text = error,
+                                            modifier = Modifier.padding(
+                                                horizontal = 12.dp,
+                                                vertical = 9.dp
+                                            ),
+                                            color = MaterialTheme.colorScheme.onErrorContainer,
+                                            style = MaterialTheme.typography.bodySmall,
+                                            fontWeight = FontWeight.SemiBold
+                                        )
+                                    }
                                 }
-                            )
-                            Text(
-                                text = "What best describes your goal?",
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                style = MaterialTheme.typography.labelLarge,
-                                fontWeight = FontWeight.Bold
-                            )
-                            SelectionChipGroup(
-                                options = hiringIntentOptions,
-                                selected = listOf(hiringIntent),
-                                onToggle = {
-                                    hiringIntent = it
-                                    error = ""
-                                },
-                                singleSelect = true
-                            )
-                            Text(
-                                text = "Project scope",
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                style = MaterialTheme.typography.labelLarge,
-                                fontWeight = FontWeight.Bold
-                            )
-                            SelectionChipGroup(
-                                options = projectScopeOptions,
-                                selected = listOf(projectScope),
-                                onToggle = {
-                                    projectScope = it
-                                    error = ""
-                                },
-                                singleSelect = true
-                            )
+
+                                Spacer(modifier = Modifier.height(16.dp))
+
+                                SelectionChipGroup(
+                                    options = clientCategories,
+                                    selected = hiringCategories,
+                                    darkTheme = darkTheme,
+                                    onToggle = {
+                                        hiringCategories = toggleMulti(hiringCategories, it, 6)
+                                        error = ""
+                                    }
+                                )
+
+                                Spacer(modifier = Modifier.height(20.dp))
+                                ClientOnboardingDivider()
+                                Spacer(modifier = Modifier.height(18.dp))
+
+                                ClientOnboardingSectionLabel(
+                                    text = "WHAT BEST DESCRIBES YOUR GOAL?",
+                                    darkTheme = darkTheme
+                                )
+
+                                Spacer(modifier = Modifier.height(10.dp))
+
+                                SelectionChipGroup(
+                                    options = hiringIntentOptions,
+                                    selected = listOf(hiringIntent),
+                                    darkTheme = darkTheme,
+                                    onToggle = {
+                                        hiringIntent = it
+                                        error = ""
+                                    },
+                                    singleSelect = true
+                                )
+
+                                Spacer(modifier = Modifier.height(22.dp))
+                                ClientOnboardingDivider()
+                                Spacer(modifier = Modifier.height(18.dp))
+
+                                ClientOnboardingSectionLabel(
+                                    text = "PROJECT SCOPE",
+                                    darkTheme = darkTheme
+                                )
+
+                                Spacer(modifier = Modifier.height(10.dp))
+
+                                SelectionChipGroup(
+                                    options = projectScopeOptions,
+                                    selected = listOf(projectScope),
+                                    darkTheme = darkTheme,
+                                    onToggle = {
+                                        projectScope = it
+                                        error = ""
+                                    },
+                                    singleSelect = true
+                                )
+                            }
                         }
 
                         isClient && step == 3 -> item {
@@ -833,7 +888,7 @@ fun OnboardingScreen(
                 }
             }
 
-            if (isClient && step == 1) {
+            if (isClient) {
                 ClientPrimaryButton(
                     text = continueText,
                     enabled = !saving && !loadingInitialProfile,
@@ -1209,6 +1264,7 @@ private fun SelectionGrid(
 private fun SelectionChipGroup(
     options: List<String>,
     selected: List<String>,
+    darkTheme: Boolean,
     onToggle: (String) -> Unit,
     singleSelect: Boolean = false
 ) {
@@ -1217,19 +1273,97 @@ private fun SelectionChipGroup(
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         options.forEach { option ->
-            FilterChip(
+            ClientOnboardingChip(
+                text = option,
                 selected = selected.contains(option),
+                darkTheme = darkTheme,
                 onClick = {
                     if (singleSelect && selected.contains(option)) {
                         onToggle("")
                     } else {
                         onToggle(option)
                     }
-                },
-                label = { Text(option) }
+                }
             )
         }
     }
+}
+
+@Composable
+private fun ClientOnboardingChip(
+    text: String,
+    selected: Boolean,
+    darkTheme: Boolean,
+    onClick: () -> Unit
+) {
+    val accent = Color(0xFFD6B632)
+    val background = if (darkTheme) {
+        Color(0xFF182441)
+    } else {
+        Color(0xFFF0F2F7)
+    }
+    val textColor = if (darkTheme) {
+        Color.White
+    } else {
+        Color(0xFF111827)
+    }
+    val borderColor = if (selected) {
+        accent
+    } else {
+        Color.Transparent
+    }
+
+    Box(
+        modifier = Modifier
+            .height(32.dp)
+            .clip(RoundedCornerShape(10.dp))
+            .background(background)
+            .border(
+                width = if (selected) 1.25.dp else 1.dp,
+                color = borderColor,
+                shape = RoundedCornerShape(10.dp)
+            )
+            .clickable(onClick = onClick)
+            .padding(horizontal = 12.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        Text(
+            text = text,
+            color = textColor,
+            fontSize = 12.5.sp,
+            lineHeight = 16.sp,
+            fontWeight = FontWeight.Bold
+        )
+    }
+}
+
+@Composable
+private fun ClientOnboardingDivider() {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(1.dp)
+            .background(Color(0xFF26314A))
+    )
+}
+
+@Composable
+private fun ClientOnboardingSectionLabel(
+    text: String,
+    darkTheme: Boolean
+) {
+    Text(
+        text = text,
+        color = if (darkTheme) {
+            Color(0xFF8EA8D3)
+        } else {
+            Color(0xFF526A90)
+        },
+        fontSize = 10.5.sp,
+        lineHeight = 14.sp,
+        fontWeight = FontWeight.Bold,
+        letterSpacing = 1.15.sp
+    )
 }
 
 @Composable
@@ -1701,7 +1835,7 @@ private val clientCategories = listOf(
     "Data",
     "Writing",
     "Marketing",
-    "Video / Audio",
+    "Video",
     "Other"
 )
 
