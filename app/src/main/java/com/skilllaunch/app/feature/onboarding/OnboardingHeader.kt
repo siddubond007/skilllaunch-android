@@ -31,10 +31,11 @@ internal fun OnboardingHeader(
     onSkip: () -> Unit,
     onBack: (() -> Unit)? = null,
     enabled: Boolean = true,
-    horizontalPadding: Dp = 24.dp
+    horizontalPadding: Dp = 24.dp,
+    accentOverride: Color? = null
 ) {
     val textPrimary = if (darkTheme) Color.White else Color(0xFF0F172A)
-    val accent = if (darkTheme) Color(0xFFD4C6FF) else Color(0xFF4338CA)
+    val accent = accentOverride ?: if (darkTheme) Color(0xFFD4C6FF) else Color(0xFF4338CA)
 
     Row(
         modifier = Modifier
