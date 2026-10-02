@@ -502,7 +502,8 @@ fun OnboardingScreen(
                 darkTheme = darkTheme,
                 onSkip = { showSkipConfirmation = true },
                 enabled = !saving && !loadingInitialProfile,
-                horizontalPadding = 0.dp
+                horizontalPadding = 0.dp,
+                accentOverride = if (isClient) Color(0xFFD6B632) else null
             )
 
             Spacer(modifier = Modifier.height(11.dp))
@@ -809,13 +810,20 @@ fun OnboardingScreen(
                                     ) {
                                         Text(
                                             text = "Tell students who they're building for.",
-                                            style = MaterialTheme.typography.headlineSmall,
-                                            fontWeight = FontWeight.ExtraBold
+                                            style = TextStyle(
+                                                fontFamily = androidx.compose.ui.text.font.FontFamily.Serif,
+                                                fontSize = 32.sp,
+                                                lineHeight = 36.sp,
+                                                fontWeight = FontWeight.ExtraBold,
+                                                letterSpacing = (-0.45).sp
+                                            )
                                         )
                                         Text(
                                             text = "Give students a clear name and a short description of what you're building.",
                                             color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                            style = MaterialTheme.typography.bodyMedium
+                                            style = MaterialTheme.typography.bodyMedium.copy(
+                                                lineHeight = 20.sp
+                                            )
                                         )
                                     }
                                 }
@@ -846,7 +854,8 @@ fun OnboardingScreen(
                                             error = ""
                                         },
                                         placeholder = "We're building tools that help students get real-world experience.",
-                                        accentColor = clientAccent
+                                        accentColor = clientAccent,
+                                        labelColor = MaterialTheme.colorScheme.onSurface
                                     )
                                 }
 
@@ -857,6 +866,24 @@ fun OnboardingScreen(
                                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                                     style = MaterialTheme.typography.bodySmall
                                 )
+
+                                if (error.isNotBlank()) {
+                                    Surface(
+                                        shape = RoundedCornerShape(12.dp),
+                                        color = MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.78f)
+                                    ) {
+                                        Text(
+                                            text = error,
+                                            modifier = Modifier.padding(
+                                                horizontal = 12.dp,
+                                                vertical = 9.dp
+                                            ),
+                                            color = MaterialTheme.colorScheme.onErrorContainer,
+                                            style = MaterialTheme.typography.bodySmall,
+                                            fontWeight = FontWeight.SemiBold
+                                        )
+                                    }
+                                }
                             }
                         }
                     }
@@ -1003,8 +1030,8 @@ private fun ClientPrimaryButton(
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .height(60.dp)
-            .clip(RoundedCornerShape(16.dp))
+            .height(52.dp)
+            .clip(RoundedCornerShape(28.dp))
             .background(accent.copy(alpha = if (enabled) 1f else 0.52f))
             .clickable(enabled = enabled && !loading, onClick = onClick),
         contentAlignment = Alignment.Center
@@ -1618,7 +1645,8 @@ private fun OnboardingTextArea(
     value: String,
     onValueChange: (String) -> Unit,
     placeholder: String,
-    accentColor: Color = MaterialTheme.colorScheme.primary
+    accentColor: Color = MaterialTheme.colorScheme.primary,
+    labelColor: Color = MaterialTheme.colorScheme.onSurfaceVariant
 ) {
     val interactionSource = remember { androidx.compose.foundation.interaction.MutableInteractionSource() }
     val focused = interactionSource.collectIsFocusedAsState().value
@@ -1626,7 +1654,7 @@ private fun OnboardingTextArea(
     Column(verticalArrangement = Arrangement.spacedBy(7.dp)) {
         Text(
             text = label,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            color = labelColor,
             style = MaterialTheme.typography.labelMedium,
             fontWeight = FontWeight.SemiBold
         )
