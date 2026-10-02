@@ -858,7 +858,7 @@ fun OnboardingScreen(
                                     style = MaterialTheme.typography.bodySmall
                                 )
                             }
-                        }                        }
+                        }
                     }
 
                 }
