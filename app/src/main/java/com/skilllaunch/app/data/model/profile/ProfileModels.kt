@@ -77,5 +77,6 @@ data class OnboardingData(
     val hiringCategories: List<String> = emptyList(),
     val hiringIntent: String? = null,
     val projectScope: String? = null,
-    val companyOrProjectName: String? = null
+    val companyOrProjectName: String? = null,
+    val budgetPhilosophy: String? = null
 )
