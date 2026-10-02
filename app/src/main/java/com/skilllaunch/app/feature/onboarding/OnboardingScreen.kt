@@ -47,6 +47,9 @@ import androidx.compose.material.icons.outlined.School
 import androidx.compose.material.icons.outlined.Storefront
 import androidx.compose.material.icons.outlined.VolunteerActivism
 import androidx.compose.material3.Icon
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.foundation.text.selection.LocalTextSelectionColors
+import androidx.compose.foundation.text.selection.TextSelectionColors
 import androidx.compose.runtime.Composable
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.runtime.LaunchedEffect
@@ -771,37 +774,91 @@ fun OnboardingScreen(
                         }
 
                         isClient && step == 3 -> item {
-                            SectionHeader(
-                                emoji = "🌱",
-                                title = "Tell students who they're building for.",
-                                subtitle = "A simple identity makes your first project feel more trustworthy without slowing you down."
+                            val clientAccent = Color(0xFFD6B632)
+                            val selectionColors = TextSelectionColors(
+                                handleColor = clientAccent,
+                                backgroundColor = clientAccent.copy(alpha = 0.32f)
                             )
-                            ClientBrandIdentityField(
-                                label = "Company / Project name",
-                                value = companyOrProjectName,
-                                onValueChange = { value ->
-                                    companyOrProjectName = value.take(60)
-                                    error = ""
-                                },
-                                placeholder = "SkillLaunch Labs"
-                            )
-                            OnboardingTextArea(
-                                label = "Short tagline",
-                                value = tagline,
-                                onValueChange = { value ->
-                                    tagline = value.take(100)
-                                    error = ""
-                                },
-                                placeholder = "We're building tools that help students get real-world experience."
-                            )
-                            Text(
-                                text = "${tagline.length}/100",
+
+                            Column(
                                 modifier = Modifier.fillMaxWidth(),
-                                textAlign = androidx.compose.ui.text.style.TextAlign.End,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                style = MaterialTheme.typography.bodySmall
-                            )
-                        }
+                                verticalArrangement = Arrangement.spacedBy(14.dp)
+                            ) {
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(11.dp)
+                                ) {
+                                    Box(
+                                        modifier = Modifier
+                                            .size(36.dp)
+                                            .clip(RoundedCornerShape(12.dp))
+                                            .background(clientAccent.copy(alpha = 0.14f)),
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Outlined.Apartment,
+                                            contentDescription = null,
+                                            tint = clientAccent,
+                                            modifier = Modifier.size(21.dp)
+                                        )
+                                    }
+
+                                    Column(
+                                        modifier = Modifier.weight(1f),
+                                        verticalArrangement = Arrangement.spacedBy(3.dp)
+                                    ) {
+                                        Text(
+                                            text = "Tell students who they're building for.",
+                                            style = MaterialTheme.typography.headlineSmall,
+                                            fontWeight = FontWeight.ExtraBold
+                                        )
+                                        Text(
+                                            text = "Give students a clear name and a short description of what you're building.",
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                            style = MaterialTheme.typography.bodyMedium
+                                        )
+                                    }
+                                }
+
+                                ClientBrandIdentityField(
+                                    label = "Company / Project name",
+                                    value = companyOrProjectName,
+                                    onValueChange = { value ->
+                                        companyOrProjectName = value.take(60)
+                                        error = ""
+                                    },
+                                    placeholder = "SkillLaunch Labs",
+                                    valueColor = if (darkTheme) {
+                                        Color(0xFFF4F4F5)
+                                    } else {
+                                        Color(0xFF111827)
+                                    }
+                                )
+
+                                CompositionLocalProvider(
+                                    LocalTextSelectionColors provides selectionColors
+                                ) {
+                                    OnboardingTextArea(
+                                        label = "Short tagline",
+                                        value = tagline,
+                                        onValueChange = { value ->
+                                            tagline = value.take(100)
+                                            error = ""
+                                        },
+                                        placeholder = "We're building tools that help students get real-world experience.",
+                                        accentColor = clientAccent
+                                    )
+                                }
+
+                                Text(
+                                    text = "${tagline.length}/100",
+                                    modifier = Modifier.fillMaxWidth(),
+                                    textAlign = androidx.compose.ui.text.style.TextAlign.End,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    style = MaterialTheme.typography.bodySmall
+                                )
+                            }
+                        }                        }
                     }
 
                 }
@@ -1472,7 +1529,8 @@ private fun ClientBrandIdentityField(
     label: String,
     value: String,
     onValueChange: (String) -> Unit,
-    placeholder: String
+    placeholder: String,
+    valueColor: Color
 ) {
     val interactionSource = remember { androidx.compose.foundation.interaction.MutableInteractionSource() }
     val focused = interactionSource.collectIsFocusedAsState().value
@@ -1498,7 +1556,7 @@ private fun ClientBrandIdentityField(
                 Color(0xFFD6B632)
             ),
             textStyle = TextStyle(
-                color = MaterialTheme.colorScheme.onSurface,
+                color = valueColor,
                 fontSize = 17.sp,
                 lineHeight = 22.sp,
                 fontWeight = FontWeight.SemiBold
@@ -1559,7 +1617,8 @@ private fun OnboardingTextArea(
     label: String,
     value: String,
     onValueChange: (String) -> Unit,
-    placeholder: String
+    placeholder: String,
+    accentColor: Color = MaterialTheme.colorScheme.primary
 ) {
     val interactionSource = remember { androidx.compose.foundation.interaction.MutableInteractionSource() }
     val focused = interactionSource.collectIsFocusedAsState().value
@@ -1581,7 +1640,7 @@ private fun OnboardingTextArea(
             maxLines = 4,
             interactionSource = interactionSource,
             cursorBrush = androidx.compose.ui.graphics.SolidColor(
-                MaterialTheme.colorScheme.onSurface
+                accentColor
             ),
             textStyle = TextStyle(
                 color = MaterialTheme.colorScheme.onSurface,
@@ -1598,7 +1657,7 @@ private fun OnboardingTextArea(
                         .border(
                             1.dp,
                             if (focused) {
-                                MaterialTheme.colorScheme.primary.copy(alpha = 0.72f)
+                                accentColor.copy(alpha = 0.82f)
                             } else {
                                 MaterialTheme.colorScheme.onSurface.copy(alpha = 0.10f)
                             },
