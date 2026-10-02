@@ -1047,19 +1047,21 @@ private fun ClientTypeCard(
     val checkColor = if (darkTheme) Color(0xFF63D985) else Color(0xFFD6B632)
     val shape = RoundedCornerShape(18.dp)
 
-    val borderColor by animateColorAsState(
-        targetValue = if (selected) accent else MaterialTheme.colorScheme.onSurface.copy(alpha = if (darkTheme) 0.12f else 0.08f),
-        label = "clientTypeBorder"
-    )
+    // Keep selection feedback immediate so rapid card taps do not queue
+    // animated color transitions across the six onboarding cards.
+    val borderColor = if (selected) {
+        accent
+    } else {
+        MaterialTheme.colorScheme.onSurface.copy(
+            alpha = if (darkTheme) 0.12f else 0.08f
+        )
+    }
 
-    val backgroundColor by animateColorAsState(
-        targetValue = if (darkTheme) {
-            Color(0xFF181E27)
-        } else {
-            Color.White
-        },
-        label = "clientTypeBackground"
-    )
+    val backgroundColor = if (darkTheme) {
+        Color(0xFF181E27)
+    } else {
+        Color.White
+    }
 
     Box(
         modifier = modifier
