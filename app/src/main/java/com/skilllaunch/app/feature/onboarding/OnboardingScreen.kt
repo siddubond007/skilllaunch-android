@@ -124,6 +124,7 @@ fun OnboardingScreen(
     var hiringCategories by rememberSaveable { mutableStateOf(emptyList<String>()) }
     var hiringIntent by rememberSaveable { mutableStateOf("") }
     var projectScope by rememberSaveable { mutableStateOf("") }
+    var budgetPhilosophy by rememberSaveable { mutableStateOf("") }
     var companyOrProjectName by rememberSaveable { mutableStateOf("") }
 
     var saving by remember { mutableStateOf(false) }
@@ -178,6 +179,7 @@ fun OnboardingScreen(
                     hiringCategories = data?.hiringCategories.orEmpty()
                     hiringIntent = data?.hiringIntent.orEmpty()
                     projectScope = data?.projectScope.orEmpty()
+                    budgetPhilosophy = data?.budgetPhilosophy.orEmpty()
                     companyOrProjectName = data?.companyOrProjectName.orEmpty()
                     tagline = profile?.bio.orEmpty()
                 }
@@ -211,6 +213,7 @@ fun OnboardingScreen(
             hiringCategories = hiringCategories,
             hiringIntent = hiringIntent,
             projectScope = projectScope,
+            budgetPhilosophy = budgetPhilosophy,
             companyOrProjectName = companyOrProjectName,
             setSaving = { saving = it },
             setError = { error = it },
@@ -470,6 +473,7 @@ fun OnboardingScreen(
                         hiringCategories = hiringCategories,
                         hiringIntent = hiringIntent,
                         projectScope = projectScope,
+                        budgetPhilosophy = budgetPhilosophy,
                         companyOrProjectName = companyOrProjectName,
                         setSaving = { saving = it },
                         setError = { error = it },
@@ -661,7 +665,7 @@ fun OnboardingScreen(
                                 Spacer(modifier = Modifier.height(6.dp))
 
                                 Text(
-                                    text = "Choose the talent you are looking for and the kind of work you expect.",
+                                    text = "Select the skills you need, and we'll instantly surface the brightest emerging talent.",
                                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                                     fontSize = 14.5.sp,
                                     lineHeight = 21.sp
@@ -737,6 +741,28 @@ fun OnboardingScreen(
                                     darkTheme = darkTheme,
                                     onToggle = {
                                         projectScope = it
+                                        error = ""
+                                    },
+                                    singleSelect = true
+                                )
+
+                                Spacer(modifier = Modifier.height(22.dp))
+                                ClientOnboardingDivider()
+                                Spacer(modifier = Modifier.height(18.dp))
+
+                                ClientOnboardingSectionLabel(
+                                    text = "BUDGET PHILOSOPHY",
+                                    darkTheme = darkTheme
+                                )
+
+                                Spacer(modifier = Modifier.height(10.dp))
+
+                                SelectionChipGroup(
+                                    options = budgetPhilosophyOptions,
+                                    selected = listOf(budgetPhilosophy),
+                                    darkTheme = darkTheme,
+                                    onToggle = {
+                                        budgetPhilosophy = it
                                         error = ""
                                     },
                                     singleSelect = true
@@ -847,6 +873,7 @@ fun OnboardingScreen(
                         hiringCategories = hiringCategories,
                         hiringIntent = hiringIntent,
                         projectScope = projectScope,
+                        budgetPhilosophy = budgetPhilosophy,
                         companyOrProjectName = companyOrProjectName,
                         setSaving = { saving = it },
                         setError = { error = it },
@@ -873,6 +900,8 @@ fun OnboardingScreen(
                             "Choose your hiring goal."
                         isClient && step == 2 && projectScope.isBlank() ->
                             "Choose the project scope."
+                        isClient && step == 2 && budgetPhilosophy.isBlank() ->
+                            "Choose your budget/work model."
                         isClient && step == 3 && companyOrProjectName.isBlank() ->
                             "Add a company or project name."
                         else -> ""
@@ -1541,6 +1570,7 @@ private fun validateAndSave(
     hiringCategories: List<String>,
     hiringIntent: String,
     projectScope: String,
+    budgetPhilosophy: String,
     companyOrProjectName: String,
     setSaving: (Boolean) -> Unit,
     setError: (String) -> Unit,
@@ -1571,7 +1601,12 @@ private fun validateAndSave(
             setError("Choose the client type to continue.")
             return
         }
-        if (hiringCategories.isEmpty() || hiringIntent.isBlank() || projectScope.isBlank()) {
+        if (
+            hiringCategories.isEmpty() ||
+            hiringIntent.isBlank() ||
+            projectScope.isBlank() ||
+            budgetPhilosophy.isBlank()
+        ) {
             setError("Complete your hiring preferences first.")
             return
         }
@@ -1604,6 +1639,7 @@ private fun validateAndSave(
         hiringCategories = hiringCategories,
         hiringIntent = hiringIntent.ifBlank { null },
         projectScope = projectScope.ifBlank { null },
+        budgetPhilosophy = budgetPhilosophy.ifBlank { null },
         companyOrProjectName = companyOrProjectName.trim().ifBlank { null }
     )
 
@@ -1664,6 +1700,7 @@ private fun skipOnboarding(
     hiringCategories: List<String>,
     hiringIntent: String,
     projectScope: String,
+    budgetPhilosophy: String,
     companyOrProjectName: String,
     setSaving: (Boolean) -> Unit,
     setError: (String) -> Unit,
@@ -1693,6 +1730,7 @@ private fun skipOnboarding(
         hiringCategories = hiringCategories,
         hiringIntent = hiringIntent.ifBlank { null },
         projectScope = projectScope.ifBlank { null },
+        budgetPhilosophy = budgetPhilosophy.ifBlank { null },
         companyOrProjectName = companyOrProjectName.trim().ifBlank { null }
     )
 
