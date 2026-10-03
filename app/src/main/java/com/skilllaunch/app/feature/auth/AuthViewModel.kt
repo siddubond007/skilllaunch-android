@@ -66,14 +66,34 @@ class AuthViewModel(
         }
     }
 
-    fun signup(firstName: String, middleName: String?, lastName: String, username: String?, email: String, password: String, role: String, dob: String?) {
+    fun signup(
+        firstName: String,
+        middleName: String?,
+        lastName: String,
+        username: String?,
+        email: String,
+        password: String,
+        role: String,
+        age: Int,
+        dob: String?
+    ) {
         if (firstName.isBlank() || lastName.isBlank() || email.isBlank() || password.isBlank() || dob.isNullOrBlank()) {
             _uiState.value = _uiState.value.copy(errorMessage = "Please complete all required fields."); return
         }
 
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoading = true, errorMessage = null)
-            repository.register(firstName, middleName, lastName, username, email, password, role, dob)
+            repository.register(
+                firstName = firstName,
+                middleName = middleName,
+                lastName = lastName,
+                username = username,
+                email = email,
+                password = password,
+                role = role,
+                age = age,
+                dob = dob
+            )
                 .onSuccess { user ->
                     _uiState.value = AuthUiState(isCheckingSession = false, isAuthenticated = true, user = user)
                 }
