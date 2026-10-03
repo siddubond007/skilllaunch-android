@@ -18,7 +18,7 @@ fun SignupScreen(
     state: AuthUiState,
     darkTheme: Boolean,
     onToggleTheme: () -> Unit,
-    onSignup: (String, String?, String, String, String, String, String, String?) -> Unit,
+    onSignup: (String, String?, String, String, String, String, String, Int, String?) -> Unit,
     onClearError: () -> Unit,
     onBackToLogin: () -> Unit
 ) {
@@ -177,6 +177,8 @@ fun SignupScreen(
                         usernameSuggestions = generateUsernameSuggestions()
                     },
                     onCreateAccount = {
+                        val calculatedAge = calculateAgeFromDob(dob)
+
                         localError = when {
                             firstName.trim().length < 3 ->
                                 "First Name must contain at least 3 letters."
@@ -188,9 +190,11 @@ fun SignupScreen(
                                 "Enter a valid email address."
                             dob.isBlank() ->
                                 "Please select your date of birth."
-                            calculateAgeFromDob(dob)?.let { calculatedAge ->
-                                role == "CLIENT" && calculatedAge < 18
-                            } == true ->
+                            calculatedAge == null ->
+                                "Please enter a valid date of birth."
+                            calculatedAge < 1 || calculatedAge > 120 ->
+                                "Please enter a valid date of birth."
+                            role == "CLIENT" && calculatedAge < 18 ->
                                 "Clients must be 18 or older. You can continue as a Student Freelancer."
                             password.length < 8 ->
                                 "Password must contain at least 8 characters."
@@ -210,6 +214,7 @@ fun SignupScreen(
                                 email.trim(),
                                 password,
                                 role,
+                                calculatedAge,
                                 dob
                             )
                         }
