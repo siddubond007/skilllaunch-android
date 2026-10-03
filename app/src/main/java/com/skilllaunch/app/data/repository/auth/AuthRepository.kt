@@ -39,6 +39,7 @@ class AuthRepository(
         email: String,
         password: String,
         role: String,
+        age: Int,
         dob: String?
     ): Result<AuthUser> {
         return authenticate {
@@ -51,6 +52,7 @@ class AuthRepository(
                     lastName = lastName.trim(),
                     username = username?.trim()?.ifBlank { null },
                     role = role,
+                    age = age,
                     dob = dob
                 )
             )
