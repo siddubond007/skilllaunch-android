@@ -206,17 +206,19 @@ fun SignupScreen(
                         }
 
                         if (localError.isBlank()) {
-                            onSignup(
-                                firstName.trim(),
-                                null,
-                                lastName.trim(),
-                                username.trim(),
-                                email.trim(),
-                                password,
-                                role,
-                                calculatedAge,
-                                dob
-                            )
+                            calculatedAge?.let { validAge ->
+                                onSignup(
+                                    firstName.trim(),
+                                    null,
+                                    lastName.trim(),
+                                    username.trim(),
+                                    email.trim(),
+                                    password,
+                                    role,
+                                    validAge,
+                                    dob
+                                )
+                            }
                         }
                     },
                     onBackToStageOne = {
